@@ -1,0 +1,36 @@
+﻿<Window x:Class="WechatPCMsgBakTool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WechatPCMsgBakTool"
+        mc:Ignorable="d"
+        Title="溯雪PC微信备份工具" Height="450" Width="900">
+    <Grid>
+        <Label Content="用户文件夹：" HorizontalAlignment="Left" Margin="30,27,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txt_user_msg_path" HorizontalAlignment="Left" Margin="110,34,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="400"/>
+        <Button Name="select_user_msg_path" Content="确定" HorizontalAlignment="Left" Width="60" Margin="528,32,0,0" VerticalAlignment="Top" Click="select_user_msg_path_Click"/>
+        <Button x:Name="decryption_user_msg_db" Content="解密" HorizontalAlignment="Left" Width="60" Margin="610,32,0,0" VerticalAlignment="Top" Click="decryption_user_msg_db_Click"/>
+        <Button x:Name="read_user_msg_db" Content="读取" HorizontalAlignment="Left" Width="60" Margin="686,32,0,0" VerticalAlignment="Top" Click="read_user_msg_db_Click"/>
+        <Label Content="会话列表：" HorizontalAlignment="Left" Margin="30,60,0,0" VerticalAlignment="Top"/>
+        <ListView Name="list_sessions" Margin="30,100,0,20" HorizontalAlignment="Left" Width="380" MouseDoubleClick="list_sessions_MouseDoubleClick">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="昵称" Width="100" DisplayMemberBinding="{Binding NickName}" />
+                    <GridViewColumn Header="原始id" Width="120" DisplayMemberBinding="{Binding UserName}" />
+                    <GridViewColumn Header="最后消息" Width="150" DisplayMemberBinding="{Binding Content}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Label Content="操作：" HorizontalAlignment="Left" Margin="440,60,0,0" VerticalAlignment="Top"/>
+
+        <Label Content="记录预览：" HorizontalAlignment="Left" Margin="440,150,0,0" VerticalAlignment="Top"/>
+        <ScrollViewer Margin="440,180,20,20" ScrollChanged="ScrollViewer_ScrollChanged" >
+            <Grid Name="msg_list" />
+        </ScrollViewer>
+        <Button x:Name="export_record" Content="导出选中人员记录" HorizontalAlignment="Left" Width="160" Margin="440,105,0,0" VerticalAlignment="Top" Click="export_record_Click" />
+        <TextBox Name="txt_find_session" HorizontalAlignment="Left" Margin="110,67,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+        <Button Name="find_session_person" Content="查找" HorizontalAlignment="Left" Margin="246,67,0,0" VerticalAlignment="Top" Width="70" Click="find_session_person_Click"/>
+        <CheckBox Name="cb_use_local_decdb" Content="使用已解密的工作区读取" HorizontalAlignment="Left" Margin="642,108,0,0" VerticalAlignment="Top"/>
+    </Grid>
+</Window>
