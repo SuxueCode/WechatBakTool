@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Interop;
 using WechatPCMsgBakTool.Helpers;
@@ -96,6 +97,22 @@ namespace WechatPCMsgBakTool
             return tmp;
         }
 
+        public WXMediaMsg? GetVoiceMsg(string msgid)
+        {
+            for (int i = 0; i <= DecDBInfo.MaxMediaDBCount; i++)
+            {
+                SQLiteConnection con = DBInfo["MediaMSG" + i.ToString()];
+                if (con == null)
+                    continue;
+
+                string query = "select * from Media where Reserved0=?";
+                List<WXMediaMsg> wXMsgs = con.Query<WXMediaMsg>(query, msgid);
+                if(wXMsgs.Count != 0)
+                    return wXMsgs[0];
+            }
+            return null;
+        }
+
         public string? GetVideo(WXMsg msg)
         {
             WXSessionAttachInfo? attachInfo = GetWXMsgAtc(msg);
@@ -115,7 +132,41 @@ namespace WechatPCMsgBakTool
 
             if(!File.Exists(savePath))
                 File.Copy(resBasePath, savePath, false);
+
+            savePath = savePath.Replace(DecDBInfo.UserPath + "\\", "");
             return savePath;
+        }
+
+        public string? GetVoice(WXMsg msg) { 
+            string tmp = Path.Combine(DecDBInfo.UserPath, msg.StrTalker, "tmp");
+            if (!Directory.Exists(tmp))
+            {
+                Directory.CreateDirectory(tmp);
+            }
+            WXMediaMsg? voiceMsg = GetVoiceMsg(msg.MsgSvrID);
+            if(voiceMsg != null)
+            {
+                if (voiceMsg.Buf == null)
+                    return null;
+
+                string voicePath = Path.Combine(DecDBInfo.UserPath, msg.StrTalker, "Voice");
+                if (!Directory.Exists(voicePath))
+                    Directory.CreateDirectory(voicePath);
+                // 从DB取音频文件到临时目录
+                string tmp_file_path = Path.Combine(tmp, voiceMsg.Key + ".arm");
+                using (FileStream stream = new FileStream(tmp_file_path,FileMode.OpenOrCreate))
+                {
+                    stream.Write(voiceMsg.Buf, 0, voiceMsg.Buf.Length);
+                }
+                // 调用silk_v3_decoder解码成pcm
+                string tmp_pcm_file_path = Path.Combine(tmp, voiceMsg.Key + ".pcm");
+                // 调用ffmpeg转换成mp3
+                string mp3_file_path = Path.Combine(voicePath, voiceMsg.Key + ".mp3");
+                ToolsHelper.DecodeVoice(tmp_file_path, tmp_pcm_file_path, mp3_file_path);
+                mp3_file_path = mp3_file_path.Replace(DecDBInfo.UserPath + "\\", "");
+                return mp3_file_path;
+            }
+            return null; 
         }
 
         public string GetSavePath(WXSession session)
@@ -147,6 +198,7 @@ namespace WechatPCMsgBakTool
                 Directory.CreateDirectory(imgPath);
 
             string img = DecImage(resBasePath, imgPath);
+            img = img.Replace(DecDBInfo.UserPath + "\\", "");
             return img;
         }
 

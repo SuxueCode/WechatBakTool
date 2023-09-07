@@ -73,6 +73,16 @@ namespace WechatPCMsgBakTool
                     }
                     HtmlBody += string.Format("<p class=\"content\"><video controls style=\"max-height:300px;max-width:300px;\"><source src=\"{0}\" type=\"video/mp4\" /></video></p></div>", path);
                 }
+                else if(msg.Type == 34)
+                {
+                    string? path = reader.GetVoice(msg);
+                    if (path == null)
+                    {
+                        HtmlBody += string.Format("<p class=\"content\">{0}</p></div>", "视频不存在");
+                        continue;
+                    }
+                    HtmlBody += string.Format("<p class=\"content\"><audio controls src=\"{0}\"></audio></p></div>", path);
+                }
                 else
                 {
                     HtmlBody += string.Format("<p class=\"content\">{0}</p></div>", "暂未支持的消息");

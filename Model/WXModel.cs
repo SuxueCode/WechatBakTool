@@ -85,6 +85,14 @@ namespace WechatPCMsgBakTool.Model
         public string StrContent { get; set; } = "";
     }
 
+    [Table("Media")]
+    public class WXMediaMsg
+    {
+        public int Key { get; set; }
+        public byte[]? Buf { get; set; }
+        public string Reserved0 { get; set; } = "";
+    }
+
     [Table("Contact")]
     public class WXContact
     {
