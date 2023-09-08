@@ -19,4 +19,10 @@ namespace WechatPCMsgBakTool.Model
         public string UserName { get; set; } = "";
         public string NickName { get; set; } = "";
     }
+
+    public class VersionInfo
+    {
+        public string Version { get; set; } = "";
+        public int BaseAddr { get; set; }
+    }
 }

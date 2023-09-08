@@ -1,10 +1,16 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using WechatPCMsgBakTool.Model;
+
 namespace WechatPCMsgBakTool.Helpers
 {
     public class DecryptionHelper
@@ -33,8 +39,20 @@ namespace WechatPCMsgBakTool.Helpers
             {
                 return null;
             }
+
+            string json = File.ReadAllText("version.json");
+            List<VersionInfo>? info = JsonConvert.DeserializeObject<List<VersionInfo>?>(json);
+            if (info == null)
+                return null;
+            if (info.Count == 0)
+                return null;
+
+            VersionInfo? cur = info.Find(x => x.Version == version);
+            if (cur == null)
+                return null;
+
             //这里加的是版本偏移量，兼容不同版本把这个加给改了
-            long baseAddress = (long)module.BaseAddress + 62031872;
+            long baseAddress = (long)module.BaseAddress + cur.BaseAddr;
             byte[]? bytes = ProcessHelper.ReadMemoryDate(process.Handle, (IntPtr)baseAddress, 8);
             if (bytes != null)
             {
