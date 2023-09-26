@@ -7,7 +7,7 @@ namespace WechatPCMsgBakTool.Helpers
 {
     public class OpenSSLInterop
     {
-        private const string Lib = "libcrypto-1_1-x64";
+        private const string Lib = "libcrypto-1_1";
         internal static unsafe int HMAC_Init(out HMAC_CTX ctx, byte[] key, int key_len, IntPtr md)
         {
             return HMAC_InitNative(out ctx, key, key_len, md);

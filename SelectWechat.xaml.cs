@@ -40,6 +40,15 @@ namespace WechatPCMsgBakTool
             p.StartInfo.RedirectStandardOutput = true;
             p.Start();
             string i = p.StandardOutput.ReadToEnd();
+            if (i.Contains("SYSINTERNALS SOFTWARE LICENSE TERMS"))
+            {
+                MessageBox.Show("请先同意Handle64的使用协议，同意后关闭弹窗重新打开新增工作区即可");
+                Process p1 = new Process();
+                p1.StartInfo.FileName = "tools/handle64.exe";
+                p1.StartInfo.Arguments = "-p wechat.exe";
+                p1.Start();
+            }
+
             string[] lines = i.Split(new string[] { "\r\n" }, StringSplitOptions.None);
             bool hitFind = false;
             ProcessInfo processInfo = new ProcessInfo();

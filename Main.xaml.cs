@@ -80,9 +80,9 @@ namespace WechatPCMsgBakTool
                         WXWorkspace.SaveConfig(CurrentUserBakConfig);
                         LoadWorkspace();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        MessageBox.Show("解密过程出现错误，请检查是否秘钥是否正确，如果有多开微信，请确保当前微信是选择的用户");
+                        MessageBox.Show("解密过程出现错误：" + ex.Message);
                     }
                 }
             }
