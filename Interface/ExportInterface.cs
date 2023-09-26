@@ -10,7 +10,8 @@ namespace WechatPCMsgBakTool.Interface
     public interface IExport
     {
         void InitTemplate(WXSession session);
-        void SetMsg(WXReader reader, WXSession session);
+        void InitTemplate(WXContact session);
+        void SetMsg(WXUserReader reader, WXContact session);
         void SetEnd();
         void Save(string path = "", bool append = false);
 

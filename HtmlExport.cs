@@ -22,6 +22,14 @@ namespace WechatPCMsgBakTool
             HtmlBody += string.Format("<div class=\"msg\"><p class=\"nickname\"><b>导出时间：{0}</b></p><hr/>", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
         }
 
+        public void InitTemplate(WXContact contact)
+        {
+            WXSession session = new WXSession();
+            session.NickName = contact.NickName;
+            session.UserName = contact.UserName;
+            InitTemplate(session);
+        }
+
         public void Save(string path = "",bool append = false)
         {
             if (!append)
@@ -41,21 +49,26 @@ namespace WechatPCMsgBakTool
             HtmlBody += "</body></html>";
         }
 
-        public void SetMsg(WXReader reader, WXSession session)
+        public void SetMsg(WXUserReader reader,WXContact contact)
         {
-            List<WXMsg> msgList = reader.GetMsgs(session.UserName);
+            if (Session == null)
+                throw new Exception("请初始化模版：Not Use InitTemplate");
+
+            List<WXMsg>? msgList = reader.GetWXMsgs(contact.UserName);
+            if (msgList == null)
+                throw new Exception("获取消息失败，请确认数据库读取正常");
+
             msgList.Sort((x, y) => x.CreateTime.CompareTo(y.CreateTime));
+
             foreach (var msg in msgList)
             {
-                if (Session == null)
-                    throw new Exception("请初始化模版：Not Use InitTemplate");
                 HtmlBody += string.Format("<div class=\"msg\"><p class=\"nickname\">{0} <span style=\"padding-left:10px;\">{1}</span></p>", msg.IsSender ? "我" : Session.NickName, TimeStampToDateTime(msg.CreateTime).ToString("yyyy-MM-dd HH:mm:ss"));
 
                 if (msg.Type == 1)
                     HtmlBody += string.Format("<p class=\"content\">{0}</p></div>", msg.StrContent);
-                else if(msg.Type == 3)
+                else if (msg.Type == 3)
                 {
-                    string? path = reader.GetImage(msg);
+                    string? path = reader.GetAttachment(WXMsgType.Image, msg);
                     if (path == null)
                     {
                         HtmlBody += string.Format("<p class=\"content\">{0}</p></div>", "图片转换出现错误或文件不存在");
@@ -63,9 +76,9 @@ namespace WechatPCMsgBakTool
                     }
                     HtmlBody += string.Format("<p class=\"content\"><img src=\"{0}\" style=\"max-height:1000px;max-width:1000px;\"/></p></div>", path);
                 }
-                else if(msg.Type == 43)
+                else if (msg.Type == 43)
                 {
-                    string? path = reader.GetVideo(msg);
+                    string? path = reader.GetAttachment(WXMsgType.Video, msg);
                     if (path == null)
                     {
                         HtmlBody += string.Format("<p class=\"content\">{0}</p></div>", "视频不存在");
@@ -73,12 +86,12 @@ namespace WechatPCMsgBakTool
                     }
                     HtmlBody += string.Format("<p class=\"content\"><video controls style=\"max-height:300px;max-width:300px;\"><source src=\"{0}\" type=\"video/mp4\" /></video></p></div>", path);
                 }
-                else if(msg.Type == 34)
+                else if (msg.Type == 34)
                 {
-                    string? path = reader.GetVoice(msg);
+                    string? path = reader.GetAttachment(WXMsgType.Audio, msg);
                     if (path == null)
                     {
-                        HtmlBody += string.Format("<p class=\"content\">{0}</p></div>", "视频不存在");
+                        HtmlBody += string.Format("<p class=\"content\">{0}</p></div>", "语音不存在");
                         continue;
                     }
                     HtmlBody += string.Format("<p class=\"content\"><audio controls src=\"{0}\"></audio></p></div>", path);
@@ -88,8 +101,8 @@ namespace WechatPCMsgBakTool
                     HtmlBody += string.Format("<p class=\"content\">{0}</p></div>", "暂未支持的消息");
                 }
             }
-        }
 
+        }
         private static DateTime TimeStampToDateTime(long timeStamp, bool inMilli = false)
         {
             DateTimeOffset dateTimeOffset = inMilli ? DateTimeOffset.FromUnixTimeMilliseconds(timeStamp) : DateTimeOffset.FromUnixTimeSeconds(timeStamp);

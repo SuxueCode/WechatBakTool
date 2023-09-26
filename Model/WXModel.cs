@@ -4,9 +4,26 @@ using SQLite;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace WechatPCMsgBakTool.Model
 {
+    public class UserBakConfig : INotifyPropertyChanged
+    {
+        public string UserResPath { get; set; } = "";
+        public string UserWorkspacePath { get; set; } = "";
+        public bool Decrypt { get; set; } = false;
+        public string Hash { get; set; } = "";
+        public string NickName { get; set; } = "";
+        public string UserName { get; set; } = "";
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
     public class WXUserInfo
     {
         public string UserName { get; set; } = "";

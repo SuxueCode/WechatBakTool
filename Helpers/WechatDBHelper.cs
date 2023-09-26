@@ -136,10 +136,10 @@ namespace WechatPCMsgBakTool.Helpers
             }
             return "请复制目录至文本框内";
         }
-        public static void DecryUserData(byte[] key)
+        public static void DecryUserData(byte[] key,string source,string to)
         {
-            string dbPath = Path.Combine(UserWorkPath, "DB");
-            string decPath = Path.Combine(UserWorkPath, "DecDB");
+            string dbPath = source;
+            string decPath = to;
             if(!Directory.Exists(decPath))
                 Directory.CreateDirectory(decPath);
 

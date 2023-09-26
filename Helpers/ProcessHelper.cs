@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace WechatPCMsgBakTool.Helpers
 {
@@ -15,6 +16,18 @@ namespace WechatPCMsgBakTool.Helpers
             Process[] processes = Process.GetProcessesByName(ProcessName);
             if (processes.Length == 0)
                 return null;
+            else if(processes.Length > 1) {
+                SelectWechat selectWechat = new SelectWechat();
+                MessageBox.Show("检测到有多个微信，请选择本工作区对应的微信");
+                selectWechat.ShowDialog();
+                if (selectWechat.SelectProcess == null)
+                    return null;
+
+                Process? p = processes.ToList().Find(x => x.Id.ToString() == selectWechat.SelectProcess.ProcessId);
+                if (p == null)
+                    return null;
+                return p;
+            }
             else
                 return processes[0];
         }
