@@ -146,7 +146,6 @@ namespace WechatPCMsgBakTool
             string path = Path.Combine(CurrentUserBakConfig.UserWorkspacePath, wXContact.UserName + ".html");
             export.Save(path);
             MessageBox.Show("导出完成");
-
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
@@ -167,7 +166,6 @@ namespace WechatPCMsgBakTool
                 {
                     MessageBox.Show("创建工作区失败，请检查路径是否正确");
                 }
-                
             }
         }
 
@@ -178,7 +176,36 @@ namespace WechatPCMsgBakTool
                 MessageBox.Show("请先读取工作区数据");
                 return;
             }
-            list_sessions.ItemsSource = UserReader.GetWXContacts(find_user.Text);
+            if(cb_del_search.IsChecked != null)
+            {
+                if (!(bool)cb_del_search.IsChecked)
+                    list_sessions.ItemsSource = UserReader.GetWXContacts(find_user.Text);
+                else
+                {
+                    List<WXMsg>? wXMsgs = UserReader.GetWXMsgs(find_user.Text);
+                    if(wXMsgs != null)
+                    {
+                        if(wXMsgs.Count > 0)
+                        {
+                            List<WXContact> wXContacts = new List<WXContact>() { new WXContact() { NickName = wXMsgs[0].StrTalker, UserName = wXMsgs[0].StrTalker } };
+                            list_sessions.ItemsSource = wXContacts;
+                        }
+                    }
+                }
+
+            }
+            
+        }
+
+        private void btn_analyse_Click(object sender, RoutedEventArgs e)
+        {
+            if(UserReader == null || CurrentUserBakConfig == null)
+            {
+                MessageBox.Show("请先读取数据");
+                return;
+            }
+            Analyse analyse = new Analyse(CurrentUserBakConfig, UserReader);
+            analyse.Show();
         }
     }
 }

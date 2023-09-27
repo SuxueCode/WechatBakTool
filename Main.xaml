@@ -30,9 +30,11 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <Button Content="导出所选人员聊天记录" HorizontalAlignment="Left" Margin="609,130,0,0" VerticalAlignment="Top" Width="142" Click="Button_Click"/>
+        <Button Content="导出所选人员聊天记录" HorizontalAlignment="Left" Margin="609,130,0,0" VerticalAlignment="Top" Width="140" Click="Button_Click"/>
         <Label Content="搜索：" HorizontalAlignment="Left" Margin="278,92,0,0" VerticalAlignment="Top"/>
-        <TextBox Name="find_user" HorizontalAlignment="Left" Margin="323,96,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Height="20"/>
-        <Button Name="btn_search" Content="搜索" HorizontalAlignment="Left" Margin="451,96,0,0" VerticalAlignment="Top" Width="43" Click="btn_search_Click"/>
+        <TextBox Name="find_user" HorizontalAlignment="Left" Margin="323,96,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="194" Height="20"/>
+        <Button Name="btn_search" Content="搜索" HorizontalAlignment="Left" Margin="525,96,0,0" VerticalAlignment="Top" Width="43" Click="btn_search_Click"/>
+        <Button Name="btn_analyse" Content="消息分析工具" HorizontalAlignment="Left" Margin="609,160,0,0" VerticalAlignment="Top" Width="140" Click="btn_analyse_Click"/>
+        <CheckBox Name="cb_del_search" Content="已删除人员强制从记录搜索" HorizontalAlignment="Left" Margin="610,99,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>

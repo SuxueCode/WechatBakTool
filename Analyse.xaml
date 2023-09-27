@@ -1,0 +1,36 @@
+﻿<Window x:Class="WechatPCMsgBakTool.Analyse"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WechatPCMsgBakTool"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        Title="溯雪微信备份工具-分析" Height="450" Width="900">
+    <Grid>
+        <ListView Name="list_msg_group" Margin="41,75,0,19" HorizontalAlignment="Left" Width="420" SelectionChanged="list_msg_group_SelectionChanged">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="昵称" Width="120" DisplayMemberBinding="{Binding NickName}" />
+                    <GridViewColumn Header="原始ID" Width="120" DisplayMemberBinding="{Binding UserName}" />
+                    <GridViewColumn Header="数量" Width="140" DisplayMemberBinding="{Binding MsgCount}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Button x:Name="btn_analyse" Content="分析" HorizontalAlignment="Left" Margin="42,43,0,0" VerticalAlignment="Top" Width="72" Click="btn_analyse_Click"/>
+        <Button x:Name="btn_copy_id" Content="复制id" HorizontalAlignment="Left" Margin="366,43,0,0" VerticalAlignment="Top" Width="94" Click="btn_copy_id_Click"/>
+
+        <ListView Name="list_msg_search" Margin="500,75,0,19" HorizontalAlignment="Left" Width="350">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="原始ID" Width="120" DisplayMemberBinding="{Binding StrTalker}" />
+                    <GridViewColumn Header="消息" Width="200" DisplayMemberBinding="{Binding StrContent}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <TextBox Name="txt_search_text" HorizontalAlignment="Left" Margin="574,43,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Height="20"/>
+        <Label Content="消息搜索：" HorizontalAlignment="Left" Margin="504,41,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="btn_search" Content="搜索" HorizontalAlignment="Left" Margin="708,43,0,0" VerticalAlignment="Top" Width="65" Click="btn_search_Click" />
+        <Button x:Name="btn_search_copy_id" Content="复制id" HorizontalAlignment="Left" Margin="784,43,0,0" VerticalAlignment="Top" Width="65" Click="btn_search_copy_id_Click" />
+    </Grid>
+</Window>

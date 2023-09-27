@@ -52,7 +52,7 @@ namespace WechatPCMsgBakTool
             return con.Query<WXContact>(query);
         }
 
-        public List<WXMsg>? GetWXMsgs(string uid)
+        public List<WXMsg>? GetWXMsgs(string uid,string msg = "")
         {
             List<WXMsg> tmp = new List<WXMsg>();
             for (int i = 0; i <= 99; i++)
@@ -63,8 +63,23 @@ namespace WechatPCMsgBakTool
                     if (con == null)
                         return tmp;
 
-                    string query = "select * from MSG where StrTalker=?";
-                    List<WXMsg> wXMsgs = con.Query<WXMsg>(query, uid);
+                    List<WXMsg>? wXMsgs = null;
+                    if (msg == "")
+                    {
+                        string query = "select * from MSG where StrTalker=?";
+                        wXMsgs = con.Query<WXMsg>(query, uid);
+                    }
+                    else if(uid == "")
+                    {
+                        string query = "select * from MSG where StrContent like ?";
+                        wXMsgs = con.Query<WXMsg>(query, string.Format("%{0}%", msg));
+                    }
+                    else
+                    {
+                        string query = "select * from MSG where StrTalker=? and StrContent like ?";
+                        wXMsgs = con.Query<WXMsg>(query, uid, string.Format("%{0}%", msg));
+                    }
+
                     foreach (WXMsg w in wXMsgs)
                     {
                         tmp.Add(w);
@@ -73,7 +88,6 @@ namespace WechatPCMsgBakTool
             }
             return tmp;
         }
-
         public WXSessionAttachInfo? GetWXMsgAtc(WXMsg msg)
         {
             SQLiteConnection con = DBInfo["MultiSearchChatMsg"];
@@ -101,7 +115,6 @@ namespace WechatPCMsgBakTool
             else
                 return null;
         }
-
         public WXMediaMsg? GetVoiceMsg(WXMsg msg)
         {
             for (int i = 0; i <= 99; i++)
@@ -120,7 +133,6 @@ namespace WechatPCMsgBakTool
             }
             return null;
         }
-
         public string? GetAttachment(WXMsgType type, WXMsg msg)
         {
             if (UserBakConfig == null)
@@ -182,7 +194,7 @@ namespace WechatPCMsgBakTool
             if (path == null)
                 return null;
 
-            // 该相对路径
+            // 改相对路径
             path = path.Replace(UserBakConfig.UserWorkspacePath + "\\", "");
             return path;
 
@@ -216,6 +228,31 @@ namespace WechatPCMsgBakTool
                     break;
             }
             return file_path;
+        }
+        public List<WXMsgGroup> GetWXMsgGroup()
+        {
+            List<WXMsgGroup> g = new List<WXMsgGroup>();
+            for (int i = 0; i <= 99; i++)
+            {
+                if (DBInfo.ContainsKey("MSG" + i.ToString()))
+                {
+                    SQLiteConnection con = DBInfo["MSG" + i.ToString()];
+                    if (con == null)
+                        return g;
+
+                    string query = "select StrTalker,Count(localId) as MsgCount from MSG GROUP BY StrTalker";
+                    List<WXMsgGroup> wXMsgs = con.Query<WXMsgGroup>(query);
+                    foreach (WXMsgGroup w in wXMsgs)
+                    {
+                        WXMsgGroup? tmp = g.Find(x => x.UserName == w.UserName);
+                        if (tmp == null)
+                            g.Add(w);
+                        else
+                            tmp.MsgCount += g.Count;
+                    }
+                }
+            }
+            return g;
         }
     }
 

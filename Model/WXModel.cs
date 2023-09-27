@@ -24,6 +24,16 @@ namespace WechatPCMsgBakTool.Model
         }
     }
 
+    public class WXMsgGroup
+    {
+        [Column("StrTalker")]
+        public string UserName { get; set; } = "";
+
+        [Column("MsgCount")]
+        public int MsgCount { get; set; }
+        public string NickName { get; set; } = "";
+    }
+
     public class WXUserInfo
     {
         public string UserName { get; set; } = "";
