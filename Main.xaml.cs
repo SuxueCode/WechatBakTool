@@ -70,6 +70,7 @@ namespace WechatPCMsgBakTool
                         MessageBox.Show("微信密钥获取失败，请检查微信是否打开,或者版本不兼容");
                         return;
                     }
+                    string key_string = BitConverter.ToString(key, 0).Replace("-", string.Empty).ToLower().ToUpper();
                     string source = Path.Combine(CurrentUserBakConfig.UserWorkspacePath, "OriginalDB");
                     string to = Path.Combine(CurrentUserBakConfig.UserWorkspacePath, "DecDB");
                     try

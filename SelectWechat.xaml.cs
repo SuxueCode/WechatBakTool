@@ -39,6 +39,7 @@ namespace WechatPCMsgBakTool
             p.StartInfo.CreateNoWindow = true;
             p.StartInfo.RedirectStandardOutput = true;
             p.Start();
+
             string i = p.StandardOutput.ReadToEnd();
             if (i.Contains("SYSINTERNALS SOFTWARE LICENSE TERMS"))
             {
