@@ -30,8 +30,18 @@ namespace WechatPCMsgBakTool
         private ObservableCollection<UserBakConfig> userBakConfigs = new ObservableCollection<UserBakConfig>();
         public Main()
         {
+            Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
             InitializeComponent();
             LoadWorkspace();
+        }
+
+        private void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            MessageBox.Show("发生了未知错误，记录已写入到根目录err.log，如果可以，欢迎反馈给开发人员，非常感谢", "错误");
+            File.AppendAllText("err.log", "\r\n\r\n\r\n=============================\r\n");
+            File.AppendAllText("err.log", string.Format("异常时间：{0}\r\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")));
+            File.AppendAllText("err.log", e.Exception.ToString());
+            return;
         }
 
         private void LoadWorkspace()
@@ -47,7 +57,15 @@ namespace WechatPCMsgBakTool
                     if(type == ".json")
                     {
                         string jsonString = File.ReadAllText(file);
-                        UserBakConfig? userBakConfig = JsonConvert.DeserializeObject<UserBakConfig>(jsonString);
+                        UserBakConfig? userBakConfig = null;
+                        try
+                        {
+                            userBakConfig = JsonConvert.DeserializeObject<UserBakConfig>(jsonString);
+                        }
+                        catch
+                        {
+                            MessageBox.Show("读取到异常工作区文件，请确认备份数据是否正常\r\n文件路径：" + file,"错误");
+                        }
                         if(userBakConfig != null)
                         {
                             userBakConfigs.Add(userBakConfig);
@@ -64,7 +82,24 @@ namespace WechatPCMsgBakTool
             {
                 if (!CurrentUserBakConfig.Decrypt)
                 {
-                    byte[]? key = DecryptionHelper.GetWechatKey();
+                    byte[]? key = null;
+                    try
+                    {
+                         key = DecryptionHelper.GetWechatKey();
+                    }
+                    catch (Exception ex)
+                    {
+                        if(ex.Source == "Newtonsoft.Json")
+                        {
+                            MessageBox.Show("版本文件读取失败，请检查版本文件内容是否为正确的json格式", "错误");
+                        }
+                        else
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
+                        return;
+                    }
+                    //byte[]? key = DecryptionHelper.GetWechatKey();
                     if (key == null)
                     {
                         MessageBox.Show("微信密钥获取失败，请检查微信是否打开,或者版本不兼容");

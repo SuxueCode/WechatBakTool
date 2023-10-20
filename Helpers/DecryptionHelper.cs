@@ -40,8 +40,11 @@ namespace WechatPCMsgBakTool.Helpers
                 return null;
             }
 
+            List<VersionInfo>? info = null;
+
             string json = File.ReadAllText("version.json");
-            List<VersionInfo>? info = JsonConvert.DeserializeObject<List<VersionInfo>?>(json);
+            info = JsonConvert.DeserializeObject<List<VersionInfo>?>(json);
+            
             if (info == null)
                 return null;
             if (info.Count == 0)
