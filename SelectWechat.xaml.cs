@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Management;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -13,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using WechatPCMsgBakTool.Helpers;
 using WechatPCMsgBakTool.Model;
 
 namespace WechatPCMsgBakTool
@@ -27,7 +30,34 @@ namespace WechatPCMsgBakTool
         public SelectWechat()
         {
             InitializeComponent();
-            GetWechatProcess();
+            //GetWechatProcess();
+            GetWechatProcessInfos();
+            list_process.ItemsSource = processInfos;
+        }
+
+        private void GetWechatProcessInfos()
+        {
+            processInfos.Clear();
+            Process[] processes = Process.GetProcessesByName("wechat");
+            foreach(Process p in processes)
+            {
+                var h_list = ProcessHelper.GetHandles(p);
+                foreach(var h in h_list)
+                {
+                    if(h.ObjectType == 40)
+                    {
+                        string name = ProcessHelper.FindHandleName(h, p);
+                        if (name.Contains("\\MicroMsg.db") && name.Substring(name.Length - 3, 3) == ".db")
+                        {
+                            ProcessInfo info = new ProcessInfo();
+                            info.ProcessId = p.Id.ToString();
+                            info.ProcessName = p.ProcessName;
+                            info.DBPath = DevicePathMapper.FromDevicePath(name);
+                            processInfos.Add(info);
+                        }
+                    }
+                }
+            }
         }
 
         public void GetWechatProcess()

@@ -110,6 +110,8 @@ namespace WechatPCMsgBakTool.Model
         public string StrTalker { get; set; } = "";
         [Column("StrContent")]
         public string StrContent { get; set; } = "";
+        [Column("CompressContent")]
+        public byte[]? CompressContent { get; set; }
     }
 
     [Table("Media")]

@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using K4os.Compression.LZ4;
+using K4os.Compression.LZ4.Encoders;
+using K4os.Compression.LZ4.Streams;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -172,7 +175,6 @@ namespace WechatPCMsgBakTool
                 MessageBox.Show("请先选择要导出的联系人");
                 return;
             }
-
 
             IExport export = new HtmlExport();
             export.InitTemplate(wXContact);
