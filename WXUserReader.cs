@@ -187,7 +187,7 @@ namespace WechatPCMsgBakTool
                 // 视频的路径是相对路径，需要加上资源目录
                 path = Path.Combine(UserBakConfig.UserResPath, path);
                 if(!File.Exists(video_file_path))
-                    File.Move(path, video_file_path);
+                    File.Copy(path, video_file_path);
                 path = video_file_path;
             }
 

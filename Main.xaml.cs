@@ -36,6 +36,7 @@ namespace WechatPCMsgBakTool
             Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
             InitializeComponent();
             LoadWorkspace();
+            this.Title += $" {Application.ResourceAssembly.GetName().Version}";
         }
 
         private void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)

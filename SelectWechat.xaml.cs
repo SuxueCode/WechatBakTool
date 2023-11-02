@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -15,6 +16,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 using WechatPCMsgBakTool.Helpers;
 using WechatPCMsgBakTool.Model;
 
@@ -39,14 +41,19 @@ namespace WechatPCMsgBakTool
         {
             processInfos.Clear();
             Process[] processes = Process.GetProcessesByName("wechat");
-            foreach(Process p in processes)
+            foreach (Process p in processes)
             {
                 var h_list = ProcessHelper.GetHandles(p);
-                foreach(var h in h_list)
+                foreach (var h in h_list)
                 {
-                    if(h.ObjectType == 40)
+                    string name = ProcessHelper.FindHandleName(h, p);
+                    if (name != "")
                     {
-                        string name = ProcessHelper.FindHandleName(h, p);
+                        // 预留handle log
+                        if (File.Exists("handle.log"))
+                        {
+                            File.AppendAllText("handle.log", string.Format("{0}|{1}|{2}|{3}\n", p.Id, h.ObjectType, h.Handle, name));
+                        }
                         if (name.Contains("\\MicroMsg.db") && name.Substring(name.Length - 3, 3) == ".db")
                         {
                             ProcessInfo info = new ProcessInfo();
