@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Windows;
 using WechatPCMsgBakTool.Model;
 
 namespace WechatPCMsgBakTool.Helpers
@@ -22,7 +23,7 @@ namespace WechatPCMsgBakTool.Helpers
         const int DEFAULT_ITER = 64000;
         const int DEFAULT_PAGESIZE = 4096; //4048数据 + 16IV + 20 HMAC + 12
         const string SQLITE_HEADER = "SQLite format 3";
-        public static byte[]? GetWechatKey()
+        public static byte[]? GetWechatKey(bool mem_find_key,string account)
         {
             Process? process = ProcessHelper.GetProcess("WeChat");
             if (process == null)
@@ -40,31 +41,56 @@ namespace WechatPCMsgBakTool.Helpers
                 return null;
             }
 
-            List<VersionInfo>? info = null;
-
-            string json = File.ReadAllText("version.json");
-            info = JsonConvert.DeserializeObject<List<VersionInfo>?>(json);
             
-            if (info == null)
-                return null;
-            if (info.Count == 0)
-                return null;
 
-            VersionInfo? cur = info.Find(x => x.Version == version);
-            if (cur == null)
-                return null;
-
-            //这里加的是版本偏移量，兼容不同版本把这个加给改了
-            long baseAddress = (long)module.BaseAddress + cur.BaseAddr;
-            byte[]? bytes = ProcessHelper.ReadMemoryDate(process.Handle, (IntPtr)baseAddress, 8);
-            if (bytes != null)
+            if (!mem_find_key)
             {
-                IntPtr baseAddress2 = (IntPtr)(((long)bytes[7] << 56) + ((long)bytes[6] << 48) + ((long)bytes[5] << 40) + ((long)bytes[4] << 32) + ((long)bytes[3] << 24) + ((long)bytes[2] << 16) + ((long)bytes[1] << 8) + (long)bytes[0]);
-                byte[]? twoGet = ProcessHelper.ReadMemoryDate(process.Handle, baseAddress2, 32);
-                if (twoGet != null)
+                List<VersionInfo>? info = null;
+                string json = File.ReadAllText("version.json");
+                info = JsonConvert.DeserializeObject<List<VersionInfo>?>(json);
+                if (info == null)
+                    return null;
+                if (info.Count == 0)
+                    return null;
+
+                VersionInfo? cur = info.Find(x => x.Version == version);
+                if (cur == null)
+                    return null;
+                //这里加的是版本偏移量，兼容不同版本把这个加给改了
+                long baseAddress = (long)module.BaseAddress + cur.BaseAddr;
+                byte[]? bytes = ProcessHelper.ReadMemoryDate(process.Handle, (IntPtr)baseAddress, 8);
+                if (bytes != null)
                 {
-                    string key = BytesToHex(twoGet);
-                    return twoGet;
+                    IntPtr baseAddress2 = (IntPtr)(((long)bytes[7] << 56) + ((long)bytes[6] << 48) + ((long)bytes[5] << 40) + ((long)bytes[4] << 32) + ((long)bytes[3] << 24) + ((long)bytes[2] << 16) + ((long)bytes[1] << 8) + (long)bytes[0]);
+                    byte[]? twoGet = ProcessHelper.ReadMemoryDate(process.Handle, baseAddress2, 32);
+                    if (twoGet != null)
+                    {
+                        string key = BytesToHex(twoGet);
+                        return twoGet;
+                    }
+                }
+            }
+            else
+            {
+                List<int> read = ProcessHelper.FindProcessMemory(process.Handle, module, account);
+                if(read.Count >= 2)
+                {
+                    byte[] buffer = new byte[8];
+                    int key_offset = read[1] - 64;
+                    if (ProcessHelper.ReadProcessMemory(process.Handle, module.BaseAddress + key_offset, buffer, buffer.Length, out _))
+                    {
+                        ulong addr = BitConverter.ToUInt64(buffer, 0);
+
+                        byte[] key_bytes = new byte[32];
+                        if(ProcessHelper.ReadProcessMemory(process.Handle, (IntPtr)addr, key_bytes, key_bytes.Length, out _))
+                        {
+                            return key_bytes;
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("搜索不到微信账号，请确认用户名是否正确，如错误请重新新建工作区，务必确认账号是否正确", "错误");
                 }
             }
             return null;

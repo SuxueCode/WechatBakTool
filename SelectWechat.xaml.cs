@@ -122,10 +122,21 @@ namespace WechatPCMsgBakTool
         private void list_process_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SelectProcess = list_process.SelectedItem as ProcessInfo;
+            if(SelectProcess != null)
+            {
+                string[] name_raw = SelectProcess.DBPath.Split("\\");
+                txt_username.Text = name_raw[name_raw.Length - 3];
+                
+            }
+            
         }
 
         private void btn_close_Click(object sender, RoutedEventArgs e)
         {
+            if (SelectProcess != null)
+            {
+                SelectProcess.Account = txt_username.Text;
+            }
             Close();
         }
     }

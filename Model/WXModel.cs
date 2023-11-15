@@ -16,6 +16,7 @@ namespace WechatPCMsgBakTool.Model
         public string Hash { get; set; } = "";
         public string NickName { get; set; } = "";
         public string UserName { get; set; } = "";
+        public string Account { get; set; } = "";
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string propertyName)

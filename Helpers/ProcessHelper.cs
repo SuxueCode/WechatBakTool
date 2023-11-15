@@ -13,11 +13,9 @@ namespace WechatPCMsgBakTool.Helpers
     public class ProcessHelper
     {
         private const uint STATUS_INFO_LENGTH_MISMATCH = 0xC0000004;
-        private const int DUPLICATE_CLOSE_SOURCE = 0x1;
         private const int DUPLICATE_SAME_ACCESS = 0x2;
 
         private const int CNST_SYSTEM_HANDLE_INFORMATION = 0x10;
-        private const int OBJECT_TYPE_MUTANT = 17;
 
         public static Process GetProcess(string ProcessName)
         {
@@ -48,6 +46,41 @@ namespace WechatPCMsgBakTool.Helpers
                     return module;
             }
             return null;
+        }
+
+        public static List<int> FindProcessMemory(IntPtr processHandle, ProcessModule module, string content)
+        {
+            byte[] buffer = new byte[module.ModuleMemorySize];
+            byte[] search = Encoding.ASCII.GetBytes(content);
+            // 逐页读取数据
+
+            List<int> offset = new List<int>();
+            int readBytes;
+            bool success = ReadProcessMemory(processHandle, module.BaseAddress, buffer, buffer.Length,out readBytes);
+
+            if (!success || readBytes == 0)
+            {
+                int error = Marshal.GetLastWin32Error();
+                Console.WriteLine($"ReadProcessMemory failed. GetLastError: {error}");
+            }
+            else
+            {
+                for (int i = 0; i < buffer.Length; i++)
+                {
+                    if (buffer[i] == search[0])
+                    {
+                        for (int s = 1; s < search.Length; s++)
+                        {
+                            if (buffer[i + s] != search[s])
+                                break;
+                            if (s == search.Length - 1)
+                                offset.Add(i);
+                        }
+
+                    }
+                }
+            }
+            return offset;
         }
 
         public static List<SYSTEM_HANDLE_INFORMATION> GetHandles(Process process)
@@ -147,14 +180,15 @@ namespace WechatPCMsgBakTool.Helpers
         public static byte[]? ReadMemoryDate(IntPtr hProcess, IntPtr lpBaseAddress, int nSize = 100)
         {
             byte[] array = new byte[nSize];
-            if (ReadProcessMemory(hProcess, lpBaseAddress, array, nSize, 0) == 0)
+            int readByte;
+            if (ReadProcessMemory(hProcess, lpBaseAddress, array, nSize, out readByte))
                 return null;
             else
                 return array;
         }
 
-        [DllImport("kernel32.dll")]
-        public static extern int ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, int nSize, int lpNumberOfBytesRead);
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer, int nSize, out int lpNumberOfBytesRead);
         [DllImport("ntdll.dll")]
         private static extern uint NtQuerySystemInformation(int SystemInformationClass, IntPtr SystemInformation, int SystemInformationLength, ref int returnLength);
 
@@ -173,10 +207,6 @@ namespace WechatPCMsgBakTool.Helpers
 
         [DllImport("kernel32.dll")]
         private static extern bool CloseHandle(IntPtr hObject);
-
-        [DllImport("kernel32.dll")]
-        private static extern bool GetHandleInformation(IntPtr hObject, out uint lpdwFlags);
-
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct SYSTEM_HANDLE_INFORMATION

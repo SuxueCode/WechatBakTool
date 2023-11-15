@@ -11,6 +11,7 @@ namespace WechatPCMsgBakTool.Model
         public string ProcessName { get; set; } = "";
         public string ProcessId { get; set; } = "";
         public string DBPath { get; set; } = "";
+        public string Account { get; set; } = "";
     }
     public class DBInfo
     {

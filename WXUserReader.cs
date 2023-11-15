@@ -46,8 +46,8 @@ namespace WechatPCMsgBakTool
             string query = "select * from contact";
             if (name != null)
             {
-                query = "select * from contact where username = ? or alias = ?";
-                return con.Query<WXContact>(query, name, name);
+                query = "select * from contact where username like ? or alias like ? or nickname like ? or remark like ?";
+                return con.Query<WXContact>(query, $"%{name}%", $"%{name}%", $"%{name}%", $"%{name}%");
             }
             return con.Query<WXContact>(query);
         }
@@ -87,6 +87,21 @@ namespace WechatPCMsgBakTool
                 }
             }
             return tmp;
+        }
+        public List<WXSessionAttachInfo>? GetWXMsgAtc()
+        {
+            SQLiteConnection con = DBInfo["MultiSearchChatMsg"];
+            if (con == null)
+                return null;
+
+            string query = "select * from SessionAttachInfo";
+            List<WXSessionAttachInfo> list = con.Query<WXSessionAttachInfo>(query);
+            if (list.Count != 0)
+            {
+                return list;
+            }
+            else
+                return null;
         }
         public WXSessionAttachInfo? GetWXMsgAtc(WXMsg msg)
         {

@@ -6,10 +6,10 @@
         xmlns:local="clr-namespace:WechatPCMsgBakTool"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="选择微信" Height="300" Width="600">
+        Title="选择微信" Height="310" Width="600">
     <Grid>
         <Label Content="请选择您要打开的微信：" HorizontalAlignment="Left" Margin="29,27,0,0" VerticalAlignment="Top"/>
-        <ListView Name="list_process" Margin="32,55,32,67" SelectionChanged="list_process_SelectionChanged">
+        <ListView Name="list_process" Margin="32,55,32,110" SelectionChanged="list_process_SelectionChanged" >
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="进程名" Width="80" DisplayMemberBinding="{Binding ProcessName}" />
@@ -18,7 +18,10 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <Button Name="btn_close" Content="确定并返回" HorizontalAlignment="Left" Margin="240,231,0,0" VerticalAlignment="Top" Width="97" Click="btn_close_Click"/>
+        <Button Name="btn_close" Content="确定并返回" HorizontalAlignment="Left" Margin="241,245,0,0" VerticalAlignment="Top" Width="97" Click="btn_close_Click"/>
+        <Label Content="用户名：" HorizontalAlignment="Left" Margin="34,190,0,0" VerticalAlignment="Top"/>
+        <TextBox Name="txt_username" HorizontalAlignment="Left" Margin="95,195,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="297"/>
+        <Label Content="注意确认用户名是否正确，如修改过用户名，请自行填写！如果需要使用推定方式获取Key必须正确！" HorizontalAlignment="Left" Margin="35,215,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
 
     </Grid>
 </Window>

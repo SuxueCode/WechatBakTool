@@ -14,8 +14,8 @@ namespace WechatPCMsgBakTool
     public class WXWorkspace
     {
         private UserBakConfig UserBakConfig = new UserBakConfig();
-        public WXWorkspace(string path) {
-            string checkResult = Init(path);
+        public WXWorkspace(string path,string account = "") {
+            string checkResult = Init(path, account);
             if (checkResult != "")
                 new Exception(checkResult);
         }
@@ -64,7 +64,7 @@ namespace WechatPCMsgBakTool
                 }
             }
         }
-        private string Init(string path)
+        private string Init(string path,string account = "")
         {
             string curPath = AppDomain.CurrentDomain.BaseDirectory;
             string md5 = GetMd5Hash(path);
@@ -74,6 +74,7 @@ namespace WechatPCMsgBakTool
             UserBakConfig.UserWorkspacePath = Path.Combine(curPath, "workspace", md5);
             UserBakConfig.Hash = md5;
             UserBakConfig.UserName = username;
+            UserBakConfig.Account = account;
 
             if (!Directory.Exists(UserBakConfig.UserResPath))
             {

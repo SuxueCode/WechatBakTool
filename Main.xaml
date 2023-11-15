@@ -18,9 +18,9 @@
         </ListView>
         <Label Content="工作区：" HorizontalAlignment="Left" Margin="15,15,0,0" VerticalAlignment="Top" Height="25" Width="58"/>
         <Button Content="新增" Width="50" HorizontalAlignment="Left" Margin="194,20,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.343,0.521" Height="19" Click="Button_Click_1"/>
-        <Label Content="用户路径：-" Name="user_path" HorizontalAlignment="Left" Margin="278,50,0,0" VerticalAlignment="Top" Height="25" Width="500"/>
+        <Label Content="用户路径：-" Name="user_path" HorizontalAlignment="Left" Margin="278,68,0,0" VerticalAlignment="Top" Height="25" Width="500"/>
         <Button Content="解密" IsEnabled="False" Width="50" HorizontalAlignment="Left" Margin="285,20,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.343,0.521" Name="btn_decrypt" Click="btn_decrypt_Click" Height="19"/>
-        <Button Content="读取" IsEnabled="False" Width="50" HorizontalAlignment="Left" Margin="365,20,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.343,0.521" Name="btn_read" Click="btn_read_Click" Height="19" />
+        <Button Content="读取" IsEnabled="False" Width="50" HorizontalAlignment="Left" Margin="285,47,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.343,0.521" Name="btn_read" Click="btn_read_Click" Height="19" />
 
         <ListView Name="list_sessions" Margin="278,130,0,20" HorizontalAlignment="Left" Width="290" MouseDoubleClick="list_sessions_MouseDoubleClick">
             <ListView.View>
@@ -36,5 +36,7 @@
         <Button Name="btn_search" Content="搜索" HorizontalAlignment="Left" Margin="525,96,0,0" VerticalAlignment="Top" Width="43" Click="btn_search_Click"/>
         <Button Name="btn_analyse" Content="消息分析工具" HorizontalAlignment="Left" Margin="609,160,0,0" VerticalAlignment="Top" Width="140" Click="btn_analyse_Click"/>
         <CheckBox Name="cb_del_search" Content="已删除人员强制从记录搜索" HorizontalAlignment="Left" Margin="610,99,0,0" VerticalAlignment="Top"/>
+        <RadioButton Name="rb_find_file" GroupName="find_addr_function" Content="使用version.json进行基址查找" HorizontalAlignment="Left" Margin="348,22,0,0" VerticalAlignment="Top" IsChecked="True"/>
+        <RadioButton Name="rb_find_mem" GroupName="find_addr_function" Content="使用推定进行基址查找【推荐】" HorizontalAlignment="Left" Margin="546,22,0,0" VerticalAlignment="Top" Checked="rb_find_mem_Checked"/>
     </Grid>
 </Window>

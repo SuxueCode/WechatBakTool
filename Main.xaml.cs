@@ -86,10 +86,16 @@ namespace WechatPCMsgBakTool
             {
                 if (!CurrentUserBakConfig.Decrypt)
                 {
+                    bool? mem_find_key = rb_find_mem.IsChecked;
+                    if(mem_find_key == null)
+                    {
+                        MessageBox.Show("请选择key获取方式");
+                        return;
+                    }
                     byte[]? key = null;
                     try
                     {
-                         key = DecryptionHelper.GetWechatKey();
+                         key = DecryptionHelper.GetWechatKey((bool)mem_find_key,CurrentUserBakConfig.Account);
                     }
                     catch (Exception ex)
                     {
@@ -196,7 +202,7 @@ namespace WechatPCMsgBakTool
                 string path = selectWechat.SelectProcess.DBPath.Replace("\\Msg\\MicroMsg.db", "");
                 try
                 {
-                    WXWorkspace wXWorkspace = new WXWorkspace(path);
+                    WXWorkspace wXWorkspace = new WXWorkspace(path, selectWechat.SelectProcess.Account);
                     wXWorkspace.MoveDB();
                     MessageBox.Show("创建工作区成功");
                     LoadWorkspace();
@@ -245,6 +251,18 @@ namespace WechatPCMsgBakTool
             }
             Analyse analyse = new Analyse(CurrentUserBakConfig, UserReader);
             analyse.Show();
+        }
+
+        private void rb_find_mem_Checked(object sender, RoutedEventArgs e)
+        {
+            if(CurrentUserBakConfig!= null)
+            {
+                if (string.IsNullOrEmpty(CurrentUserBakConfig.Account))
+                {
+                    MessageBox.Show("使用该功能需要填写用户名，请务必确认用户名已经正确填写，否则请重建工作区");
+                    return;
+                }
+            }
         }
     }
 }
