@@ -181,7 +181,7 @@ namespace WechatPCMsgBakTool.Helpers
         {
             byte[] array = new byte[nSize];
             int readByte;
-            if (ReadProcessMemory(hProcess, lpBaseAddress, array, nSize, out readByte))
+            if (!ReadProcessMemory(hProcess, lpBaseAddress, array, nSize, out readByte))
                 return null;
             else
                 return array;

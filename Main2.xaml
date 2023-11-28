@@ -1,0 +1,139 @@
+﻿<Window x:Class="WechatPCMsgBakTool.Main2"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WechatPCMsgBakTool"
+        mc:Ignorable="d" WindowStartupLocation="CenterScreen" WindowStyle="None" WindowState="Normal" Background="Transparent" AllowsTransparency="True" ResizeMode="NoResize"
+        Title="Main2" Height="550" Width="950" >
+    <Window.Resources>
+        <Style TargetType="local:Main2">
+            <!-- 设置窗体的WindowChrome -->
+            <Setter Property="WindowChrome.WindowChrome">
+                <Setter.Value>
+                    <!-- ResizeBorderThickness:拖拽改变窗体大小的边框厚度；-->
+                    <!-- CornerRadius：窗体圆角；-->
+                    <!-- CaptionHeight顶部标题的高度；-->
+                    <!-- GlassFrameThickness:默认边框的大小，0为不使用默认边框（这样定义的圆角才有效），-1为使用默认边框默认值-->
+                    <WindowChrome CornerRadius="5" CaptionHeight="0" GlassFrameThickness="0" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <DrawingImage x:Key="svg_min">
+            <DrawingImage.Drawing>
+                <DrawingGroup ClipGeometry="M0,0 V1024 H1024 V0 H0 Z">
+                    <GeometryDrawing Brush="#2775b6" Geometry="F1 M1024,1024z M0,0z M370.752,608L129.6,849.152A32,32,0,0,0,174.848,894.4L416,653.248 416,768A32,32,0,0,0,480,768L480,576A31.904,31.904,0,0,0,448,544L256,544A32,32,0,0,0,256,608L370.752,608z M553.376,470.624A31.904,31.904,0,0,1,544,448L544,256A32,32,0,0,1,608,256L608,370.752 849.152,129.6A32,32,0,1,1,894.4,174.848L653.248,416 768,416A32,32,0,0,1,768,480L576,480A31.904,31.904,0,0,1,553.376,470.624z" />
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+        <DrawingImage x:Key="svg_close">
+            <DrawingImage.Drawing>
+                <DrawingGroup ClipGeometry="M0,0 V1024 H1024 V0 H0 Z">
+                    <GeometryDrawing Brush="#2775b6" Geometry="F1 M1024,1024z M0,0z M556.8,512L828.8,240C841.6,227.2 841.6,208 828.8,195.2 816,182.4 796.8,182.4 784,195.2L512,467.2 240,195.2C227.2,182.4 208,182.4 195.2,195.2 182.4,208 182.4,227.2 195.2,240L467.2,512 195.2,784C182.4,796.8 182.4,816 195.2,828.8 208,841.6 227.2,841.6 240,828.8L512,556.8 784,828.8C796.8,841.6 816,841.6 828.8,828.8 841.6,816 841.6,796.8 828.8,784L556.8,512z" />
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+    </Window.Resources>
+    <Grid Background="White">
+        <Image Name="img_btn_min" Source="{StaticResource svg_min}" Width="20" Height="20" HorizontalAlignment="Left" Margin="860,20,0,0" VerticalAlignment="Top">
+            <Image.RenderTransform>
+                <RotateTransform CenterX="0.5" CenterY="0.5" />
+            </Image.RenderTransform>
+            <Image.RenderTransformOrigin>
+                <Point>0.5,0.5</Point>
+            </Image.RenderTransformOrigin>
+            <Image.Triggers>
+                <EventTrigger RoutedEvent="Image.MouseEnter">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation
+                                Storyboard.TargetName="img_btn_min"
+                                Storyboard.TargetProperty="(Image.RenderTransform).(RotateTransform.Angle)"
+                                To="180" Duration="0:0:0.300"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="Image.MouseLeave">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation
+                                Storyboard.TargetName="img_btn_min"
+                                Storyboard.TargetProperty="(Image.RenderTransform).(RotateTransform.Angle)"
+                                To="0" Duration="0:0:0.300" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Image.Triggers>
+        </Image>
+        <Image Name="img_btn_close" Source="{StaticResource svg_close}" Width="20" Height="20" HorizontalAlignment="Left" Margin="900,20,0,0" VerticalAlignment="Top" MouseLeftButtonDown="img_btn_close_MouseLeftButtonDown">
+            <Image.RenderTransform>
+                <RotateTransform CenterX="0.5" CenterY="0.5" />
+            </Image.RenderTransform>
+            <Image.RenderTransformOrigin>
+                <Point>0.5,0.5</Point>
+            </Image.RenderTransformOrigin>
+            <Image.Triggers>
+                <EventTrigger RoutedEvent="Image.MouseEnter">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation
+                                Storyboard.TargetName="img_btn_close"
+                                Storyboard.TargetProperty="(Image.RenderTransform).(RotateTransform.Angle)"
+                                To="90" Duration="0:0:0.200"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="Image.MouseLeave">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation
+                                Storyboard.TargetName="img_btn_close"
+                                Storyboard.TargetProperty="(Image.RenderTransform).(RotateTransform.Angle)"
+                                To="0" Duration="0:0:0.200" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Image.Triggers>
+        </Image>
+        <Grid Width="230" Background="#2775b6" HorizontalAlignment="Left" IsHitTestVisible="True">
+            <ListView Background="Wheat" Margin="0,0,0,85" />
+            <Grid Name="new_workspace" Width="170" Height="40" VerticalAlignment="Bottom" Margin="30,45" IsHitTestVisible="True">
+                <Rectangle Name="new_workspace_fill" Fill="Transparent"  RadiusX="0" RadiusY="0" Stroke="White" StrokeDashArray="5" >
+                    <Rectangle.Triggers>
+                        <EventTrigger RoutedEvent="Rectangle.MouseEnter">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <ColorAnimation
+                                Storyboard.TargetName="new_workspace_fill"
+                                Storyboard.TargetProperty="(Rectangle.Fill).(SolidColorBrush.Color)"
+                                To="White" Duration="0:0:0.300"/>
+                                    <ColorAnimation
+                                Storyboard.TargetName="new_workspace_text"
+                                Storyboard.TargetProperty="(Label.Foreground).(SolidColorBrush.Color)"
+                                To="Black" Duration="0:0:0.300"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="Rectangle.MouseLeave">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <ColorAnimation
+                                Storyboard.TargetName="new_workspace_fill"
+                                Storyboard.TargetProperty="(Rectangle.Fill).(SolidColorBrush.Color)"
+                                To="Transparent" Duration="0:0:0.300"/>
+                                    <ColorAnimation
+                                Storyboard.TargetName="new_workspace_text"
+                                Storyboard.TargetProperty="(Label.Foreground).(SolidColorBrush.Color)"
+                                To="White" Duration="0:0:0.300"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Rectangle.Triggers>
+                </Rectangle>
+                <Label Name="new_workspace_text" Content="新建工作区" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" IsHitTestVisible="False"/>
+            </Grid>
+            <Label Name="lab_version" Content="版本：" Margin="10" VerticalAlignment="Bottom" HorizontalAlignment="Center" Foreground="White" />
+        </Grid>
+    </Grid>
+
+</Window>
