@@ -154,5 +154,21 @@ namespace WechatPCMsgBakTool.Model
         public string Alias { get; set; } = "";
         [Column("NickName")]
         public string NickName { get; set; } = "";
+        [Column("strContent")]
+        public string LastMsg { get; set; } = "";
+        [Column("ExtraBuf")]
+        public byte[]? ExtraBuf { get; set; }
+        [Column("smallHeadImgUrl")]
+        public string Avatar { get; set; } = "";
+    }
+
+    [Table("ContactHeadImgUrl")]
+    public class WXUserImg {
+        [Column("usrName")]
+        public string UserName { get; set; } = "";
+        [Column("smallHeadImgUrl")]
+        public string SmallImg { get; set; } = "";
+        [Column("bigHeadImgUrl")]
+        public string BigImg { get; set; } = "";
     }
 }

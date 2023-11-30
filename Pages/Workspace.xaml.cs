@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -13,6 +17,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using WechatPCMsgBakTool.Model;
+using WechatPCMsgBakTool.ViewModel;
 
 namespace WechatPCMsgBakTool.Pages
 {
@@ -22,23 +27,20 @@ namespace WechatPCMsgBakTool.Pages
     public partial class Workspace : Page
     {
         public WXUserReader? UserReader { get; set; }
+        private WorkspaceViewModel ViewModel { get; set; } = new WorkspaceViewModel();
         public Workspace()
         {
             InitializeComponent();
+            DataContext = ViewModel;
             UserBakConfig? config = Main2.CurrentUserBakConfig;
             if (config != null)
             {
+                UserReader = new WXUserReader(config);
                 if (config.Decrypt)
                 {
-                    btn_decrypt.IsEnabled = false;
-                    btn_read.IsEnabled = true;
+                    ViewModel.Contacts = UserReader.GetWXContacts();
                 }
             }
-        }
-
-        private void btn_decrypt_Click(object sender, RoutedEventArgs e)
-        {
-            
         }
 
         private void btn_read_Click(object sender, RoutedEventArgs e)
@@ -48,8 +50,31 @@ namespace WechatPCMsgBakTool.Pages
                 MessageBox.Show("工作区配置加载失败，请检查配置文件是否正常","错误");
                 return;
             }
+        }
 
-            UserReader = new WXUserReader(Main2.CurrentUserBakConfig);
+        private void list_users_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ViewModel.WXContact = list_users.SelectedItem as WXContact;
+        }
+
+        private void txt_find_user_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (UserReader == null)
+                return;
+
+            string findName = txt_find_user.Text;
+            if (txt_find_user.Text == "搜索...")
+                findName = "";
+
+            ViewModel.Contacts = UserReader.GetWXContacts(findName);
+        }
+
+        private void txt_find_user_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (txt_find_user.Text == "搜索...")
+                txt_find_user.Text = "";
+
+            Debug.WriteLine(ViewModel.SearchString);
         }
     }
 }
