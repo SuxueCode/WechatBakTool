@@ -51,7 +51,14 @@ namespace WechatPCMsgBakTool
             }
             return con.Query<WXContact>(query);
         }
-
+        public List<WXChatRoom>? GetWXChatRooms()
+        {
+            SQLiteConnection con = DBInfo["MicroMsg"];
+            if (con == null)
+                return null;
+            string query = "select * from ChatRoom";
+            return con.Query<WXChatRoom>(query);
+        }
         public List<WXMsg>? GetWXMsgs(string uid,string msg = "")
         {
             List<WXMsg> tmp = new List<WXMsg>();
