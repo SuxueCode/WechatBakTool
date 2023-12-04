@@ -3,8 +3,10 @@ using K4os.Compression.LZ4.Encoders;
 using K4os.Compression.LZ4.Streams;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection.PortableExecutable;
@@ -17,6 +19,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Xml;
 using WechatPCMsgBakTool.Helpers;
 using WechatPCMsgBakTool.Interface;
 using WechatPCMsgBakTool.Model;
@@ -264,6 +267,35 @@ namespace WechatPCMsgBakTool
                 {
                     MessageBox.Show("使用该功能需要填写用户名，请务必确认用户名已经正确填写，否则请重建工作区");
                     return;
+                }
+            }
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            var list = UserReader.GetWXChatRooms();
+            var users = UserReader.GetWXContacts();
+            Hashtable hashtable = new Hashtable();
+            foreach(var u in users)
+            {
+                hashtable[u.UserName] = u;
+            }
+            foreach(var room in list)
+            {
+                if(room.ChatRoomName == "20647511469@chatroom")
+                {
+                    string[] ids = room.UserNameList.Split("^G");
+                    foreach(string id in ids) {
+                        if (hashtable.ContainsKey(id))
+                        {
+                            WXContact? contact = hashtable[id] as WXContact;
+                            Debug.WriteLine($"{id} 是 ${contact.NickName}");
+                        }
+                        else
+                        {
+                            Debug.WriteLine("不存在");
+                        }
+                    }
                 }
             }
         }

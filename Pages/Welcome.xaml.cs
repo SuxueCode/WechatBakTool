@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,16 +14,21 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace WechatPCMsgBakTool
+namespace WechatPCMsgBakTool.Pages
 {
     /// <summary>
-    /// WorkSpaceItem.xaml 的交互逻辑
+    /// Welcome.xaml 的交互逻辑
     /// </summary>
-    public partial class WorkSpaceItem : UserControl
+    public partial class Welcome : Page
     {
-        public WorkSpaceItem()
+        public Welcome()
         {
             InitializeComponent();
+        }
+
+        private void StarGithub_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Process.Start("explorer.exe", "https://github.com/SuxueCode/WechatPCMsgBakTool");
         }
     }
 }

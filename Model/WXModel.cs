@@ -13,10 +13,16 @@ namespace WechatPCMsgBakTool.Model
         public string UserResPath { get; set; } = "";
         public string UserWorkspacePath { get; set; } = "";
         public bool Decrypt { get; set; } = false;
+        public string DecryptStatus
+        {
+            get { return Decrypt ? "已解密" : "未解密"; }
+        }
         public string Hash { get; set; } = "";
         public string NickName { get; set; } = "";
         public string UserName { get; set; } = "";
         public string Account { get; set; } = "";
+        public string Friends_Number { get; set; } = "-";
+        public string Msg_Number { get; set; } = "-";
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged(string propertyName)
@@ -113,6 +119,22 @@ namespace WechatPCMsgBakTool.Model
         public string StrContent { get; set; } = "";
         [Column("CompressContent")]
         public byte[]? CompressContent { get; set; }
+        [Column("BytesExtra")]
+        public byte[]? BytesExtra { get; set; }
+    }
+
+    [Table("ChatRoom")]
+    public class WXChatRoom
+    {
+        [Column("ChatRoomName")]
+        public string ChatRoomName { get; set; } = "";
+        [Column("UserNameList")]
+        public string UserNameList { get; set; } = "";
+        [Column("DisplayNameList")]
+        public string DisplayNameList { get; set; } = "";
+        [Column("RoomData")]
+        public byte[]? RoomData { get; set; }
+
     }
 
     [Table("Media")]
@@ -132,5 +154,21 @@ namespace WechatPCMsgBakTool.Model
         public string Alias { get; set; } = "";
         [Column("NickName")]
         public string NickName { get; set; } = "";
+        [Column("strContent")]
+        public string LastMsg { get; set; } = "";
+        [Column("ExtraBuf")]
+        public byte[]? ExtraBuf { get; set; }
+        [Column("smallHeadImgUrl")]
+        public string Avatar { get; set; } = "";
+    }
+
+    [Table("ContactHeadImgUrl")]
+    public class WXUserImg {
+        [Column("usrName")]
+        public string UserName { get; set; } = "";
+        [Column("smallHeadImgUrl")]
+        public string SmallImg { get; set; } = "";
+        [Column("bigHeadImgUrl")]
+        public string BigImg { get; set; } = "";
     }
 }

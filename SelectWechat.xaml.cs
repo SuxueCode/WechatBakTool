@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Management;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -43,16 +42,18 @@ namespace WechatPCMsgBakTool
             Process[] processes = Process.GetProcessesByName("wechat");
             foreach (Process p in processes)
             {
-                var h_list = ProcessHelper.GetHandles(p);
-                foreach (var h in h_list)
+                File.AppendAllText("debug.log", "wechat=>" + p.Id + "\r\n");
+                var lHandles = NativeAPIHelper.GetHandleInfoForPID((uint)p.Id);
+                
+                foreach (var h in lHandles)
                 {
-                    string name = ProcessHelper.FindHandleName(h, p);
+                    string name = NativeAPIHelper.FindHandleName(h, p);
                     if (name != "")
                     {
                         // 预留handle log
                         if (File.Exists("handle.log"))
                         {
-                            File.AppendAllText("handle.log", string.Format("{0}|{1}|{2}|{3}\n", p.Id, h.ObjectType, h.Handle, name));
+                            File.AppendAllText("handle.log", string.Format("{0}|{1}|{2}|{3}\n", p.Id, h.ObjectTypeIndex, h.HandleValue, name));
                         }
                         if (name.Contains("\\MicroMsg.db") && name.Substring(name.Length - 3, 3) == ".db")
                         {

@@ -44,7 +44,6 @@ namespace WechatPCMsgBakTool
                 File.AppendAllText(path, HtmlBody);
                 HtmlBody = "";
             }
-            
         }
 
         public void SetEnd()
@@ -140,7 +139,6 @@ namespace WechatPCMsgBakTool
                         }
 
                     }
-
                 }
                 else if (msg.Type == 34)
                 {

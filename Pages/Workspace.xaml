@@ -1,0 +1,135 @@
+﻿<Page x:Class="WechatPCMsgBakTool.Pages.Workspace"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:WechatPCMsgBakTool.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="Workspace" Background="White">
+    <Page.Resources>
+        <Style x:Key="RepeatButtonTransparent" TargetType="{x:Type RepeatButton}">
+            <Setter Property="OverridesDefaultStyle" Value="true"/>
+            <Setter Property="Background" Value="#2775b6"/>
+            <Setter Property="Focusable" Value="false"/>
+            <Setter Property="IsTabStop" Value="false"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type RepeatButton}">
+                        <Border Background="{TemplateBinding Background}" Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" CornerRadius="4"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- 这里是listview滚动条的滑动块部分样式-->
+        <Style x:Key="ScrollBarThumbVertical" TargetType="{x:Type Thumb}">
+            <Setter Property="OverridesDefaultStyle" Value="true"/>
+            <Setter Property="IsTabStop" Value="false"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Border x:Name="rectangle" Background="#BB2775b6" Height="{TemplateBinding Height}" SnapsToDevicePixels="True" Width="{TemplateBinding Width}" CornerRadius="4"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" TargetName="rectangle" Value="#772775b6"/>
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="true">
+                                <Setter Property="Background" TargetName="rectangle" Value="#772775b6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <DataTemplate x:Key="ListViewItemContentTemplate">
+            <Grid Margin="0">
+                <Image Width="40" Height="40" Margin="10" VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding Avatar}"  />
+                <Label Margin="60,8,0,0" FontWeight="Bold" VerticalAlignment="Top" HorizontalAlignment="Left" Content="{Binding NickName}" Width="130"/>
+                <Label Margin="60,25,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="140" Content="{Binding LastMsg}"/>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="MsgText">
+            <Grid Margin="0">
+                <Label Margin="60,8,0,0" FontWeight="Bold" VerticalAlignment="Top" HorizontalAlignment="Left" Content="{Binding NickName}" Width="130"/>
+                <Label Margin="60,25,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="140" Content="{Binding LastMsg}"/>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="MsgImage">
+            <Grid Margin="0">
+                <Image Width="40" Height="40" Margin="10" VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding Avatar}"  />
+                <Label Margin="60,8,0,0" FontWeight="Bold" VerticalAlignment="Top" HorizontalAlignment="Left" Content="{Binding NickName}" Width="130"/>
+                <Label Margin="60,25,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="140" Content="{Binding LastMsg}"/>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="MsgAudio">
+            <Grid Margin="0">
+                <Image Width="40" Height="40" Margin="10" VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding Avatar}"  />
+                <Label Margin="60,8,0,0" FontWeight="Bold" VerticalAlignment="Top" HorizontalAlignment="Left" Content="{Binding NickName}" Width="130"/>
+                <Label Margin="60,25,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="140" Content="{Binding LastMsg}"/>
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
+    <Grid>
+        <!--
+        <Label FontSize="20" Margin="30,15" Content="工作台" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <Label Name="lab_status" Margin="30,45,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="当前工作区还未解密，请先解密。"></Label>
+        <Button Name="btn_decrypt" Margin="35,80,0,0" Width="60" Height="30" Content="解密" Foreground="White" Background="#2775b6" BorderThickness="0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="btn_decrypt_Click">
+            <Button.Resources>
+                <Style TargetType="{x:Type Border}">
+                    <Setter Property="CornerRadius" Value="3" />
+                </Style>
+            </Button.Resources>
+        </Button>
+        <Button Name="btn_read" Margin="125,80,0,0" Width="60" Height="30" Content="读取" IsEnabled="False" Foreground="White" Background="#2775b6" BorderThickness="0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="btn_read_Click">
+            <Button.Resources>
+                <Style TargetType="{x:Type Border}">
+                    <Setter Property="CornerRadius" Value="3" />
+                </Style>
+            </Button.Resources>
+        </Button>
+        -->
+        <TextBox Name="txt_find_user" Padding="10,0" Height="30" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="14" HorizontalAlignment="Left" Width="230" BorderThickness="0,0,10,1" BorderBrush="#2775b6" TextChanged="txt_find_user_TextChanged" GotFocus="txt_find_user_GotFocus" Text="{Binding SearchString, Mode=TwoWay}" />
+        <ListView Margin="0,30,0,0" Background="Transparent" HorizontalAlignment="Left" Width="230" Name="list_users" ItemTemplate="{DynamicResource ListViewItemContentTemplate}" BorderThickness="0,0,1,0" BorderBrush="#2775b6" SelectionChanged="list_users_SelectionChanged" ItemsSource="{Binding Contacts}">
+            <ListView.Resources>
+                <Style TargetType="{x:Type ScrollBar}">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ScrollBar}">
+                                <Grid x:Name="Bg" SnapsToDevicePixels="true" Width="8" HorizontalAlignment="Right">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="0"/>
+                                        <RowDefinition Height="1*"/>
+                                        <RowDefinition Height="0"/>
+                                    </Grid.RowDefinitions>
+                                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Grid.Row="1" CornerRadius="5"/>
+                                    <Track x:Name="PART_Track" IsDirectionReversed="true" IsEnabled="{TemplateBinding IsMouseOver}" Grid.Row="1">
+                                        <Track.DecreaseRepeatButton>
+                                            <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Style="{StaticResource RepeatButtonTransparent}" HorizontalAlignment="Right" Width="8"/>
+                                        </Track.DecreaseRepeatButton>
+                                        <Track.IncreaseRepeatButton>
+                                            <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Style="{StaticResource RepeatButtonTransparent}" HorizontalAlignment="Right" Width="8"/>
+                                        </Track.IncreaseRepeatButton>
+                                        <Track.Thumb>
+                                            <Thumb Style="{StaticResource ScrollBarThumbVertical}" Width="8" />
+                                        </Track.Thumb>
+                                    </Track>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.Resources>
+        </ListView>
+        <Label Content="{Binding WXContact.UserName}" HorizontalAlignment="Left" Margin="258,21,0,0" VerticalAlignment="Top"/>
+        <ListView x:Name="list_msg" Margin="230,60,0,0" Background="Aqua" BorderThickness="0">
+            <Grid Margin="0">
+                <Label Margin="0,8,0,0" FontWeight="Bold" VerticalAlignment="Top" Content="溯雪" Width="130"/>
+                <Label Margin="60,25,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="140" Content="{Binding LastMsg}"/>
+            </Grid>
+        </ListView>
+    </Grid>
+</Page>

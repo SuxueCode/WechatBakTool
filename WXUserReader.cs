@@ -43,15 +43,41 @@ namespace WechatPCMsgBakTool
             SQLiteConnection con = DBInfo["MicroMsg"];
             if (con == null)
                 return null;
-            string query = "select * from contact";
+            string query = @"select contact.*,session.strContent,contactHeadImgUrl.smallHeadImgUrl,contactHeadImgUrl.bigHeadImgUrl from contact 
+            left join session on session.strUsrName = contact.username
+            left join contactHeadImgUrl on contactHeadImgUrl.usrName = contact.username
+            where type != 4 {searchName}
+            order by nOrder desc";
+            
             if (name != null)
             {
-                query = "select * from contact where username like ? or alias like ? or nickname like ? or remark like ?";
+                query = query.Replace("{searchName}", " and (username like ? or alias like ? or nickname like ? or remark like ?)");
                 return con.Query<WXContact>(query, $"%{name}%", $"%{name}%", $"%{name}%", $"%{name}%");
             }
-            return con.Query<WXContact>(query);
+            else
+            {
+                query = query.Replace("{searchName}", "");
+                return con.Query<WXContact>(query);
+            }
         }
 
+        public List<WXUserImg>? GetUserImgs()
+        {
+            SQLiteConnection con = DBInfo["MicroMsg"];
+            if (con == null)
+                return null;
+            string query = "select * from contactHeadImgUrl";
+            return con.Query<WXUserImg>(query);
+        }
+
+        public List<WXChatRoom>? GetWXChatRooms()
+        {
+            SQLiteConnection con = DBInfo["MicroMsg"];
+            if (con == null)
+                return null;
+            string query = "select * from ChatRoom";
+            return con.Query<WXChatRoom>(query);
+        }
         public List<WXMsg>? GetWXMsgs(string uid,string msg = "")
         {
             List<WXMsg> tmp = new List<WXMsg>();

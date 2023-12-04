@@ -33,9 +33,36 @@
                 </DrawingGroup>
             </DrawingImage.Drawing>
         </DrawingImage>
+        <DrawingImage x:Key="friends_nums">
+            <DrawingImage.Drawing>
+                <DrawingGroup ClipGeometry="M0,0 V1024 H1024 V0 H0 Z">
+                    <GeometryDrawing Brush="#FFF" Geometry="F1 M1024,1024z M0,0z M512.018127441406,140.7236328125C386.078552246094,140.7236328125 283.536560058594,243.226898193359 283.536560058594,369.204376220703 283.536560058594,495.106048583984 386.003570556641,597.648864746094 512.018127441406,597.648864746094 637.994781494141,597.648864746094 740.535949707031,495.106872558594 740.535949707031,369.204376220703 740.535949707031,243.226898193359 637.994781494141,140.7236328125 512.018127441406,140.7236328125z" />
+                    <GeometryDrawing Brush="#FFF" Geometry="F1 M1024,1024z M0,0z M688.11962890625,592.435577392578C639.437561035156,630.917663574219 578.812805175781,654.760192871094 512.018127441406,654.760192871094 445.222625732422,654.760192871094 384.636596679688,630.844329833984 335.842468261719,592.435577392578 243.466674804688,651.248413085937 179.148040771484,754.530334472656 170.313385009766,874.148376464844 202.656860351563,878.545104980469 260.212310791016,883.2763671875 342.347747802734,883.2763671875L681.539367675781,883.2763671875C763.712707519531,883.2763671875 821.304412841797,878.545104980469 853.686614990234,874.148376464844 844.924468994141,754.454528808594 780.606658935547,651.248413085938 688.11962890625,592.435577392578z" />
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+        <DrawingImage x:Key="msg_nums">
+            <DrawingImage.Drawing>
+                <DrawingGroup ClipGeometry="M0,0 V1024 H1024 V0 H0 Z">
+                    <GeometryDrawing Brush="#FFF" Geometry="F1 M1024,1024z M0,0z M512,917.333333A308.458667,308.458667,0,0,1,425.941333,908.181333C366.592,890.88 248.298666,903.808 153.365333,922.666667 153.365333,922.666667 145.173333,924.010667 144.661333,924.010667A42.282667,42.282667,0,0,1,103.253333,871.488C123.498666,779.754667,131.306666,670.741333,115.584,596.906667A405.333333,405.333333,0,1,1,512,917.333333z M339.008,640L552.341333,640A32,32,0,1,0,552.341333,576L339.008,576A32,32,0,0,0,339.008,640z M680.341333,405.333333L339.008,405.333333A32,32,0,0,0,339.008,469.333333L680.341333,469.333333A32,32,0,1,0,680.341333,405.333333z" />
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+        <DataTemplate x:Key="ListViewItemContentTemplate">
+            <Grid Margin="5">
+                <Label Margin="0" Content="{Binding Account}" FontSize="16" VerticalAlignment="Top" HorizontalAlignment="Left" Foreground="White" />
+                <Image Source="{StaticResource friends_nums}" Width="15" Height="15" Margin="2,30,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                <Label Margin="13,25.5,0,0" Content="{Binding Friends_Number}" VerticalAlignment="Top" HorizontalAlignment="Left" Foreground="White" />
+                <Image Source="{StaticResource msg_nums}" Width="15" Height="15" Margin="60,30,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                <Label Margin="73,25.5,0,0" Content="{Binding Msg_Number}" VerticalAlignment="Top" HorizontalAlignment="Left" Foreground="White" />
+                <Border Margin="150,25.5,0,0"  VerticalAlignment="Top" HorizontalAlignment="Left" CornerRadius="5" BorderThickness="1" Background="White" >
+                    <Label Padding="5" FontSize="8" Content="{Binding DecryptStatus}"  Foreground="#2775b6" Background="Transparent" />
+                </Border>
+            </Grid>
+        </DataTemplate>
     </Window.Resources>
     <Grid Background="White">
-        <Image Name="img_btn_min" Source="{StaticResource svg_min}" Width="20" Height="20" HorizontalAlignment="Left" Margin="860,20,0,0" VerticalAlignment="Top">
+        <Image Panel.ZIndex="100" Name="img_btn_min" Source="{StaticResource svg_min}" Width="20" Height="20" HorizontalAlignment="Left" Margin="860,20,0,0" VerticalAlignment="Top">
             <Image.RenderTransform>
                 <RotateTransform CenterX="0.5" CenterY="0.5" />
             </Image.RenderTransform>
@@ -65,7 +92,7 @@
                 </EventTrigger>
             </Image.Triggers>
         </Image>
-        <Image Name="img_btn_close" Source="{StaticResource svg_close}" Width="20" Height="20" HorizontalAlignment="Left" Margin="900,20,0,0" VerticalAlignment="Top" MouseLeftButtonDown="img_btn_close_MouseLeftButtonDown">
+        <Image Panel.ZIndex="100" Name="img_btn_close" Source="{StaticResource svg_close}" Width="20" Height="20" HorizontalAlignment="Left" Margin="900,20,0,0" VerticalAlignment="Top" MouseLeftButtonDown="img_btn_close_MouseLeftButtonDown">
             <Image.RenderTransform>
                 <RotateTransform CenterX="0.5" CenterY="0.5" />
             </Image.RenderTransform>
@@ -96,7 +123,7 @@
             </Image.Triggers>
         </Image>
         <Grid Width="230" Background="#2775b6" HorizontalAlignment="Left" IsHitTestVisible="True">
-            <ListView Background="Wheat" Margin="0,0,0,85" />
+            <ListView BorderThickness="0" Background="Transparent" Margin="0,0,0,85" Name="list_workspace" ItemTemplate="{DynamicResource ListViewItemContentTemplate}" SelectionChanged="list_workspace_SelectionChanged"/>
             <Grid Name="new_workspace" Width="170" Height="40" VerticalAlignment="Bottom" Margin="30,45" IsHitTestVisible="True">
                 <Rectangle Name="new_workspace_fill" Fill="Transparent"  RadiusX="0" RadiusY="0" Stroke="White" StrokeDashArray="5" >
                     <Rectangle.Triggers>
@@ -133,6 +160,9 @@
                 <Label Name="new_workspace_text" Content="新建工作区" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" IsHitTestVisible="False"/>
             </Grid>
             <Label Name="lab_version" Content="版本：" Margin="10" VerticalAlignment="Bottom" HorizontalAlignment="Center" Foreground="White" />
+        </Grid>
+        <Grid Margin="230,0,0,0" Width="720" Background="Transparent" HorizontalAlignment="Left" Panel.ZIndex="1">
+            <Frame Name="MainFrame" Source="/Pages/Welcome.xaml" NavigationUIVisibility="Hidden" />
         </Grid>
     </Grid>
 
