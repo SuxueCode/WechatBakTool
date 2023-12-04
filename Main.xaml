@@ -38,6 +38,5 @@
         <CheckBox Name="cb_del_search" Content="已删除人员强制从记录搜索" HorizontalAlignment="Left" Margin="610,99,0,0" VerticalAlignment="Top"/>
         <RadioButton Name="rb_find_file" GroupName="find_addr_function" Content="使用version.json进行基址查找" HorizontalAlignment="Left" Margin="348,22,0,0" VerticalAlignment="Top" IsChecked="True"/>
         <RadioButton Name="rb_find_mem" GroupName="find_addr_function" Content="使用推定进行基址查找【推荐】" HorizontalAlignment="Left" Margin="546,22,0,0" VerticalAlignment="Top" Checked="rb_find_mem_Checked"/>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="626,0,0,0" VerticalAlignment="Center" Click="Button_Click_2"/>
     </Grid>
 </Window>

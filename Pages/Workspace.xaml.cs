@@ -55,6 +55,12 @@ namespace WechatPCMsgBakTool.Pages
         private void list_users_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ViewModel.WXContact = list_users.SelectedItem as WXContact;
+            if(ViewModel.WXContact == null || UserReader == null)
+            {
+                return;
+            }
+            List<WXMsg>? msgs = UserReader.GetWXMsgs(ViewModel.WXContact.UserName);
+            ListViewItem i = new ListViewItem();
         }
 
         private void txt_find_user_TextChanged(object sender, TextChangedEventArgs e)
