@@ -54,3 +54,4 @@
 ##### [kn007/silk-v3-decoder](https://github.com/kn007/silk-v3-decoder)
 ##### [吾爱破解chenhahacjl/微信 DAT 图片解密 （C#）](https://www.52pojie.cn/forum.php?mod=viewthread&tid=1507922)
 ##### [huiyadanli/RevokeMsgPatcher](https://github.com/huiyadanli/RevokeMsgPatcher)
+##### [FuzzySecurity/Sharp-Suite](https://github.com/FuzzySecurity/Sharp-Suite)

@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Media.Imaging;
 
 namespace WechatPCMsgBakTool.Model
 {
@@ -39,6 +41,14 @@ namespace WechatPCMsgBakTool.Model
         [Column("MsgCount")]
         public int MsgCount { get; set; }
         public string NickName { get; set; } = "";
+    }
+
+    [Table("ContactHeadImg1")]
+    public class ContactHeadImg
+    {
+        public string usrName { get; set; } = "";
+        public int createTime { get; set; }
+        public byte[]? smallHeadBuf { get; set; }
     }
 
     public class WXUserInfo
@@ -121,6 +131,7 @@ namespace WechatPCMsgBakTool.Model
         public byte[]? CompressContent { get; set; }
         [Column("BytesExtra")]
         public byte[]? BytesExtra { get; set; }
+        public string NickName { get; set; } = "";
     }
 
     [Table("ChatRoom")]
@@ -158,8 +169,9 @@ namespace WechatPCMsgBakTool.Model
         public string LastMsg { get; set; } = "";
         [Column("ExtraBuf")]
         public byte[]? ExtraBuf { get; set; }
-        [Column("smallHeadImgUrl")]
-        public string Avatar { get; set; } = "";
+        public BitmapImage? Avatar { get; set; }
+        [Column("Remark")]
+        public string Remark { get; set; } = "";
     }
 
     [Table("ContactHeadImgUrl")]

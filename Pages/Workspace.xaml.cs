@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -60,7 +61,7 @@ namespace WechatPCMsgBakTool.Pages
                 return;
             }
             List<WXMsg>? msgs = UserReader.GetWXMsgs(ViewModel.WXContact.UserName);
-            ListViewItem i = new ListViewItem();
+            list_msg.ItemsSource = msgs;
         }
 
         private void txt_find_user_TextChanged(object sender, TextChangedEventArgs e)

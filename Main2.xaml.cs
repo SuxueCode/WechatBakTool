@@ -75,13 +75,18 @@ namespace WechatPCMsgBakTool
             if(config != null)
             {
                 CurrentUserBakConfig = config;
-                MainFrame.Navigate(new Uri("pack://application:,,,/Pages/Workspace.xaml"));
+                MainFrame.Navigate(new Uri("pack://application:,,,/Pages/Workspace.xaml?datatime=" + DateTime.Now.Ticks));
             }
             else
             {
                 MessageBox.Show("工作区配置文件异常，请确认工作区配置是否正常", "错误", MessageBoxButton.OK);
                 return;
             }
+        }
+
+        private void new_workspace_fill_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            MainFrame.Navigate(new Uri("pack://application:,,,/Pages/CreateWork.xaml?datatime=" + DateTime.Now.Ticks));
         }
     }
 }

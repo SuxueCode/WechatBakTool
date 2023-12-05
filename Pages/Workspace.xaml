@@ -51,8 +51,10 @@
         </DataTemplate>
         <DataTemplate x:Key="MsgText">
             <Grid Margin="0">
-                <Label Margin="60,8,0,0" FontWeight="Bold" VerticalAlignment="Top" HorizontalAlignment="Left" Content="{Binding NickName}" Width="130"/>
-                <Label Margin="60,25,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="140" Content="{Binding LastMsg}"/>
+                <Label Margin="60,8,0,0" FontWeight="Bold" VerticalAlignment="Top" Content="{Binding NickName}"/>
+                <Label Margin="60,25,0,8" VerticalAlignment="Top" HorizontalAlignment="Left" Width="380">
+                    <TextBlock Text="{Binding StrContent}" TextWrapping="Wrap"  />
+                </Label>
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="MsgImage">
@@ -124,12 +126,9 @@
                 </Style>
             </ListView.Resources>
         </ListView>
-        <Label Content="{Binding WXContact.UserName}" HorizontalAlignment="Left" Margin="258,21,0,0" VerticalAlignment="Top"/>
-        <ListView x:Name="list_msg" Margin="230,60,0,0" Background="Aqua" BorderThickness="0">
-            <Grid Margin="0">
-                <Label Margin="0,8,0,0" FontWeight="Bold" VerticalAlignment="Top" Content="溯雪" Width="130"/>
-                <Label Margin="60,25,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="140" Content="{Binding LastMsg}"/>
-            </Grid>
+        <Label Content="{Binding WXContact.NickName}" HorizontalAlignment="Left" Margin="258,21,0,0" VerticalAlignment="Top"/>
+        <ListView x:Name="list_msg" Margin="230,60,0,0" Background="Transparent" BorderThickness="0" ItemTemplate="{DynamicResource MsgText}">
+            
         </ListView>
     </Grid>
 </Page>

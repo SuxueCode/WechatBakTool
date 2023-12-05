@@ -125,7 +125,7 @@
         <Grid Width="230" Background="#2775b6" HorizontalAlignment="Left" IsHitTestVisible="True">
             <ListView BorderThickness="0" Background="Transparent" Margin="0,0,0,85" Name="list_workspace" ItemTemplate="{DynamicResource ListViewItemContentTemplate}" SelectionChanged="list_workspace_SelectionChanged"/>
             <Grid Name="new_workspace" Width="170" Height="40" VerticalAlignment="Bottom" Margin="30,45" IsHitTestVisible="True">
-                <Rectangle Name="new_workspace_fill" Fill="Transparent"  RadiusX="0" RadiusY="0" Stroke="White" StrokeDashArray="5" >
+                <Rectangle Name="new_workspace_fill" Fill="Transparent"  RadiusX="0" RadiusY="0" Stroke="White" StrokeDashArray="5" MouseDown="new_workspace_fill_MouseDown">
                     <Rectangle.Triggers>
                         <EventTrigger RoutedEvent="Rectangle.MouseEnter">
                             <BeginStoryboard>

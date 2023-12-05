@@ -1,13 +1,19 @@
-﻿using SQLite;
+﻿using K4os.Compression.LZ4.Encoders;
+using K4os.Compression.LZ4;
+using SQLite;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Interop;
+using System.Windows.Media.Imaging;
+using System.Xml;
 using System.Xml.Linq;
 using WechatPCMsgBakTool.Helpers;
 using WechatPCMsgBakTool.Model;
@@ -18,10 +24,13 @@ namespace WechatPCMsgBakTool
     {
         private Dictionary<string, SQLiteConnection> DBInfo = new Dictionary<string, SQLiteConnection>();
         private UserBakConfig? UserBakConfig = null;
+        private Hashtable HeadImgCache = new Hashtable();
+        private Hashtable UserNameCache = new Hashtable();
         public WXUserReader(UserBakConfig userBakConfig) {
             string path = Path.Combine(userBakConfig.UserWorkspacePath, "DecDB");
             UserBakConfig = userBakConfig;
             LoadDB(path);
+            InitCache();
         }
 
         public void LoadDB(string path)
@@ -38,27 +47,87 @@ namespace WechatPCMsgBakTool
             }
         }
 
-        public List<WXContact>? GetWXContacts(string? name = null)
+        public void InitCache()
+        {
+            SQLiteConnection con = DBInfo["Misc"];
+            if (con == null)
+                return;
+
+            string query = @"SELECT * FROM ContactHeadImg1";
+            List<ContactHeadImg> imgs = con.Query<ContactHeadImg>(query);
+            foreach(ContactHeadImg item in imgs)
+            {
+                if (!HeadImgCache.ContainsKey(item.usrName))
+                {
+                    HeadImgCache.Add(item.usrName, item);
+                }
+            }
+
+            List<WXContact> contacts = GetWXContacts(null, true).ToList();
+            foreach(WXContact contact in contacts)
+            {
+                if (!UserNameCache.ContainsKey(contact.UserName))
+                    UserNameCache.Add(contact.UserName, contact);
+            }
+        }
+        public byte[]? GetHeadImgCahce(string username)
+        {
+            if (HeadImgCache.ContainsKey(username))
+            {
+                ContactHeadImg? img = HeadImgCache[username] as ContactHeadImg;
+                if (img == null)
+                    return null;
+                else
+                    return img.smallHeadBuf;
+            }
+            return null;
+        }
+        public ObservableCollection<WXContact> GetWXContacts(string? name = null,bool all = false)
         {
             SQLiteConnection con = DBInfo["MicroMsg"];
             if (con == null)
-                return null;
+                return new ObservableCollection<WXContact>();
             string query = @"select contact.*,session.strContent,contactHeadImgUrl.smallHeadImgUrl,contactHeadImgUrl.bigHeadImgUrl from contact 
             left join session on session.strUsrName = contact.username
             left join contactHeadImgUrl on contactHeadImgUrl.usrName = contact.username
             where type != 4 {searchName}
             order by nOrder desc";
-            
+
+            if (all)
+            {
+                query = query.Replace("where type != 4 ", "");
+            }
+
+            List<WXContact>? contacts = null;
             if (name != null)
             {
                 query = query.Replace("{searchName}", " and (username like ? or alias like ? or nickname like ? or remark like ?)");
-                return con.Query<WXContact>(query, $"%{name}%", $"%{name}%", $"%{name}%", $"%{name}%");
+                contacts = con.Query<WXContact>(query, $"%{name}%", $"%{name}%", $"%{name}%", $"%{name}%");
             }
             else
             {
                 query = query.Replace("{searchName}", "");
-                return con.Query<WXContact>(query);
+                contacts = con.Query<WXContact>(query);
             }
+
+            foreach (WXContact contact in contacts)
+            {
+                byte[]? imgBytes = GetHeadImgCahce(contact.UserName);
+                if (imgBytes != null)
+                {
+                    MemoryStream stream = new MemoryStream(imgBytes);
+                    BitmapImage bitmapImage = new BitmapImage();
+                    bitmapImage.BeginInit();
+                    bitmapImage.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+                    bitmapImage.StreamSource = stream;
+                    bitmapImage.EndInit();
+                    contact.Avatar = bitmapImage;
+                }
+                else
+                    continue;
+            }
+
+            return new ObservableCollection<WXContact>(contacts);
         }
 
         public List<WXUserImg>? GetUserImgs()
@@ -108,6 +177,65 @@ namespace WechatPCMsgBakTool
 
                     foreach (WXMsg w in wXMsgs)
                     {
+                        if (UserNameCache.ContainsKey(w.StrTalker))
+                        {
+                            WXContact? contact = UserNameCache[w.StrTalker] as WXContact;
+                            if (contact != null)
+                            {
+                                if (contact.Remark != null)
+                                    w.NickName = contact.Remark;
+                                else
+                                    w.NickName = contact.NickName;
+                            }
+                        }
+
+                        if (uid.Contains("@chatroom"))
+                        {
+                            string userId = "";
+
+                            if (w.BytesExtra == null)
+                                continue;
+
+                            string talkId = Encoding.UTF8.GetString(w.BytesExtra!);
+                            if (!w.IsSender)
+                            {
+                                if (w.BytesExtra[0] == 26)
+                                {
+                                    int usrLength = w.BytesExtra[1];
+                                    userId = Encoding.UTF8.GetString(w.BytesExtra.Skip(6).Take(usrLength - 4).ToArray());
+                                }
+                                if (w.BytesExtra[0] == 10)
+                                {
+                                    int version = w.BytesExtra[10];
+                                    if (version == 16)
+                                    {
+                                        int usrLength = w.BytesExtra[13];
+                                        userId = Encoding.UTF8.GetString(w.BytesExtra.Skip(18).Take(usrLength - 4).ToArray());
+                                    }
+                                    else if (version == 18)
+                                    {
+                                        int usrLength = w.BytesExtra[7];
+                                        userId = Encoding.UTF8.GetString(w.BytesExtra.Skip(12).Take(usrLength - 4).ToArray());
+                                    }
+                                }
+                                
+                                if(UserNameCache.ContainsKey(userId))
+                                {
+                                    WXContact? contact = UserNameCache[userId] as WXContact;
+                                    if (contact != null)
+                                        w.NickName = contact.Remark == "" ? contact.NickName : contact.Remark;
+                                }
+                                else
+                                {
+
+                                }
+                            }
+                            else
+                            {
+                                w.NickName = "我";
+                            }
+                        }
+                        
                         tmp.Add(w);
                     }
                 }
