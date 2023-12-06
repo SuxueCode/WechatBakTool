@@ -17,6 +17,7 @@ using System.Xml;
 using System.Xml.Linq;
 using WechatBakTool.Helpers;
 using WechatBakTool.Model;
+using System.Windows;
 
 namespace WechatBakTool
 {
@@ -70,6 +71,7 @@ namespace WechatBakTool
                     UserNameCache.Add(contact.UserName, contact);
             }
         }
+
         public byte[]? GetHeadImgCahce(string username)
         {
             if (HeadImgCache.ContainsKey(username))
@@ -182,7 +184,7 @@ namespace WechatBakTool
                             WXContact? contact = UserNameCache[w.StrTalker] as WXContact;
                             if (contact != null)
                             {
-                                if (contact.Remark != null)
+                                if (contact.Remark != "")
                                     w.NickName = contact.Remark;
                                 else
                                     w.NickName = contact.NickName;

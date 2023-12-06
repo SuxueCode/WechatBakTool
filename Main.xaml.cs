@@ -98,10 +98,10 @@ namespace WechatBakTool
                     byte[]? key = null;
                     try
                     {
-                        key = DecryptionHelper.GetWechatKey((bool)mem_find_key,CurrentUserBakConfig.Account);
+                        //key = DecryptionHelper.GetWechatKey((bool)mem_find_key,CurrentUserBakConfig.Account);
                         if (key == null)
                             MessageBox.Show("获取到的秘钥为空");
-                        File.AppendAllText("debug.log", BitConverter.ToString(key, 0));
+                        //File.AppendAllText("debug.log", BitConverter.ToString(key, 0));
                     }
                     catch (Exception ex)
                     {

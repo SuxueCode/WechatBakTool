@@ -37,7 +37,7 @@ namespace WechatBakTool
             Application.Current.Shutdown();
         }
 
-        private void LoadWorkspace()
+        public void LoadWorkspace()
         {
             userBakConfigs.Clear();
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "workspace");
@@ -72,16 +72,20 @@ namespace WechatBakTool
         private void list_workspace_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             UserBakConfig? config = list_workspace.SelectedItem as UserBakConfig;
-            if(config != null)
+            if(config == null)
             {
-                CurrentUserBakConfig = config;
-                MainFrame.Navigate(new Uri("pack://application:,,,/Pages/Workspace.xaml?datatime=" + DateTime.Now.Ticks));
-            }
-            else
-            {
-                MessageBox.Show("工作区配置文件异常，请确认工作区配置是否正常", "错误", MessageBoxButton.OK);
+                MessageBox.Show("该工作区可能有异常，请确认配置文件是否正确");
                 return;
             }
+            if (!config.Decrypt)
+            {
+                MessageBox.Show("请先到创建工作区进行解密");
+                MainFrame.Navigate(new Uri("pack://application:,,,/Pages/CreateWork.xaml?datatime=" + DateTime.Now.Ticks));
+                return;
+            }
+
+            CurrentUserBakConfig = config;
+            MainFrame.Navigate(new Uri("pack://application:,,,/Pages/Workspace.xaml?datatime=" + DateTime.Now.Ticks));
         }
 
         private void new_workspace_fill_MouseDown(object sender, MouseButtonEventArgs e)

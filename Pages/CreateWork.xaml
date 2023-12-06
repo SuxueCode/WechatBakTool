@@ -3,11 +3,13 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:WechatBakTool.Pages"
+      xmlns:local="clr-namespace:WechatBakTool.ViewModel"
       mc:Ignorable="d" 
       d:DesignHeight="550" d:DesignWidth="800"
       Title="Welcome" Background="White">
-
+    <Page.Resources>
+        <local:GetKeyConverter x:Key="getKeyConverterKey" />
+    </Page.Resources>
     <Grid>
         <Label FontSize="20" Margin="30,15" Content="新建工作区" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <Label Margin="30,55,0,0" Content="请选择要创建工作区的微信，可以通过微信路径判断是哪一个微信哦！" HorizontalAlignment="Left" VerticalAlignment="Top" />
@@ -24,8 +26,8 @@
         <TextBox x:Name="txt_username" Margin="35,300,0,0" Width="280" HorizontalAlignment="Left" VerticalAlignment="Top" BorderThickness="0,0,0,1" Text="{Binding UserName}" />
 
         <Label Margin="30,350,0,0" Content="请选择解密方式：" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <RadioButton Margin="35,380,0,0" Content="固定地址查找" HorizontalAlignment="Left" VerticalAlignment="Top" GroupName="rb_find_key" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
-        <RadioButton Margin="35,405,0,0" Content="用户名推断查找" HorizontalAlignment="Left" VerticalAlignment="Top" GroupName="rb_find_key" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+        <RadioButton Margin="35,380,0,0" Content="固定地址查找" HorizontalAlignment="Left" VerticalAlignment="Top" GroupName="rb_find_key" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsChecked="{Binding KeyType, Converter={StaticResource ResourceKey=getKeyConverterKey}, ConverterParameter=1}" />
+        <RadioButton Margin="35,405,0,0" Content="用户名推断查找" HorizontalAlignment="Left" VerticalAlignment="Top" GroupName="rb_find_key" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsChecked="{Binding KeyType, Converter={StaticResource ResourceKey=getKeyConverterKey}, ConverterParameter=2}"/>
 
         <Button Name="btn_create_worksapce" Margin="0,0,35,50" Height="60" Width="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="创建工作区" BorderThickness="0" Background="#2775b6" Foreground="White" Click="btn_create_worksapce_Click">
             <Button.Resources>

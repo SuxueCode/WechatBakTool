@@ -92,13 +92,43 @@ namespace WechatBakTool.Pages
                     ViewModel.UserName = newUserName.Name.Split("_")[1];
                 }
             }
-
-            
         }
 
         private void btn_create_worksapce_Click(object sender, RoutedEventArgs e)
         {
-
+            if(ViewModel.KeyType != -1)
+            {
+                if (ViewModel.SelectProcess != null)
+                {
+                    string path = ViewModel.SelectProcess.DBPath.Replace("\\Msg\\MicroMsg.db", "");
+                    try
+                    {
+                        //创建工作区
+                        WXWorkspace wXWorkspace = new WXWorkspace(path, ViewModel.UserName);
+                        //DB移动
+                        wXWorkspace.MoveDB();
+                        //开始解密数据库
+                        try
+                        {
+                            wXWorkspace.DecryptDB(ViewModel.SelectProcess.ProcessId, ViewModel.KeyType);
+                            MessageBox.Show("创建工作区成功");
+                            ((Main2)Window.GetWindow(this)).LoadWorkspace();
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show("创建工作区失败，请检查路径是否正确");
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("请选择Key获取方式", "错误");
+            }
         }
     }
 }

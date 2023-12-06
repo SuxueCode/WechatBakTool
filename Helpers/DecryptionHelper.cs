@@ -23,13 +23,9 @@ namespace WechatBakTool.Helpers
         const int DEFAULT_ITER = 64000;
         const int DEFAULT_PAGESIZE = 4096; //4048数据 + 16IV + 20 HMAC + 12
         const string SQLITE_HEADER = "SQLite format 3";
-        public static byte[]? GetWechatKey(bool mem_find_key,string account)
+        public static byte[]? GetWechatKey(string pid,bool mem_find_key,string account)
         {
-            Process? process = ProcessHelper.GetProcess("WeChat");
-            if (process == null)
-            {
-                return null;
-            }
+            Process process = Process.GetProcessById(int.Parse(pid));
             ProcessModule? module = ProcessHelper.FindProcessModule(process.Id, "WeChatWin.dll");
             if (module == null)
             {
@@ -90,7 +86,7 @@ namespace WechatBakTool.Helpers
                 }
                 else
                 {
-                    MessageBox.Show("搜索不到微信账号，请确认用户名是否正确，如错误请重新新建工作区，务必确认账号是否正确", "错误");
+                    throw new Exception("搜索不到微信账号，请确认用户名是否正确，如错误请重新新建工作区，务必确认账号是否正确");
                 }
             }
             return null;
