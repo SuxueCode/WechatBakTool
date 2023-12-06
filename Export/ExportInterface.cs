@@ -5,15 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using WechatBakTool.Model;
 
-namespace WechatBakTool.Interface
+namespace WechatBakTool.Export
 {
     public interface IExport
     {
-        void InitTemplate(WXSession session);
-        void InitTemplate(WXContact session);
+        void InitTemplate(WXContact session,string path);
         void SetMsg(WXUserReader reader, WXContact session);
         void SetEnd();
         void Save(string path = "", bool append = false);
-
     }
 }
