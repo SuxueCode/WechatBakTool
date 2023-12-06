@@ -1,8 +1,8 @@
 
 # WechatBakTool
-基于C#开发的微信聊天记录备份分析工具
+基于C#开发的微信聊天记录备份分析工具，努力做最好用的微信备份工具。
 
-- 理论支持64位版本所有微信*
+- 理论支持64位版本所有微信[1]
 - 工作区概念，支持多微信切换操作。
 - 支持导出Html文件
 - 支持聊天频率分析，全消息库内容搜索
@@ -11,7 +11,7 @@
 - [x] 图片
 - [x] 语音
 - [x] 分享链接
-- [x] 群聊（导出是支持的，名字显示新版本补完）
+- [x] 群聊
 - [ ] 文件
 - [ ] 表情
 
@@ -24,7 +24,6 @@
 > [!NOTE]
 > 本分支为项目开发分支，变动较为频繁且可能不可用<br/>
 > 如果你希望观察作者的开发动态，可以参考这个分支。<br/>
-
 <br/>
 
 ### 免责声明
@@ -37,7 +36,7 @@
 ### 近期开发规划
 本项目技术栈为：
 C# + .NET6.0 + WPF MVVM（目前MVVM不是特别完全！莫喷！） <br/>
-- [ ] 新版本UI界面开发
+- [x] ~~新版本UI界面开发~~
 - [ ] 完善各类消息支持
 - [ ] 性能优化
 - [ ] 打包资源文件夹
@@ -64,3 +63,6 @@ C# + .NET6.0 + WPF MVVM（目前MVVM不是特别完全！莫喷！） <br/>
 4. 解密微信图片 [吾爱破解chenhahacjl/微信 DAT 图片解密 （C#）](https://www.52pojie.cn/forum.php?mod=viewthread&tid=1507922)
 5. 参考了句柄名称实现，注意获取句柄别看这里，#10 这个issue就是血泪 [huiyadanli/RevokeMsgPatcher](https://github.com/huiyadanli/RevokeMsgPatcher)
 6. 参考了句柄获取 [FuzzySecurity/Sharp-Suite](https://github.com/FuzzySecurity/Sharp-Suite)
+
+### 其他声明
+[1] 理论支持所有64位版本指用户名推断获取Key模式，地址直接获取方式需要version.json支持，更新不是很及时。

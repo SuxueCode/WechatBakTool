@@ -47,7 +47,7 @@ namespace WechatBakTool
                 string source = Path.Combine(UserBakConfig.UserWorkspacePath, "OriginalDB");
                 string to = Path.Combine(UserBakConfig.UserWorkspacePath, "DecDB");
 
-                WechatDBHelper.DecryUserData(key, source, to);
+                DecryptionHelper.DecryUserData(key, source, to);
                 UserBakConfig.Decrypt = true;
 
                 WXUserReader reader = new WXUserReader(UserBakConfig);

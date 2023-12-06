@@ -105,5 +105,16 @@ namespace WechatBakTool.Pages
         {
             Process.Start("explorer.exe ", Main2.CurrentUserBakConfig!.UserWorkspacePath);
         }
+
+        private void btn_analyse_Click(object sender, RoutedEventArgs e)
+        {
+            if (UserReader == null || Main2.CurrentUserBakConfig == null)
+            {
+                MessageBox.Show("请先读取数据");
+                return;
+            }
+            Analyse analyse = new Analyse(Main2.CurrentUserBakConfig, UserReader);
+            analyse.Show();
+        }
     }
 }

@@ -137,7 +137,14 @@
                 </Style>
             </Button.Resources>
         </Button>
-        <Button x:Name="btn_open_workspace" Width="90" Height="30" Content="打开文件夹" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,380,15" Click="btn_open_workspace_Click">
+        <Button x:Name="btn_open_workspace" Width="80" Height="30" Content="打开文件夹" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,390,15" Click="btn_open_workspace_Click">
+            <Button.Resources>
+                <Style TargetType="{x:Type Border}">
+                    <Setter Property="CornerRadius" Value="3"/>
+                </Style>
+            </Button.Resources>
+        </Button>
+        <Button x:Name="btn_analyse" Width="80" Height="30" Content="旧版消息工具" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,292,15" Click="btn_analyse_Click" >
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="3"/>

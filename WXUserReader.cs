@@ -140,6 +140,9 @@ namespace WechatBakTool
 
             foreach (WXContact contact in contacts)
             {
+                if(contact.Remark != "")
+                    contact.NickName = contact.Remark;
+
                 byte[]? imgBytes = GetHeadImgCahce(contact.UserName);
                 if (imgBytes != null)
                 {

@@ -283,6 +283,29 @@ namespace WechatBakTool.Helpers
             }
             return saveFilePath;
         }
+        public static void DecryUserData(byte[] key, string source, string to)
+        {
+            string dbPath = source;
+            string decPath = to;
+            if (!Directory.Exists(decPath))
+                Directory.CreateDirectory(decPath);
+
+            string[] filePath = Directory.GetFiles(dbPath);
+            foreach (string file in filePath)
+            {
+                FileInfo info = new FileInfo(file);
+                var db_bytes = File.ReadAllBytes(file);
+                var decrypted_file_bytes = DecryptDB(db_bytes, key);
+                if (decrypted_file_bytes == null || decrypted_file_bytes.Length == 0)
+                {
+                    Console.WriteLine("解密后的数组为空");
+                }
+                else
+                {
+                    File.WriteAllBytes(Path.Combine(decPath, info.Name), decrypted_file_bytes);
+                }
+            }
+        }
     }
 
 }
