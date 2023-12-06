@@ -1,57 +1,63 @@
-> [!NOTE]
-> 本分支为项目开发分支，变动较为频繁且可能不可用<br/>
-> 如果你希望观察作者的开发动态，可以参考这个分支。
-<br/>
 
-# WechatPCMsgBakTool
-微信PC聊天记录备份工具，仅支持Windows
+# WechatBakTool
+基于C#开发的微信聊天记录备份分析工具
 
-- 支持3.9.6.33版本后，若版本更新可在version.json添加版本号和地址即可完成新版本支持
-- 支持用户名推定key位置，无视版本，创建工作区请正常录入微信号
-- 导出图片、视频、音频、分享链接
-- 导出Html文件
+- 理论支持64位版本所有微信*
+- 工作区概念，支持多微信切换操作。
+- 支持导出Html文件
 - 支持聊天频率分析，全消息库内容搜索
-
-**本项目仅做学习使用，主要供个人备份自己的微信记录，请勿用于非法用途。**
-
-**本项目严禁商用**
+- 目前支持以下类型消息解析
+- [x] 文本消息
+- [x] 图片
+- [x] 语音
+- [x] 分享链接
+- [x] 群聊（导出是支持的，名字显示新版本补完）
+- [ ] 文件
+- [ ] 表情
 
 如果有什么好的建议或意见，或者遇到什么问题，欢迎提issue，看到会回。
 
-### 近期开发规划
-- 【进行中】UI、界面交互全面更新;
-- 【进行中】群聊支持;
-- 各种消息记录完善
-- 工作区更新逻辑完善
-- 自定义HTML模版
-- 各种数据信息统计
-
-> [!NOTE]
 > 反馈群：815054692<br/>
-> 如果觉得不错，欢迎右上角点个star！这是对作者的鼓励，谢谢！
+> 如果觉得不错，欢迎右上角点个star！这是对作者的鼓励，谢谢！<br/>
+
+
+> 本分支为项目开发分支，变动较为频繁且可能不可用<br/>
+> 如果你希望观察作者的开发动态，可以参考这个分支。<br/>
+
+### 免责声明
+
+**本项目仅供学习使用,严禁商业使用**<br/>
+**使用本项目初衷是作者研究微信数据库的运行使用，您使用本软件导致的后果，包含但不限于数据损坏，记录丢失等问题，作者不承担相关责任。**<br/>
+**因软件特殊性质，请在使用时获得微信账号所有人授权。**
 <br/>
 
-### 使用
-<p>1.打开微信，并登录。</p>
-<p>2.在工作区上方点击新增，选择要创建的工作区微信</p>
-<p>3.如同时运行多个微信，请选择微信，请注意通过路径进行区别</p>
-<p>4.选中刚刚创建的工作区，点击解密。（如当前多开微信，请选择对应的微信进行解密）</p>
-<p>5.选中刚刚创建的工作区，点击读取</p>
-<p><b>尽情使用吧！</b></p>
-<br/>
+### 近期开发规划
+本项目技术栈为：
+C# + .NET6.0 + WPF MVVM（目前MVVM不是特别完全！莫喷！） <br/>
+- [ ] 新版本UI界面开发
+- [ ] 完善各类消息支持
+- [ ] 性能优化
+- [ ] 打包资源文件夹
+- [ ] 手动模式(合适离线分析)
 
-### 注意
-<p>本项目基于.NET开发，需要安装.NET Desktop Runtime，如未安装，双击EXE时会提示。</p>
-<p>如果使用过程中发生崩溃，请删除工作区试一下，工作区即根据用户名在运行目录下生成的md5文件夹。</p>
-<p>已解密的工作区可以直接读取。</p>
-<p>再次强调，主要用于个人备份自己微信使用，请勿用于非法用途，严禁商用！</p>
+
+### 使用说明
+**本说明为新版本说明，即将发版**<br/><br/>
+0.安装.NET Desktop Runtime(如已经安装忽略)<br/>
+1.打开微信，并登录。<br/>
+2.在软件左侧下方点击**新建工作区**，<br/>
+3.在**新建工作区界面**，选择要创建工作区的微信进程，并**确认下方微信号是否正确**<br/>
+4.解密方式**推荐选择用户名推断查找**！该方式理论支持所有64位版本微信。**但该模式需要确保微信账号正确**<br/>
+5.新手请忽略其他选项，直接**点击创建工作区**，程序会自动进行工作区创建、解密。<br/><br/>
+**工作区创建完毕，点击左侧工作区，尽情使用吧！**<br/>
 <br/>
 
 ### 参考/引用
-都是站在大佬们的肩膀上完成的项目，本项目 参考/引用 了以下 项目/文章 内代码。
-##### [Mr0x01/WXDBDecrypt.NET](https://github.com/Mr0x01/WXDBDecrypt.NET)
-##### [AdminTest0/SharpWxDump](https://github.com/AdminTest0/SharpWxDump)
-##### [kn007/silk-v3-decoder](https://github.com/kn007/silk-v3-decoder)
-##### [吾爱破解chenhahacjl/微信 DAT 图片解密 （C#）](https://www.52pojie.cn/forum.php?mod=viewthread&tid=1507922)
-##### [huiyadanli/RevokeMsgPatcher](https://github.com/huiyadanli/RevokeMsgPatcher)
-##### [FuzzySecurity/Sharp-Suite](https://github.com/FuzzySecurity/Sharp-Suite)
+项目在开发过程中参考了以下项目或资料，有引用相关代码，如有需要，推荐您可以去参考下相关资料：
+
+1. C#使用OpenSSL解密微信数据库，这里注意一下64位适配问题，注意dll引用： [Mr0x01/WXDBDecrypt.NET](https://github.com/Mr0x01/WXDBDecrypt.NET)<br/>
+2. C#使用地址获取微信Key： [AdminTest0/SharpWxDump](https://github.com/AdminTest0/SharpWxDump)
+3. 解密微信语音，我是直接调用解密，反正都要ffmpeg，多一个也是多，多两个也是多，懒得头铁实现： [kn007/silk-v3-decoder](https://github.com/kn007/silk-v3-decoder)
+4. 解密微信图片 [吾爱破解chenhahacjl/微信 DAT 图片解密 （C#）](https://www.52pojie.cn/forum.php?mod=viewthread&tid=1507922)
+5. 参考了句柄名称实现，注意获取句柄别看这里，#10 这个issue就是血泪 [huiyadanli/RevokeMsgPatcher](https://github.com/huiyadanli/RevokeMsgPatcher)
+6. 参考了句柄获取 [FuzzySecurity/Sharp-Suite](https://github.com/FuzzySecurity/Sharp-Suite)
