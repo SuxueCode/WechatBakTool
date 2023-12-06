@@ -24,7 +24,7 @@
         <Label Margin="30,265,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="该方式的优点在于不受版本限制，推荐使用该方式进行解密。缺点就是劳烦您一定要写对微信用户名。"></Label>
         <Label Margin="30,285,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="5、解密完成后，读取，就能愉快使用工具啦！"></Label>
 
-        <Label Margin="30,335,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="如果感觉工具好用，欢迎到github给我点个Star！点击本条去Star  >>>  SuxueCode/WechatPCTool" Foreground="#2775b6" MouseDown="StarGithub_MouseDown"></Label>
+        <Label Margin="30,335,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="如果感觉工具好用，欢迎到github给我点个Star！点击本条去Star  >>>  SuxueCode/WechatBakTool" Foreground="#2775b6" MouseDown="StarGithub_MouseDown"></Label>
         
     </Grid>
 </Page>
