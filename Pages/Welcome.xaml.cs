@@ -28,7 +28,7 @@ namespace WechatBakTool.Pages
 
         private void StarGithub_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Process.Start("explorer.exe", "https://github.com/SuxueCode/WechatPCMsgBakTool");
+            Process.Start("explorer.exe", "https://github.com/SuxueCode/WechatBakTool");
         }
     }
 }
