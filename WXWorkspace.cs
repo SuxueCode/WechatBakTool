@@ -1,15 +1,18 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using WechatPCMsgBakTool.Model;
+using WechatBakTool.Helpers;
+using WechatBakTool.Model;
+using WechatBakTool.Pages;
 
-namespace WechatPCMsgBakTool
+namespace WechatBakTool
 {
     public class WXWorkspace
     {
@@ -24,6 +27,37 @@ namespace WechatPCMsgBakTool
         {
             UserBakConfig = userBakConfig;
         }
+
+        public void DecryptDB(string pid,int type)
+        {
+            if (UserBakConfig == null)
+            {
+                throw new Exception("没有工作区文件，无法解密");
+            }
+
+            if (!UserBakConfig.Decrypt)
+            {
+                byte[]? key = null;
+                key = DecryptionHelper.GetWechatKey(pid, type == 2, UserBakConfig.Account);
+                if (key == null)
+                {
+                    throw new Exception("获取到的密钥为空，获取失败");
+                }
+                string key_string = BitConverter.ToString(key, 0).Replace("-", string.Empty).ToLower().ToUpper();
+                string source = Path.Combine(UserBakConfig.UserWorkspacePath, "OriginalDB");
+                string to = Path.Combine(UserBakConfig.UserWorkspacePath, "DecDB");
+
+                DecryptionHelper.DecryUserData(key, source, to);
+                UserBakConfig.Decrypt = true;
+
+                WXUserReader reader = new WXUserReader(UserBakConfig);
+                int[] count = reader.GetWXCount();
+                UserBakConfig.Friends_Number = count[0].ToString();
+                UserBakConfig.Msg_Number = count[1].ToString();
+                SaveConfig(UserBakConfig);
+            }
+        }
+
         public void MoveDB()
         {
             string sourceBase = Path.Combine(UserBakConfig.UserResPath, "Msg");
@@ -50,7 +84,10 @@ namespace WechatPCMsgBakTool
                 }
             }
         }
-
+        public UserBakConfig ReturnConfig()
+        {
+            return UserBakConfig;
+        }
         public static void SaveConfig(UserBakConfig userBakConfig)
         {
             if(userBakConfig.UserWorkspacePath != "")

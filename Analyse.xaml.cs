@@ -11,9 +11,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using WechatPCMsgBakTool.Model;
+using WechatBakTool.Model;
 
-namespace WechatPCMsgBakTool
+namespace WechatBakTool
 {
     /// <summary>
     /// Analyse.xaml 的交互逻辑
@@ -31,10 +31,14 @@ namespace WechatPCMsgBakTool
 
         private void btn_analyse_Click(object sender, RoutedEventArgs e)
         {
-            List<WXContact>? contacts = UserReader.GetWXContacts();
-            List<WXMsgGroup> list = UserReader.GetWXMsgGroup().OrderByDescending(x => x.MsgCount).ToList();
-            if(contacts == null)
+            var tmp = UserReader.GetWXContacts();
+            List<WXContact> contacts;
+            if (tmp == null)
                 contacts = new List<WXContact>();
+            else
+                contacts = tmp.ToList();
+            
+            List<WXMsgGroup> list = UserReader.GetWXMsgGroup().OrderByDescending(x => x.MsgCount).ToList();
 
             foreach (WXMsgGroup item in list)
             {

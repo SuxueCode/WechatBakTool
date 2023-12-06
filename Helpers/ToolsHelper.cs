@@ -7,11 +7,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WechatPCMsgBakTool.Helpers
+namespace WechatBakTool.Helpers
 {
     public class ToolsHelper
     {
-        public static TaskFactory factory = new TaskFactory(new LimitedConcurrencyLevelTaskScheduler(10));
+        private static TaskFactory factory = new TaskFactory(new LimitedConcurrencyLevelTaskScheduler(10));
         public static string DecodeVoice(string source,string pcm,string to)
         {
             string ffmpeg = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tools", "ffmpeg.exe");
@@ -45,7 +45,7 @@ namespace WechatPCMsgBakTool.Helpers
 
     }
 
-    public class LimitedConcurrencyLevelTaskScheduler : TaskScheduler
+    partial class LimitedConcurrencyLevelTaskScheduler : TaskScheduler
     {
         // Indicates whether the current thread is processing work items.
         [ThreadStatic]

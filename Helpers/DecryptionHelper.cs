@@ -10,9 +10,9 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
-using WechatPCMsgBakTool.Model;
+using WechatBakTool.Model;
 
-namespace WechatPCMsgBakTool.Helpers
+namespace WechatBakTool.Helpers
 {
     public class DecryptionHelper
     {
@@ -23,13 +23,9 @@ namespace WechatPCMsgBakTool.Helpers
         const int DEFAULT_ITER = 64000;
         const int DEFAULT_PAGESIZE = 4096; //4048数据 + 16IV + 20 HMAC + 12
         const string SQLITE_HEADER = "SQLite format 3";
-        public static byte[]? GetWechatKey(bool mem_find_key,string account)
+        public static byte[]? GetWechatKey(string pid, bool mem_find_key, string account)
         {
-            Process? process = ProcessHelper.GetProcess("WeChat");
-            if (process == null)
-            {
-                return null;
-            }
+            Process process = Process.GetProcessById(int.Parse(pid));
             ProcessModule? module = ProcessHelper.FindProcessModule(process.Id, "WeChatWin.dll");
             if (module == null)
             {
@@ -41,7 +37,7 @@ namespace WechatPCMsgBakTool.Helpers
                 return null;
             }
 
-            
+
 
             if (!mem_find_key)
             {
@@ -73,7 +69,7 @@ namespace WechatPCMsgBakTool.Helpers
             else
             {
                 List<int> read = ProcessHelper.FindProcessMemory(process.Handle, module, account);
-                if(read.Count >= 2)
+                if (read.Count >= 2)
                 {
                     byte[] buffer = new byte[8];
                     int key_offset = read[1] - 64;
@@ -82,7 +78,7 @@ namespace WechatPCMsgBakTool.Helpers
                         ulong addr = BitConverter.ToUInt64(buffer, 0);
 
                         byte[] key_bytes = new byte[32];
-                        if(ProcessHelper.ReadProcessMemory(process.Handle, (IntPtr)addr, key_bytes, key_bytes.Length, out _))
+                        if (ProcessHelper.ReadProcessMemory(process.Handle, (IntPtr)addr, key_bytes, key_bytes.Length, out _))
                         {
                             return key_bytes;
                         }
@@ -90,11 +86,12 @@ namespace WechatPCMsgBakTool.Helpers
                 }
                 else
                 {
-                    MessageBox.Show("搜索不到微信账号，请确认用户名是否正确，如错误请重新新建工作区，务必确认账号是否正确", "错误");
+                    throw new Exception("搜索不到微信账号，请确认用户名是否正确，如错误请重新新建工作区，务必确认账号是否正确");
                 }
             }
             return null;
         }
+
         public static byte[] DecryptDB(byte[] db_file_bytes, byte[] password_bytes)
         {
             //数据库头16字节是盐值
@@ -285,6 +282,29 @@ namespace WechatPCMsgBakTool.Helpers
                 fileStream.Flush();
             }
             return saveFilePath;
+        }
+        public static void DecryUserData(byte[] key, string source, string to)
+        {
+            string dbPath = source;
+            string decPath = to;
+            if (!Directory.Exists(decPath))
+                Directory.CreateDirectory(decPath);
+
+            string[] filePath = Directory.GetFiles(dbPath);
+            foreach (string file in filePath)
+            {
+                FileInfo info = new FileInfo(file);
+                var db_bytes = File.ReadAllBytes(file);
+                var decrypted_file_bytes = DecryptDB(db_bytes, key);
+                if (decrypted_file_bytes == null || decrypted_file_bytes.Length == 0)
+                {
+                    Console.WriteLine("解密后的数组为空");
+                }
+                else
+                {
+                    File.WriteAllBytes(Path.Combine(decPath, info.Name), decrypted_file_bytes);
+                }
+            }
         }
     }
 

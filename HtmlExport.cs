@@ -6,11 +6,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WechatPCMsgBakTool.Interface;
-using WechatPCMsgBakTool.Model;
+using WechatBakTool.Interface;
+using WechatBakTool.Model;
 using System.Xml;
 
-namespace WechatPCMsgBakTool
+namespace WechatBakTool
 {
     public class HtmlExport : IExport
     {
@@ -64,7 +64,7 @@ namespace WechatPCMsgBakTool
 
             foreach (var msg in msgList)
             {
-                HtmlBody += string.Format("<div class=\"msg\"><p class=\"nickname\">{0} <span style=\"padding-left:10px;\">{1}</span></p>", msg.IsSender ? "我" : Session.NickName, TimeStampToDateTime(msg.CreateTime).ToString("yyyy-MM-dd HH:mm:ss"));
+                HtmlBody += string.Format("<div class=\"msg\"><p class=\"nickname\">{0} <span style=\"padding-left:10px;\">{1}</span></p>", msg.IsSender ? "我" : msg.NickName, TimeStampToDateTime(msg.CreateTime).ToString("yyyy-MM-dd HH:mm:ss"));
 
                 if (msg.Type == 1)
                     HtmlBody += string.Format("<p class=\"content\">{0}</p></div>", msg.StrContent);

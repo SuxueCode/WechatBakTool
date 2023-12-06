@@ -14,7 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace WechatPCMsgBakTool.Pages
+namespace WechatBakTool.Pages
 {
     /// <summary>
     /// Welcome.xaml 的交互逻辑

@@ -5,9 +5,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using static WechatPCMsgBakTool.Helpers.NativeAPI;
+using static WechatBakTool.Helpers.NativeAPI;
 
-namespace WechatPCMsgBakTool.Helpers
+namespace WechatBakTool.Helpers
 {
     public class NativeAPIHelper
     {

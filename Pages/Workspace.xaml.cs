@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,11 +16,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
-using WechatPCMsgBakTool.Model;
-using WechatPCMsgBakTool.ViewModel;
+using WechatBakTool.Interface;
+using WechatBakTool.Model;
+using WechatBakTool.ViewModel;
 
-namespace WechatPCMsgBakTool.Pages
+namespace WechatBakTool.Pages
 {
     /// <summary>
     /// Workspace.xaml 的交互逻辑
@@ -60,7 +61,7 @@ namespace WechatPCMsgBakTool.Pages
                 return;
             }
             List<WXMsg>? msgs = UserReader.GetWXMsgs(ViewModel.WXContact.UserName);
-            ListViewItem i = new ListViewItem();
+            list_msg.ItemsSource = msgs;
         }
 
         private void txt_find_user_TextChanged(object sender, TextChangedEventArgs e)
@@ -81,6 +82,39 @@ namespace WechatPCMsgBakTool.Pages
                 txt_find_user.Text = "";
 
             Debug.WriteLine(ViewModel.SearchString);
+        }
+
+        private void btn_export_Click(object sender, RoutedEventArgs e)
+        {
+            if(ViewModel.WXContact == null || UserReader == null)
+            {
+                MessageBox.Show("请选择联系人", "错误");
+                return;
+            }
+            IExport export = new HtmlExport();
+            export.InitTemplate(ViewModel.WXContact);
+            export.SetMsg(UserReader, ViewModel.WXContact);
+            export.SetEnd();
+            //string path = UserReader.GetSavePath(wXContact);
+            string path = Path.Combine(Main2.CurrentUserBakConfig!.UserWorkspacePath, ViewModel.WXContact.UserName + ".html");
+            export.Save(path);
+            MessageBox.Show("导出完成");
+        }
+
+        private void btn_open_workspace_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start("explorer.exe ", Main2.CurrentUserBakConfig!.UserWorkspacePath);
+        }
+
+        private void btn_analyse_Click(object sender, RoutedEventArgs e)
+        {
+            if (UserReader == null || Main2.CurrentUserBakConfig == null)
+            {
+                MessageBox.Show("请先读取数据");
+                return;
+            }
+            Analyse analyse = new Analyse(Main2.CurrentUserBakConfig, UserReader);
+            analyse.Show();
         }
     }
 }
