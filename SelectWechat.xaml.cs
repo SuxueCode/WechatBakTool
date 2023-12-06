@@ -42,9 +42,7 @@ namespace WechatPCMsgBakTool
             Process[] processes = Process.GetProcessesByName("wechat");
             foreach (Process p in processes)
             {
-                File.AppendAllText("debug.log", "wechat=>" + p.Id + "\r\n");
                 var lHandles = NativeAPIHelper.GetHandleInfoForPID((uint)p.Id);
-                
                 foreach (var h in lHandles)
                 {
                     string name = NativeAPIHelper.FindHandleName(h, p);

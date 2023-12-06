@@ -196,29 +196,26 @@ namespace WechatPCMsgBakTool
                             if (w.BytesExtra == null)
                                 continue;
 
-                            string talkId = Encoding.UTF8.GetString(w.BytesExtra!);
+                            string sl = BitConverter.ToString(w.BytesExtra).Replace("-", "");
+
+                            ProtoMsg protoMsg;
+                            using (MemoryStream stream = new MemoryStream(w.BytesExtra))
+                            {
+                                protoMsg = ProtoBuf.Serializer.Deserialize<ProtoMsg>(stream);
+                            }
+
+                            if(protoMsg.TVMsg != null)
+                            {
+                                foreach(TVType _tmp in protoMsg.TVMsg)
+                                {
+                                    if (_tmp.Type == 1)
+                                        userId = _tmp.TypeValue;
+                                }
+                            }
+                            
+
                             if (!w.IsSender)
                             {
-                                if (w.BytesExtra[0] == 26)
-                                {
-                                    int usrLength = w.BytesExtra[1];
-                                    userId = Encoding.UTF8.GetString(w.BytesExtra.Skip(6).Take(usrLength - 4).ToArray());
-                                }
-                                if (w.BytesExtra[0] == 10)
-                                {
-                                    int version = w.BytesExtra[10];
-                                    if (version == 16)
-                                    {
-                                        int usrLength = w.BytesExtra[13];
-                                        userId = Encoding.UTF8.GetString(w.BytesExtra.Skip(18).Take(usrLength - 4).ToArray());
-                                    }
-                                    else if (version == 18)
-                                    {
-                                        int usrLength = w.BytesExtra[7];
-                                        userId = Encoding.UTF8.GetString(w.BytesExtra.Skip(12).Take(usrLength - 4).ToArray());
-                                    }
-                                }
-                                
                                 if(UserNameCache.ContainsKey(userId))
                                 {
                                     WXContact? contact = UserNameCache[userId] as WXContact;
@@ -227,7 +224,7 @@ namespace WechatPCMsgBakTool
                                 }
                                 else
                                 {
-
+                                    w.NickName = userId;
                                 }
                             }
                             else

@@ -12,10 +12,10 @@ namespace WechatPCMsgBakTool.ViewModel
     partial class WorkspaceViewModel : ObservableObject
     {
         [ObservableProperty]
-        public WXContact? wXContact;
+        private WXContact? wXContact;
 
         [ObservableProperty]
-        public ObservableCollection<WXContact>? contacts;
+        private ObservableCollection<WXContact>? contacts;
 
         private string searchString = "";
         public string SearchString
