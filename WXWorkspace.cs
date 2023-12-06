@@ -7,9 +7,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using WechatPCMsgBakTool.Model;
+using WechatBakTool.Model;
 
-namespace WechatPCMsgBakTool
+namespace WechatBakTool
 {
     public class WXWorkspace
     {

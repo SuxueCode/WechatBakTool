@@ -16,10 +16,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Xml.Linq;
-using WechatPCMsgBakTool.Helpers;
-using WechatPCMsgBakTool.Model;
+using WechatBakTool.Helpers;
+using WechatBakTool.Model;
 
-namespace WechatPCMsgBakTool
+namespace WechatBakTool
 {
     /// <summary>
     /// SelectWechat.xaml 的交互逻辑

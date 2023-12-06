@@ -17,10 +17,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using WechatPCMsgBakTool.Model;
-using WechatPCMsgBakTool.ViewModel;
+using WechatBakTool.Model;
+using WechatBakTool.ViewModel;
 
-namespace WechatPCMsgBakTool.Pages
+namespace WechatBakTool.Pages
 {
     /// <summary>
     /// Workspace.xaml 的交互逻辑

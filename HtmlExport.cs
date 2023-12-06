@@ -6,11 +6,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WechatPCMsgBakTool.Interface;
-using WechatPCMsgBakTool.Model;
+using WechatBakTool.Interface;
+using WechatBakTool.Model;
 using System.Xml;
 
-namespace WechatPCMsgBakTool
+namespace WechatBakTool
 {
     public class HtmlExport : IExport
     {

@@ -20,11 +20,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml;
-using WechatPCMsgBakTool.Helpers;
-using WechatPCMsgBakTool.Interface;
-using WechatPCMsgBakTool.Model;
+using WechatBakTool.Helpers;
+using WechatBakTool.Interface;
+using WechatBakTool.Model;
 
-namespace WechatPCMsgBakTool
+namespace WechatBakTool
 {
     /// <summary>
     /// Main.xaml 的交互逻辑

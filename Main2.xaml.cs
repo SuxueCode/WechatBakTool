@@ -13,9 +13,9 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using WechatPCMsgBakTool.Model;
+using WechatBakTool.Model;
 
-namespace WechatPCMsgBakTool
+namespace WechatBakTool
 {
     /// <summary>
     /// Main2.xaml 的交互逻辑

@@ -14,11 +14,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using WechatPCMsgBakTool.Helpers;
-using WechatPCMsgBakTool.Model;
-using WechatPCMsgBakTool.ViewModel;
+using WechatBakTool.Helpers;
+using WechatBakTool.Model;
+using WechatBakTool.ViewModel;
 
-namespace WechatPCMsgBakTool.Pages
+namespace WechatBakTool.Pages
 {
     /// <summary>
     /// CreateWork.xaml 的交互逻辑

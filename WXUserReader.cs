@@ -15,10 +15,10 @@ using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using System.Xml;
 using System.Xml.Linq;
-using WechatPCMsgBakTool.Helpers;
-using WechatPCMsgBakTool.Model;
+using WechatBakTool.Helpers;
+using WechatBakTool.Model;
 
-namespace WechatPCMsgBakTool
+namespace WechatBakTool
 {
     public class WXUserReader
     {

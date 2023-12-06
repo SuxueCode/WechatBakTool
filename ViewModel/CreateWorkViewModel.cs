@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WechatPCMsgBakTool.Model;
+using WechatBakTool.Model;
 
-namespace WechatPCMsgBakTool.ViewModel
+namespace WechatBakTool.ViewModel
 {
     partial class CreateWorkViewModel : ObservableObject
     {

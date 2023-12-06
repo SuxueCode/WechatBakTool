@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Media.Imaging;
 
-namespace WechatPCMsgBakTool.Model
+namespace WechatBakTool.Model
 {
     public class UserBakConfig : INotifyPropertyChanged
     {

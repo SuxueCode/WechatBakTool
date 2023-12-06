@@ -10,9 +10,9 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
-using WechatPCMsgBakTool.Model;
+using WechatBakTool.Model;
 
-namespace WechatPCMsgBakTool.Helpers
+namespace WechatBakTool.Helpers
 {
     public class DecryptionHelper
     {

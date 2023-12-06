@@ -5,9 +5,9 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using WechatPCMsgBakTool.Model;
+using WechatBakTool.Model;
 
-namespace WechatPCMsgBakTool.Helpers
+namespace WechatBakTool.Helpers
 {
     public class WechatDBHelper
     {

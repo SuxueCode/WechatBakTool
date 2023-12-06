@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WechatPCMsgBakTool.Model
+namespace WechatBakTool.Model
 {
     [ProtoContract]
     public class TVType

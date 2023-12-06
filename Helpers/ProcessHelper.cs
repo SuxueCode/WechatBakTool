@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace WechatPCMsgBakTool.Helpers
+namespace WechatBakTool.Helpers
 {
     public class ProcessHelper
     {

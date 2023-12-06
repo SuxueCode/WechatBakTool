@@ -1,9 +1,9 @@
-﻿<Window x:Class="WechatPCMsgBakTool.Main2"
+﻿<Window x:Class="WechatBakTool.Main2"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WechatPCMsgBakTool"
+        xmlns:local="clr-namespace:WechatBakTool"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen" WindowStyle="None" WindowState="Normal" Background="Transparent" AllowsTransparency="True" ResizeMode="NoResize"
         Title="Main2" Height="550" Width="950" >
     <Window.Resources>
