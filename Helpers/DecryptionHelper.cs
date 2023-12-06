@@ -23,7 +23,7 @@ namespace WechatBakTool.Helpers
         const int DEFAULT_ITER = 64000;
         const int DEFAULT_PAGESIZE = 4096; //4048数据 + 16IV + 20 HMAC + 12
         const string SQLITE_HEADER = "SQLite format 3";
-        public static byte[]? GetWechatKey(string pid,bool mem_find_key,string account)
+        public static byte[]? GetWechatKey(string pid, bool mem_find_key, string account)
         {
             Process process = Process.GetProcessById(int.Parse(pid));
             ProcessModule? module = ProcessHelper.FindProcessModule(process.Id, "WeChatWin.dll");
@@ -37,7 +37,7 @@ namespace WechatBakTool.Helpers
                 return null;
             }
 
-            
+
 
             if (!mem_find_key)
             {
@@ -69,7 +69,7 @@ namespace WechatBakTool.Helpers
             else
             {
                 List<int> read = ProcessHelper.FindProcessMemory(process.Handle, module, account);
-                if(read.Count >= 2)
+                if (read.Count >= 2)
                 {
                     byte[] buffer = new byte[8];
                     int key_offset = read[1] - 64;
@@ -78,7 +78,7 @@ namespace WechatBakTool.Helpers
                         ulong addr = BitConverter.ToUInt64(buffer, 0);
 
                         byte[] key_bytes = new byte[32];
-                        if(ProcessHelper.ReadProcessMemory(process.Handle, (IntPtr)addr, key_bytes, key_bytes.Length, out _))
+                        if (ProcessHelper.ReadProcessMemory(process.Handle, (IntPtr)addr, key_bytes, key_bytes.Length, out _))
                         {
                             return key_bytes;
                         }
@@ -91,6 +91,7 @@ namespace WechatBakTool.Helpers
             }
             return null;
         }
+
         public static byte[] DecryptDB(byte[] db_file_bytes, byte[] password_bytes)
         {
             //数据库头16字节是盐值

@@ -11,9 +11,26 @@ namespace WechatBakTool.ViewModel
 {
     partial class WorkspaceViewModel : ObservableObject
     {
-        [ObservableProperty]
-        private WXContact? wXContact;
+        private WXContact? wXContact = null;
+        public WXContact? WXContact {
+            get { return wXContact; }
+            set {  
+                wXContact = value;
+                OnPropertyChanged("WXContact");
+                OnPropertyChanged("SelectContact");
+            }
+        }
 
+        public bool SelectContact
+        {
+            get
+            {
+                if (WXContact == null)
+                    return false;
+                else
+                    return true;
+            }
+        }
         [ObservableProperty]
         private ObservableCollection<WXContact>? contacts;
 

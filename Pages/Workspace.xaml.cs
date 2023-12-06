@@ -16,7 +16,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
+using WechatBakTool.Interface;
 using WechatBakTool.Model;
 using WechatBakTool.ViewModel;
 
@@ -82,6 +82,28 @@ namespace WechatBakTool.Pages
                 txt_find_user.Text = "";
 
             Debug.WriteLine(ViewModel.SearchString);
+        }
+
+        private void btn_export_Click(object sender, RoutedEventArgs e)
+        {
+            if(ViewModel.WXContact == null || UserReader == null)
+            {
+                MessageBox.Show("请选择联系人", "错误");
+                return;
+            }
+            IExport export = new HtmlExport();
+            export.InitTemplate(ViewModel.WXContact);
+            export.SetMsg(UserReader, ViewModel.WXContact);
+            export.SetEnd();
+            //string path = UserReader.GetSavePath(wXContact);
+            string path = Path.Combine(Main2.CurrentUserBakConfig!.UserWorkspacePath, ViewModel.WXContact.UserName + ".html");
+            export.Save(path);
+            MessageBox.Show("导出完成");
+        }
+
+        private void btn_open_workspace_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start("explorer.exe ", Main2.CurrentUserBakConfig!.UserWorkspacePath);
         }
     }
 }

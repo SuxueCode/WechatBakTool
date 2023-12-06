@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using WechatBakTool.Helpers;
 using WechatBakTool.Model;
+using WechatBakTool.Pages;
 
 namespace WechatBakTool
 {
@@ -48,6 +49,11 @@ namespace WechatBakTool
 
                 WechatDBHelper.DecryUserData(key, source, to);
                 UserBakConfig.Decrypt = true;
+
+                WXUserReader reader = new WXUserReader(UserBakConfig);
+                int[] count = reader.GetWXCount();
+                UserBakConfig.Friends_Number = count[0].ToString();
+                UserBakConfig.Msg_Number = count[1].ToString();
                 SaveConfig(UserBakConfig);
             }
         }

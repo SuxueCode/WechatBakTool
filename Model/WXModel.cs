@@ -33,6 +33,11 @@ namespace WechatBakTool.Model
         }
     }
 
+    public class WXCount
+    {
+        public int Count { get; set; }
+    }
+
     public class WXMsgGroup
     {
         [Column("StrTalker")]

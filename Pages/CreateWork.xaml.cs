@@ -111,6 +111,7 @@ namespace WechatBakTool.Pages
                         try
                         {
                             wXWorkspace.DecryptDB(ViewModel.SelectProcess.ProcessId, ViewModel.KeyType);
+
                             MessageBox.Show("创建工作区成功");
                             ((Main2)Window.GetWindow(this)).LoadWorkspace();
                         }

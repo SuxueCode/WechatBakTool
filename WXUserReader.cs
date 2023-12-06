@@ -84,6 +84,32 @@ namespace WechatBakTool
             }
             return null;
         }
+
+        public int[] GetWXCount()
+        {
+            SQLiteConnection con = DBInfo["MicroMsg"];
+            if (con == null)
+                return new int[] { 0, 0 };
+
+            string query = @"select count(*) as count from contact where type != 4";
+            int userCount = con.Query<WXCount>(query)[0].Count;
+
+            int msgCount = 0;
+            for (int i = 0; i <= 99; i++)
+            {
+                if (DBInfo.ContainsKey("MSG" + i.ToString()))
+                {
+                    con = DBInfo["MSG" + i.ToString()];
+                    if (con == null)
+                        return new int[] { userCount, 0 };
+
+                    query = "select count(*) as count from MSG";
+                    msgCount += con.Query<WXCount>(query)[0].Count;
+                }
+            }
+            return new int[] { userCount, msgCount };
+        }
+
         public ObservableCollection<WXContact> GetWXContacts(string? name = null,bool all = false)
         {
             SQLiteConnection con = DBInfo["MicroMsg"];

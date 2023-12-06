@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:WechatBakTool.Pages"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="450" d:DesignWidth="720"
       Title="Workspace" Background="White">
     <Page.Resources>
         <Style x:Key="RepeatButtonTransparent" TargetType="{x:Type RepeatButton}">
@@ -127,8 +127,22 @@
             </ListView.Resources>
         </ListView>
         <Label Content="{Binding WXContact.NickName}" HorizontalAlignment="Left" Margin="258,21,0,0" VerticalAlignment="Top"/>
-        <ListView x:Name="list_msg" Margin="230,60,0,0" Background="Transparent" BorderThickness="0" ItemTemplate="{DynamicResource MsgText}">
+        <ListView x:Name="list_msg" Margin="230,60,0,60" Background="Transparent" BorderThickness="0,1,0,1" BorderBrush="#BB2775b6" ItemTemplate="{DynamicResource MsgText}">
             
         </ListView>
+        <Button Name="btn_export" Width="90" Height="30" Content="导出HTML" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="20,15" Click="btn_export_Click" IsEnabled="{Binding SelectContact}">
+            <Button.Resources>
+                <Style TargetType="{x:Type Border}">
+                    <Setter Property="CornerRadius" Value="3"/>
+                </Style>
+            </Button.Resources>
+        </Button>
+        <Button x:Name="btn_open_workspace" Width="90" Height="30" Content="打开文件夹" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,380,15" Click="btn_open_workspace_Click">
+            <Button.Resources>
+                <Style TargetType="{x:Type Border}">
+                    <Setter Property="CornerRadius" Value="3"/>
+                </Style>
+            </Button.Resources>
+        </Button>
     </Grid>
 </Page>

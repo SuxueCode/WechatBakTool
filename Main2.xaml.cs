@@ -74,7 +74,7 @@ namespace WechatBakTool
             UserBakConfig? config = list_workspace.SelectedItem as UserBakConfig;
             if(config == null)
             {
-                MessageBox.Show("该工作区可能有异常，请确认配置文件是否正确");
+                MainFrame.Navigate(new Uri("pack://application:,,,/Pages/Welcome.xaml?datatime=" + DateTime.Now.Ticks));
                 return;
             }
             if (!config.Decrypt)
