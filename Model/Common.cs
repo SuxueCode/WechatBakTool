@@ -21,6 +21,12 @@ namespace WechatBakTool.Model
         public string ResPath { get; set; } = "";
     }
 
+    public class ExportItem
+    {
+        public string Name { get; set; } = "";
+        public int Value { get; set; }
+    }
+
     public class UserInfo
     {
         public string UserName { get; set; } = "";

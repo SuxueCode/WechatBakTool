@@ -8,6 +8,107 @@
       d:DesignHeight="450" d:DesignWidth="720"
       Title="Workspace" Background="White">
     <Page.Resources>
+        <Style TargetType="ToggleButton" x:Key="ComboxStyleBtn">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <!--下拉按钮内部背景色-->
+                        <Border x:Name="Back" Background="#2775b6" BorderThickness="1,0,0,0" CornerRadius="0,3,3,0">
+                            <!--下拉按钮内边框-->
+                            <Path Name="PathFill" Fill="White"  Width="10" Height="6" StrokeThickness="0" Data="M5,0 L10,10 L0,10 z" RenderTransformOrigin="0.5,0.5" Stretch="Fill">
+                                <Path.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform/>
+                                        <SkewTransform/>
+                                        <RotateTransform Angle="180"/>
+                                        <TranslateTransform/>
+                                    </TransformGroup>
+                                </Path.RenderTransform>
+                            </Path>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="PathFill" Property="Fill" Value="White"></Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!--Combox-->
+        <Style TargetType="ComboBox" x:Key="ComboBoxStyle">
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <!--ComBoxItem-->
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="MinHeight" Value="22"></Setter>
+                        <Setter Property="MinWidth" Value="60"></Setter>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ComboBoxItem">
+                                    <Border Name="Back" Background="Transparent"  BorderThickness="0,0,0,0">
+                                        <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" ></ContentPresenter>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Back" Property="Background" Value="LightGray"></Setter>
+                                        </Trigger>
+                                        <!--下拉框背景色-->
+                                        <Trigger Property="IsHighlighted" Value="True">
+                                            <Setter TargetName="Back" Property="Background" Value="#2775b6"></Setter>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.7*"/>
+                                <ColumnDefinition Width="0.3*" MaxWidth="30"/>
+                            </Grid.ColumnDefinitions>
+                            <!--文字区域背景和边线样式-->
+                            
+                            <Border Grid.Column="0" BorderThickness="1" BorderBrush="#2775b6" CornerRadius="3,0,0,3">
+                                <Button Name="export" Style="{StaticResource ButtonStyle}" Click="Export_Click" Background="#2775b6" Foreground="White"  Grid.Column="0" BorderThickness="0" Content="{TemplateBinding Text}" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Padding="8,0,0,0" />
+                            </Border>
+                            <!--右侧下拉button设置-->
+                            <Border Grid.Column="1"  BorderThickness="0">
+                                <ToggleButton BorderThickness="3" Style="{StaticResource ComboxStyleBtn}" IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press"></ToggleButton>
+                            </Border>
+                            <!--弹出popup整体设置-->
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" x:Name="Popup" Focusable="False" AllowsTransparency="False" PopupAnimation="Slide" >
+                                <!--弹出popup边框-->
+                                <Border CornerRadius="3" BorderThickness="0" MaxHeight="{TemplateBinding MaxDropDownHeight}" MinWidth="{TemplateBinding ActualWidth}" x:Name="DropDown" SnapsToDevicePixels="True">
+                                    <!--下拉幕布边界背景设置 MaxHeight="{TemplateBinding MaxDropDownHeight}"-->
+                                    <ScrollViewer Margin="0,0,0,0" Background="Gray"  SnapsToDevicePixels="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" BorderBrush="Gray" BorderThickness="0" >
+                                        <!--StackPanel 用于显示子级，方法是将 IsItemsHost 设置为 True-->
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" Background="#BB2775b6" />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style x:Key="RepeatButtonTransparent" TargetType="{x:Type RepeatButton}">
             <Setter Property="OverridesDefaultStyle" Value="true"/>
             <Setter Property="Background" Value="#2775b6"/>
@@ -73,24 +174,6 @@
         </DataTemplate>
     </Page.Resources>
     <Grid>
-        <!--
-        <Label FontSize="20" Margin="30,15" Content="工作台" HorizontalAlignment="Left" VerticalAlignment="Top" />
-        <Label Name="lab_status" Margin="30,45,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="当前工作区还未解密，请先解密。"></Label>
-        <Button Name="btn_decrypt" Margin="35,80,0,0" Width="60" Height="30" Content="解密" Foreground="White" Background="#2775b6" BorderThickness="0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="btn_decrypt_Click">
-            <Button.Resources>
-                <Style TargetType="{x:Type Border}">
-                    <Setter Property="CornerRadius" Value="3" />
-                </Style>
-            </Button.Resources>
-        </Button>
-        <Button Name="btn_read" Margin="125,80,0,0" Width="60" Height="30" Content="读取" IsEnabled="False" Foreground="White" Background="#2775b6" BorderThickness="0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="btn_read_Click">
-            <Button.Resources>
-                <Style TargetType="{x:Type Border}">
-                    <Setter Property="CornerRadius" Value="3" />
-                </Style>
-            </Button.Resources>
-        </Button>
-        -->
         <TextBox Name="txt_find_user" Padding="10,0" Height="30" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="14" HorizontalAlignment="Left" Width="230" BorderThickness="0,0,10,1" BorderBrush="#2775b6" TextChanged="txt_find_user_TextChanged" GotFocus="txt_find_user_GotFocus" Text="{Binding SearchString, Mode=TwoWay}" />
         <ListView Margin="0,30,0,0" Background="Transparent" HorizontalAlignment="Left" Width="230" Name="list_users" ItemTemplate="{DynamicResource ListViewItemContentTemplate}" BorderThickness="0,0,1,0" BorderBrush="#2775b6" SelectionChanged="list_users_SelectionChanged" ItemsSource="{Binding Contacts}">
             <ListView.Resources>
@@ -130,21 +213,15 @@
         <ListView x:Name="list_msg" Margin="230,60,0,60" Background="Transparent" BorderThickness="0,1,0,1" BorderBrush="#BB2775b6" ItemTemplate="{DynamicResource MsgText}">
             
         </ListView>
-        <Button Name="btn_export" Width="90" Height="30" Content="导出HTML" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="20,15" Click="btn_export_Click" IsEnabled="{Binding SelectContact}">
+        <ComboBox Name="cb_export" Width="120" Height="30" Style="{StaticResource ComboBoxStyle}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="30,15" ItemsSource="{Binding ExportItems}" SelectedItem="{Binding SelectExportItem}" DisplayMemberPath="Name" SelectedValuePath="Value" IsEnabled="{Binding SelectContact}" />
+        <Button x:Name="btn_open_workspace" Width="80" Height="30" Style="{StaticResource  ButtonStyle}" Content="打开文件夹" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,390,15" Click="btn_open_workspace_Click">
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="3"/>
                 </Style>
             </Button.Resources>
         </Button>
-        <Button x:Name="btn_open_workspace" Width="80" Height="30" Content="打开文件夹" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,390,15" Click="btn_open_workspace_Click">
-            <Button.Resources>
-                <Style TargetType="{x:Type Border}">
-                    <Setter Property="CornerRadius" Value="3"/>
-                </Style>
-            </Button.Resources>
-        </Button>
-        <Button x:Name="btn_analyse" Width="80" Height="30" Content="旧版消息工具" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,292,15" Click="btn_analyse_Click" >
+        <Button x:Name="btn_analyse" Width="80" Height="30" Style="{StaticResource  ButtonStyle}" Content="旧版消息工具" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,292,15" Click="btn_analyse_Click" >
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="3"/>
