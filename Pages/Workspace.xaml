@@ -13,9 +13,9 @@
                 <Setter.Value>
                     <ControlTemplate>
                         <!--下拉按钮内部背景色-->
-                        <Border x:Name="Back" Background="#2775b6" BorderThickness="1,0,0,0" CornerRadius="0,3,3,0">
+                        <Border x:Name="Back" Background="{Binding Background, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" BorderThickness="1,0,0,0" CornerRadius="0,3,3,0">
                             <!--下拉按钮内边框-->
-                            <Path Name="PathFill" Fill="White"  Width="10" Height="6" StrokeThickness="0" Data="M5,0 L10,10 L0,10 z" RenderTransformOrigin="0.5,0.5" Stretch="Fill">
+                            <Path Name="PathFill" Fill="{Binding Foreground, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"  Width="10" Height="6" StrokeThickness="0" Data="M5,0 L10,10 L0,10 z" RenderTransformOrigin="0.5,0.5" Stretch="Fill">
                                 <Path.RenderTransform>
                                     <TransformGroup>
                                         <ScaleTransform/>
@@ -34,17 +34,20 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=IsEnabled, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Value="False">
+                    <Setter Property="Background" Value="#efefef" />
+                    <Setter Property="Opacity" Value="1" />
+                    <Setter Property="Foreground" Value="#000000" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=IsEnabled, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Value="True">
+                    <Setter Property="Background" Value="#2775b6" />
+                    <Setter Property="Foreground" Value="#ffffff" />
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
         <Style x:Key="ButtonStyle" TargetType="{x:Type Button}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+
         </Style>
         <!--Combox-->
         <Style TargetType="ComboBox" x:Key="ComboBoxStyle">
@@ -58,12 +61,12 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ComboBoxItem">
-                                    <Border Name="Back" Background="Transparent"  BorderThickness="0,0,0,0">
+                                    <Border Name="Back" Background="Transparent"  BorderThickness="0">
                                         <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" ></ContentPresenter>
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="Back" Property="Background" Value="LightGray"></Setter>
+                                            <Setter TargetName="Back" Property="Background" Value="#BB2775b6"></Setter>
                                         </Trigger>
                                         <!--下拉框背景色-->
                                         <Trigger Property="IsHighlighted" Value="True">
@@ -79,15 +82,16 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
-                        <Grid Background="Transparent">
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="0.7*"/>
                                 <ColumnDefinition Width="0.3*" MaxWidth="30"/>
                             </Grid.ColumnDefinitions>
                             <!--文字区域背景和边线样式-->
-                            
-                            <Border Grid.Column="0" BorderThickness="1" BorderBrush="#2775b6" CornerRadius="3,0,0,3">
-                                <Button Name="export" Style="{StaticResource ButtonStyle}" Click="Export_Click" Background="#2775b6" Foreground="White"  Grid.Column="0" BorderThickness="0" Content="{TemplateBinding Text}" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Padding="8,0,0,0" />
+
+                            <Border Grid.Column="0" BorderThickness="1" BorderBrush="{Binding Background, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" CornerRadius="3,0,0,3">
+                                <Button Name="export" Click="Export_Click" Background="{Binding Background, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Foreground="White"  Grid.Column="0" BorderThickness="0" Content="{TemplateBinding Text}" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Padding="8,0,0,0">
+                                </Button>
                             </Border>
                             <!--右侧下拉button设置-->
                             <Border Grid.Column="1"  BorderThickness="0">
@@ -213,7 +217,7 @@
         <ListView x:Name="list_msg" Margin="230,60,0,60" Background="Transparent" BorderThickness="0,1,0,1" BorderBrush="#BB2775b6" ItemTemplate="{DynamicResource MsgText}">
             
         </ListView>
-        <ComboBox Name="cb_export" Width="120" Height="30" Style="{StaticResource ComboBoxStyle}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="30,15" ItemsSource="{Binding ExportItems}" SelectedItem="{Binding SelectExportItem}" DisplayMemberPath="Name" SelectedValuePath="Value" IsEnabled="{Binding SelectContact}" />
+        <ComboBox Name="cb_export" Width="120" Height="30" Style="{StaticResource ComboBoxStyle}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="30,15" ItemsSource="{Binding ExportItems}" SelectedItem="{Binding SelectExportItem}" DisplayMemberPath="Name" SelectedValuePath="Value" IsEnabled="{Binding SelectContact}" Background="#2775b6" />
         <Button x:Name="btn_open_workspace" Width="80" Height="30" Style="{StaticResource  ButtonStyle}" Content="打开文件夹" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,390,15" Click="btn_open_workspace_Click">
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
