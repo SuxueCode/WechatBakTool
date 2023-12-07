@@ -34,6 +34,12 @@ namespace WechatBakTool.ViewModel
         [ObservableProperty]
         private ObservableCollection<WXContact>? contacts;
 
+        [ObservableProperty]
+        private ObservableCollection<ExportItem>? exportItems;
+
+        [ObservableProperty]
+        private ExportItem? selectExportItem;
+
         private string searchString = "";
         public string SearchString
         {
