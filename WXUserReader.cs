@@ -368,7 +368,10 @@ namespace WechatBakTool
 
             if (path == null)
                 return null;
-            
+
+            if (!File.Exists(path))
+                return null;
+
             // 获取到原路径后，开始进行解密转移,只有图片和语音需要解密，解密后是直接归档目录
             if(type == WXMsgType.Image || type== WXMsgType.Audio)
             {
