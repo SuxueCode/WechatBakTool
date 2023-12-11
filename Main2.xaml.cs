@@ -27,8 +27,9 @@ namespace WechatBakTool
         public Main2()
         {
             InitializeComponent();
+            // 获取文件版本
             lab_version.Content += $" {Application.ResourceAssembly.GetName().Version}";
-            // list_workspace.Items.Add(new { Name = "sxcoder", Friends_Number=23, Msg_Number=102302, Decrypt="已解密" });
+            //加载工作区
             LoadWorkspace();
         }
 
@@ -40,10 +41,12 @@ namespace WechatBakTool
         public void LoadWorkspace()
         {
             userBakConfigs.Clear();
+            // 根目录worksapce读工作区
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "workspace");
             if (Directory.Exists(path))
             {
                 string[] files = Directory.GetFiles(path);
+                //目录内json文件为各工作区配置文件
                 foreach (string file in files)
                 {
                     string type = file.Substring(file.Length - 5, 5);
@@ -104,6 +107,16 @@ namespace WechatBakTool
             {
                 DragMove();
             }
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MainFrame.Navigate(new Uri("pack://application:,,,/Pages/Workspace.xaml?datatime=" + DateTime.Now.Ticks));
+        }
+
+        private void MenuItem_Click_1(object sender, RoutedEventArgs e)
+        {
+            MainFrame.Navigate(new Uri("pack://application:,,,/Pages/Manager.xaml?datatime=" + DateTime.Now.Ticks));
         }
     }
 }

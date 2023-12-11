@@ -27,8 +27,8 @@ namespace WechatBakTool.Pages
     /// </summary>
     public partial class Workspace : Page
     {
-        public WXUserReader? UserReader { get; set; }
-        private WorkspaceViewModel ViewModel { get; set; } = new WorkspaceViewModel();
+        public WXUserReader? UserReader;
+        private WorkspaceViewModel ViewModel = new WorkspaceViewModel();
         public Workspace()
         {
             ViewModel.ExportItems = new System.Collections.ObjectModel.ObservableCollection<ExportItem> {
@@ -37,6 +37,9 @@ namespace WechatBakTool.Pages
             };
             ViewModel.SelectExportItem = ViewModel.ExportItems[0];
             InitializeComponent();
+
+            list_users.Items.Clear();
+
             DataContext = ViewModel;
             UserBakConfig? config = Main2.CurrentUserBakConfig;
             if (config != null)
