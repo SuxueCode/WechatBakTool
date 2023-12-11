@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using WechatBakTool.Helpers;
 using WechatBakTool.Model;
-using WechatBakTool.Pages;
+using WechatBakTool.ViewModel;
 
 namespace WechatBakTool
 {
@@ -28,7 +28,7 @@ namespace WechatBakTool
             UserBakConfig = userBakConfig;
         }
 
-        public void DecryptDB(string pid,int type)
+        public void DecryptDB(string pid,int type,CreateWorkViewModel viewModel)
         {
             if (UserBakConfig == null)
             {
@@ -47,7 +47,7 @@ namespace WechatBakTool
                 string source = Path.Combine(UserBakConfig.UserWorkspacePath, "OriginalDB");
                 string to = Path.Combine(UserBakConfig.UserWorkspacePath, "DecDB");
 
-                DecryptionHelper.DecryUserData(key, source, to);
+                DecryptionHelper.DecryUserData(key, source, to, viewModel);
                 UserBakConfig.Decrypt = true;
 
                 WXUserReader reader = new WXUserReader(UserBakConfig);
@@ -58,7 +58,7 @@ namespace WechatBakTool
             }
         }
 
-        public void MoveDB()
+        public void MoveDB(CreateWorkViewModel viewModel)
         {
             string sourceBase = Path.Combine(UserBakConfig.UserResPath, "Msg");
             string sourceMulit = Path.Combine(UserBakConfig.UserResPath, "Msg/Multi");
@@ -66,8 +66,9 @@ namespace WechatBakTool
             foreach (string file in files)
             {
                 FileInfo fileInfo = new FileInfo(file);
-                if(fileInfo.Extension == ".db")
+                if (fileInfo.Extension == ".db")
                 {
+                    viewModel.LabelStatus = "正在迁移" + fileInfo.Name;
                     string to_path = Path.Combine(UserBakConfig.UserWorkspacePath, "OriginalDB", fileInfo.Name);
                     File.Copy(file, to_path, true);
                 }
@@ -79,6 +80,7 @@ namespace WechatBakTool
                 FileInfo fileInfo = new FileInfo(file);
                 if (fileInfo.Extension == ".db")
                 {
+                    viewModel.LabelStatus = "正在迁移" + fileInfo.Name;
                     string to_path = Path.Combine(UserBakConfig.UserWorkspacePath, "OriginalDB", fileInfo.Name);
                     File.Copy(file, to_path, true);
                 }

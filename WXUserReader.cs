@@ -369,9 +369,6 @@ namespace WechatBakTool
             if (path == null)
                 return null;
 
-            if (!File.Exists(path))
-                return null;
-
             // 获取到原路径后，开始进行解密转移,只有图片和语音需要解密，解密后是直接归档目录
             if(type == WXMsgType.Image || type== WXMsgType.Audio)
             {
@@ -383,12 +380,24 @@ namespace WechatBakTool
                 if(!Directory.Exists(video_dir))
                     Directory.CreateDirectory(video_dir);
                 FileInfo fileInfo = new FileInfo(path);
+                // 目标视频路径
                 string video_file_path = Path.Combine(video_dir, fileInfo.Name);
                 // 视频的路径是相对路径，需要加上资源目录
                 path = Path.Combine(UserBakConfig.UserResPath, path);
-                if(!File.Exists(video_file_path))
+                // 原文件存在，目标不存在
+                if (!File.Exists(video_file_path) && File.Exists(path))
+                {
+                    // 复制
                     File.Copy(path, video_file_path);
-                path = video_file_path;
+                    path = video_file_path;
+                }
+                else if (File.Exists(video_file_path))
+                {
+                    path = video_file_path;
+                }
+                else
+                    return null;
+                    
             }
 
             if (path == null)

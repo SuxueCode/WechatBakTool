@@ -4,14 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WechatBakTool.Model;
+using WechatBakTool.ViewModel;
 
 namespace WechatBakTool.Export
 {
     public interface IExport
     {
         void InitTemplate(WXContact session,string path);
-        void SetMsg(WXUserReader reader, WXContact session);
+        void SetMsg(WXUserReader reader, WXContact session, WorkspaceViewModel viewModel);
         void SetEnd();
-        void Save(string path = "", bool append = false);
+        void Save(string path = "");
     }
 }

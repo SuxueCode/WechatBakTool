@@ -96,40 +96,56 @@ namespace WechatBakTool.Pages
 
         private void btn_create_worksapce_Click(object sender, RoutedEventArgs e)
         {
-            if(ViewModel.KeyType != -1)
-            {
-                if (ViewModel.SelectProcess != null)
+            ViewModel.IsEnable = false;
+            Task.Run(() => {
+                if (ViewModel.KeyType != -1)
                 {
-                    string path = ViewModel.SelectProcess.DBPath.Replace("\\Msg\\MicroMsg.db", "");
-                    try
+                    if (ViewModel.SelectProcess != null)
                     {
-                        //创建工作区
-                        WXWorkspace wXWorkspace = new WXWorkspace(path, ViewModel.UserName);
-                        //DB移动
-                        wXWorkspace.MoveDB();
-                        //开始解密数据库
+                        ViewModel.LabelStatus = "数据准备";
+                        string path = ViewModel.SelectProcess.DBPath.Replace("\\Msg\\MicroMsg.db", "");
                         try
                         {
-                            wXWorkspace.DecryptDB(ViewModel.SelectProcess.ProcessId, ViewModel.KeyType);
+                            ViewModel.LabelStatus = "准备创建工作区";
+                            //创建工作区
+                            WXWorkspace wXWorkspace = new WXWorkspace(path, ViewModel.UserName);
+                            //DB移动
+                            wXWorkspace.MoveDB(ViewModel);
+                            if(ViewModel.SelectProcess == null)
+                                return;
 
-                            MessageBox.Show("创建工作区成功");
-                            ((Main2)Window.GetWindow(this)).LoadWorkspace();
+                            //开始解密数据库
+                            try
+                            {
+                                ViewModel.LabelStatus = "开始解密数据库";
+                                wXWorkspace.DecryptDB(ViewModel.SelectProcess.ProcessId, ViewModel.KeyType,ViewModel);
+
+                                MessageBox.Show("创建工作区成功");
+                                Dispatcher.Invoke(() =>
+                                {
+                                    ((Main2)Window.GetWindow(this)).LoadWorkspace();
+                                });
+                                
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show(ex.Message);
+                                ViewModel.IsEnable = true;
+                            }
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
-                            MessageBox.Show(ex.Message);
+                            MessageBox.Show("创建工作区失败，请检查路径是否正确");
+                            ViewModel.IsEnable = true;
                         }
-                    }
-                    catch (Exception)
-                    {
-                        MessageBox.Show("创建工作区失败，请检查路径是否正确");
                     }
                 }
-            }
-            else
-            {
-                MessageBox.Show("请选择Key获取方式", "错误");
-            }
+                else
+                {
+                    MessageBox.Show("请选择Key获取方式", "错误");
+                }
+                ViewModel.IsEnable = true;
+            });
         }
     }
 }

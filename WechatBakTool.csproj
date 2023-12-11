@@ -6,9 +6,9 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <AssemblyVersion>0.9.1.1</AssemblyVersion>
-    <FileVersion>0.9.1.1</FileVersion>
-    <Version>0.9.1.1</Version>
+    <AssemblyVersion>0.9.2.0</AssemblyVersion>
+    <FileVersion>0.9.2.0</FileVersion>
+    <Version>0.9.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,6 +35,10 @@
     <None Update="version.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="YearReport\" />
   </ItemGroup>
 
 </Project>

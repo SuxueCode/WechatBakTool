@@ -13,7 +13,7 @@
     <Grid>
         <Label FontSize="20" Margin="30,15" Content="新建工作区" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <Label Margin="30,55,0,0" Content="请选择要创建工作区的微信，可以通过微信路径判断是哪一个微信哦！" HorizontalAlignment="Left" VerticalAlignment="Top" />
-        <ListView Name="list_process" Margin="35,95,35,0" VerticalAlignment="Top" Height="160" ItemsSource="{Binding ProcessInfos}" SelectionChanged="list_process_SelectionChanged" SelectedItem="{Binding SelectProcess}">
+        <ListView Name="list_process" Margin="35,95,35,0" IsEnabled="{Binding IsEnable}" VerticalAlignment="Top" Height="160" ItemsSource="{Binding ProcessInfos}" SelectionChanged="list_process_SelectionChanged" SelectedItem="{Binding SelectProcess}">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="进程名" Width="120" DisplayMemberBinding="{Binding ProcessName}" />
@@ -23,13 +23,13 @@
             </ListView.View>
         </ListView>
         <Label Margin="30,275,0,0" Content="选择微信后，请确认下方自动获取的微信名是否正确。不正确请修改！" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <TextBox x:Name="txt_username" Margin="35,300,0,0" Width="280" HorizontalAlignment="Left" VerticalAlignment="Top" BorderThickness="0,0,0,1" Text="{Binding UserName}" />
+        <TextBox IsEnabled="{Binding IsEnable}" x:Name="txt_username" Margin="35,300,0,0" Width="280" HorizontalAlignment="Left" VerticalAlignment="Top" BorderThickness="0,0,0,1" Text="{Binding UserName}" />
 
         <Label Margin="30,350,0,0" Content="请选择解密方式：" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <RadioButton Margin="35,380,0,0" Content="固定地址查找" HorizontalAlignment="Left" VerticalAlignment="Top" GroupName="rb_find_key" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsChecked="{Binding KeyType, Converter={StaticResource ResourceKey=getKeyConverterKey}, ConverterParameter=1}" />
-        <RadioButton Margin="35,405,0,0" Content="用户名推断查找" HorizontalAlignment="Left" VerticalAlignment="Top" GroupName="rb_find_key" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsChecked="{Binding KeyType, Converter={StaticResource ResourceKey=getKeyConverterKey}, ConverterParameter=2}"/>
+        <RadioButton Margin="35,380,0,0" Content="固定地址查找" HorizontalAlignment="Left" VerticalAlignment="Top" GroupName="rb_find_key" HorizontalContentAlignment="Center" IsEnabled="{Binding IsEnable}" VerticalContentAlignment="Center" IsChecked="{Binding KeyType, Converter={StaticResource ResourceKey=getKeyConverterKey}, ConverterParameter=1}" />
+        <RadioButton Margin="35,405,0,0" Content="用户名推断查找" HorizontalAlignment="Left" VerticalAlignment="Top" GroupName="rb_find_key" HorizontalContentAlignment="Center" IsEnabled="{Binding IsEnable}" VerticalContentAlignment="Center" IsChecked="{Binding KeyType, Converter={StaticResource ResourceKey=getKeyConverterKey}, ConverterParameter=2}"/>
 
-        <Button Name="btn_create_worksapce" Margin="0,0,35,50" Height="60" Width="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="创建工作区" BorderThickness="0" Background="#2775b6" Foreground="White" Click="btn_create_worksapce_Click">
+        <Button Name="btn_create_worksapce" Margin="0,0,35,50" Height="60" Width="100" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="创建工作区" BorderThickness="0" IsEnabled="{Binding IsEnable}" Background="#2775b6" Foreground="White" Click="btn_create_worksapce_Click">
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="8"/>
@@ -39,5 +39,6 @@
         <Label Margin="210,350,0,0" Content="其他选项：" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         <CheckBox Margin="215,380,0,0" Content="打包资源文件夹（功能规划中）" IsEnabled="False" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <CheckBox Margin="215,405,0,0" Content="手动模式（功能规划中）" IsEnabled="False" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <Label Name="lab_status" Content="{Binding LabelStatus}" HorizontalAlignment="Left" Margin="30,450,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Page>

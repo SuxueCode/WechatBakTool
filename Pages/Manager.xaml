@@ -1,0 +1,18 @@
+﻿<Page x:Class="WechatBakTool.Pages.Manager"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:WechatBakTool.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="720"
+      Title="Manager" Background="White">
+    <Grid>
+        <Label FontSize="20" Margin="30,15" Content="管理" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <Label Margin="30,55" Content="批量导出聊天记录" HorizontalAlignment="Left" VerticalAlignment="Top" FontWeight="Bold" />
+        <CheckBox Name="cb_group" Margin="35,85" Content="群聊" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <CheckBox Name="cb_user" Margin="90,85" Content="好友聊天" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <Button Name="btn_export_all" Margin="35,110" Height="26" Width="60" Content="导出" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#2775b6" Foreground="White" BorderThickness="0" Click="btn_export_all_Click"></Button>
+        <Label Content="{Binding LabelStatus}" HorizontalAlignment="Left" Margin="110,110,0,0" VerticalAlignment="Top"/>
+    </Grid>
+</Page>

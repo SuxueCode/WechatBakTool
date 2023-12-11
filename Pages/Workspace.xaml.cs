@@ -27,8 +27,8 @@ namespace WechatBakTool.Pages
     /// </summary>
     public partial class Workspace : Page
     {
-        public WXUserReader? UserReader { get; set; }
-        private WorkspaceViewModel ViewModel { get; set; } = new WorkspaceViewModel();
+        public WXUserReader? UserReader;
+        private WorkspaceViewModel ViewModel = new WorkspaceViewModel();
         public Workspace()
         {
             ViewModel.ExportItems = new System.Collections.ObjectModel.ObservableCollection<ExportItem> {
@@ -37,6 +37,9 @@ namespace WechatBakTool.Pages
             };
             ViewModel.SelectExportItem = ViewModel.ExportItems[0];
             InitializeComponent();
+
+            list_users.Items.Clear();
+
             DataContext = ViewModel;
             UserBakConfig? config = Main2.CurrentUserBakConfig;
             if (config != null)
@@ -60,6 +63,7 @@ namespace WechatBakTool.Pages
 
         private void list_users_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            ViewModel.ExportCount = "";
             ViewModel.WXContact = list_users.SelectedItem as WXContact;
             if(ViewModel.WXContact == null || UserReader == null)
             {
@@ -99,7 +103,7 @@ namespace WechatBakTool.Pages
             string path = Path.Combine(Main2.CurrentUserBakConfig!.UserWorkspacePath, ViewModel.WXContact.UserName + ".txt");
             IExport export = new TXTExport();
             export.InitTemplate(ViewModel.WXContact, path);
-            export.SetMsg(UserReader, ViewModel.WXContact);
+            export.SetMsg(UserReader, ViewModel.WXContact, ViewModel);
             export.SetEnd();
             export.Save(path);
             MessageBox.Show("导出完成");
@@ -123,38 +127,48 @@ namespace WechatBakTool.Pages
 
         private void Export_Click(object sender, RoutedEventArgs e)
         {
-            if (ViewModel.WXContact == null || UserReader == null)
+            Task.Run(() =>
             {
-                MessageBox.Show("请选择联系人", "错误");
-                return;
-            }
-            if(ViewModel.SelectExportItem == null)
-            {
-                MessageBox.Show("请选择导出方式", "错误");
-                return;
-            }
-            string path = Path.Combine(Main2.CurrentUserBakConfig!.UserWorkspacePath, ViewModel.WXContact.UserName);
-            IExport export;
-            if (ViewModel.SelectExportItem.Value == 2)
-            {
-                path += ".txt";
-                export = new TXTExport();
-            }
-            else
-            {
-                path += ".html";
-                export = new HtmlExport();
-            }
-            export.InitTemplate(ViewModel.WXContact, path);
-            export.SetMsg(UserReader, ViewModel.WXContact);
-            export.SetEnd();
-            export.Save(path);
-            MessageBox.Show("导出完成");
-        }
+                
 
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
+                if (ViewModel.WXContact == null || UserReader == null)
+                {
+                    MessageBox.Show("请选择联系人", "错误");
+                    return;
+                }
+                if (ViewModel.SelectExportItem == null)
+                {
+                    MessageBox.Show("请选择导出方式", "错误");
+                    return;
+                }
+                string path = Path.Combine(Main2.CurrentUserBakConfig!.UserWorkspacePath, ViewModel.WXContact.UserName);
+                IExport export;
 
+#if DEBUG
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+#endif
+                if (ViewModel.SelectExportItem.Value == 2)
+                {
+                    path += ".txt";
+                    export = new TXTExport();
+                }
+                else
+                {
+                    path += ".html";
+                    export = new HtmlExport();
+                }
+                export.InitTemplate(ViewModel.WXContact, path);
+                export.SetMsg(UserReader, ViewModel.WXContact, ViewModel);
+                export.SetEnd();
+                export.Save(path);
+#if DEBUG
+                stopwatch.Stop();
+                MessageBox.Show(stopwatch.Elapsed.ToString());
+#endif
+                MessageBox.Show("导出完成", "提示");
+            });
+            
         }
     }
 }

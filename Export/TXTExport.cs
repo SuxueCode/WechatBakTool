@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using WechatBakTool.Model;
+using WechatBakTool.ViewModel;
 
 namespace WechatBakTool.Export
 {
@@ -29,7 +30,7 @@ namespace WechatBakTool.Export
             File.AppendAllText(Path, string.Format("=================================================================\n\n\n"));
         }
 
-        void IExport.Save(string path, bool append)
+        void IExport.Save(string path)
         {
             
         }
@@ -39,7 +40,7 @@ namespace WechatBakTool.Export
             
         }
 
-        public void SetMsg(WXUserReader reader, WXContact session)
+        public void SetMsg(WXUserReader reader, WXContact session, WorkspaceViewModel viewModel)
         {
             if (Contact == null)
                 throw new Exception("请初始化模版：Not Use InitTemplate");
@@ -50,6 +51,7 @@ namespace WechatBakTool.Export
 
             msgList.Sort((x, y) => x.CreateTime.CompareTo(y.CreateTime));
 
+            int msgCount = 0;
             foreach (var msg in msgList)
             {
                 string txtMsg = "";
@@ -134,6 +136,8 @@ namespace WechatBakTool.Export
                 }
                 string row = string.Format("{2} | {0}:{1}\n", msg.IsSender ? "我" : msg.NickName, txtMsg, TimeStampToDateTime(msg.CreateTime).ToString("yyyy-MM-dd HH:mm:ss"));
                 File.AppendAllText(Path, row);
+                msgCount++;
+                viewModel.ExportCount = msgCount.ToString();
             }
         }
 

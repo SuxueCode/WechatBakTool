@@ -9,15 +9,29 @@ using WechatBakTool.Model;
 
 namespace WechatBakTool.ViewModel
 {
-    partial class WorkspaceViewModel : ObservableObject
+    public partial class WorkspaceViewModel : ObservableObject
     {
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SelectContact))]
+        [NotifyPropertyChangedFor(nameof(LabelStatus))]
         private WXContact? wXContact = null;
-        public WXContact? WXContact {
-            get { return wXContact; }
-            set {  
-                wXContact = value;
-                OnPropertyChanged("WXContact");
-                OnPropertyChanged("SelectContact");
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(LabelStatus))]
+        private string exportCount = "";
+
+        public string LabelStatus
+        {
+            get
+            {
+                if (WXContact == null)
+                    return ExportCount;
+
+                string name = WXContact.NickName;
+                if(WXContact.Remark != "")
+                    name = WXContact.Remark;
+
+                return string.Format("{0}:{1}", name, ExportCount);
             }
         }
 
@@ -56,14 +70,6 @@ namespace WechatBakTool.ViewModel
             {
                 if (searchString == "")
                     return "搜索...";
-                return searchString;
-            }
-        }
-
-        public string SearchRealString
-        {
-            get
-            {
                 return searchString;
             }
         }

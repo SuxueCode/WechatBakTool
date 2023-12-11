@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using WechatBakTool.Model;
 using System.Xml;
+using Newtonsoft.Json;
+using WechatBakTool.ViewModel;
 
 namespace WechatBakTool.Export
 {
@@ -23,6 +25,7 @@ namespace WechatBakTool.Export
 
             HtmlBody += string.Format("<div class=\"msg\"><p class=\"nickname\"><b>与 {0}({1}) 的聊天记录</b></p>", Session.NickName, Session.UserName);
             HtmlBody += string.Format("<div class=\"msg\"><p class=\"nickname\"><b>导出时间：{0}</b></p><hr/>", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            File.WriteAllText(Path, HtmlBody);
         }
 
         public void InitTemplate(WXContact contact, string p)
@@ -34,25 +37,18 @@ namespace WechatBakTool.Export
             InitTemplate(session);
         }
 
-        public void Save(string path = "", bool append = false)
+        public void Save(string path = "")
         {
-            if (!append)
-            {
-                File.WriteAllText(path, HtmlBody);
-            }
-            else
-            {
-                File.AppendAllText(path, HtmlBody);
-                HtmlBody = "";
-            }
+
         }
 
         public void SetEnd()
         {
             HtmlBody += "</body></html>";
+            File.AppendAllText(Path, HtmlBody);
         }
 
-        public void SetMsg(WXUserReader reader, WXContact contact)
+        public void SetMsg(WXUserReader reader, WXContact contact,WorkspaceViewModel viewModel)
         {
             if (Session == null)
                 throw new Exception("请初始化模版：Not Use InitTemplate");
@@ -63,6 +59,9 @@ namespace WechatBakTool.Export
 
             msgList.Sort((x, y) => x.CreateTime.CompareTo(y.CreateTime));
 
+            int msgCount = 0;
+            HtmlBody = "";
+            StreamWriter streamWriter = new StreamWriter(Path, true);
             foreach (var msg in msgList)
             {
                 HtmlBody += string.Format("<div class=\"msg\"><p class=\"nickname\">{0} <span style=\"padding-left:10px;\">{1}</span></p>", msg.IsSender ? "我" : msg.NickName, TimeStampToDateTime(msg.CreateTime).ToString("yyyy-MM-dd HH:mm:ss"));
@@ -74,6 +73,10 @@ namespace WechatBakTool.Export
                     string? path = reader.GetAttachment(WXMsgType.Image, msg);
                     if (path == null)
                     {
+#if DEBUG
+                        File.AppendAllText("debug.log", string.Format("[D]{0} {1}:{2}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Img Error Path=>", path));
+                        File.AppendAllText("debug.log", string.Format("[D]{0} {1}:{2}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),"Img Error Msg=>",JsonConvert.SerializeObject(msg)));
+#endif
                         HtmlBody += string.Format("<p class=\"content\">{0}</p></div>", "图片转换出现错误或文件不存在");
                         continue;
                     }
@@ -154,8 +157,25 @@ namespace WechatBakTool.Export
                 {
                     HtmlBody += string.Format("<p class=\"content\">{0}</p></div>", "暂未支持的消息");
                 }
+                
+                msgCount++;
+                if(msgCount % 50 == 0)
+                {
+                    streamWriter.WriteLine(HtmlBody);
+                    HtmlBody = "";
+                    viewModel.ExportCount = msgCount.ToString();
+                }
+                
             }
-
+            if(msgCount % 50 != 0)
+            {
+                streamWriter.WriteLine(HtmlBody);
+                HtmlBody = "";
+                viewModel.ExportCount = msgCount.ToString();
+            }
+            streamWriter.Close();
+            streamWriter.Dispose();
+                
         }
         private static DateTime TimeStampToDateTime(long timeStamp, bool inMilli = false)
         {

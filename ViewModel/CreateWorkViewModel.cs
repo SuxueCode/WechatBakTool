@@ -6,10 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using WechatBakTool.Model;
+using WechatBakTool.Pages;
 
 namespace WechatBakTool.ViewModel
 {
-    partial class CreateWorkViewModel : ObservableObject
+    public partial class CreateWorkViewModel : ObservableObject
     {
         [ObservableProperty]
         private List<ProcessInfo> processInfos = new List<ProcessInfo>();
@@ -22,6 +23,20 @@ namespace WechatBakTool.ViewModel
 
         [ObservableProperty]
         private int keyType = -1;
+
+        [ObservableProperty]
+        private bool isEnable = true;
+
+        private string labelStatus = "-";
+        public string LabelStatus
+        {
+            get { return "状态：" + labelStatus; }
+            set
+            {
+                labelStatus = value;
+                OnPropertyChanged("LabelStatus");
+            }
+        }
     }
 
     public class GetKeyConverter : IValueConverter
