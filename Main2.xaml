@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WechatBakTool"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen" WindowStyle="None" WindowState="Normal" Background="Transparent" AllowsTransparency="True" ResizeMode="NoResize"
-        Title="Main2" Height="550" Width="950" >
+        Title="Main2" Height="550" Width="950"  >
     <Window.Resources>
         <Style TargetType="local:Main2">
             <!-- 设置窗体的WindowChrome -->
@@ -15,7 +15,7 @@
                     <!-- CornerRadius：窗体圆角；-->
                     <!-- CaptionHeight顶部标题的高度；-->
                     <!-- GlassFrameThickness:默认边框的大小，0为不使用默认边框（这样定义的圆角才有效），-1为使用默认边框默认值-->
-                    <WindowChrome CornerRadius="5" CaptionHeight="0" GlassFrameThickness="0" />
+                    <WindowChrome CornerRadius="5" CaptionHeight="5" GlassFrameThickness="0" />
                 </Setter.Value>
             </Setter>
         </Style>
@@ -61,8 +61,8 @@
             </Grid>
         </DataTemplate>
     </Window.Resources>
-    <Grid Background="White">
-        <Image Panel.ZIndex="100" Name="img_btn_min" Source="{StaticResource svg_min}" Width="20" Height="20" HorizontalAlignment="Left" Margin="860,20,0,0" VerticalAlignment="Top">
+    <Grid Background="White" MouseDown="Grid_MouseDown">
+        <Image Panel.ZIndex="100" Name="img_btn_min" Source="{StaticResource svg_min}" Width="20" Height="20" HorizontalAlignment="Left" Margin="860,20,0,0" VerticalAlignment="Top" MouseLeftButtonDown="img_btn_min_MouseLeftButtonDown">
             <Image.RenderTransform>
                 <RotateTransform CenterX="0.5" CenterY="0.5" />
             </Image.RenderTransform>

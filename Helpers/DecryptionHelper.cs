@@ -11,6 +11,8 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 using WechatBakTool.Model;
+using WechatBakTool.Pages;
+using WechatBakTool.ViewModel;
 
 namespace WechatBakTool.Helpers
 {
@@ -283,7 +285,7 @@ namespace WechatBakTool.Helpers
             }
             return saveFilePath;
         }
-        public static void DecryUserData(byte[] key, string source, string to)
+        public static void DecryUserData(byte[] key, string source, string to,CreateWorkViewModel viewModel)
         {
             string dbPath = source;
             string decPath = to;
@@ -294,6 +296,7 @@ namespace WechatBakTool.Helpers
             foreach (string file in filePath)
             {
                 FileInfo info = new FileInfo(file);
+                viewModel.LabelStatus = "正在解密" + info.Name;
                 var db_bytes = File.ReadAllBytes(file);
                 var decrypted_file_bytes = DecryptDB(db_bytes, key);
                 if (decrypted_file_bytes == null || decrypted_file_bytes.Length == 0)

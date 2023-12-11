@@ -9,7 +9,7 @@ using WechatBakTool.Model;
 
 namespace WechatBakTool.ViewModel
 {
-    partial class WorkspaceViewModel : ObservableObject
+    public partial class WorkspaceViewModel : ObservableObject
     {
         private WXContact? wXContact = null;
         public WXContact? WXContact {
@@ -20,6 +20,9 @@ namespace WechatBakTool.ViewModel
                 OnPropertyChanged("SelectContact");
             }
         }
+
+        [ObservableProperty]
+        public string exportCount = "";
 
         public bool SelectContact
         {

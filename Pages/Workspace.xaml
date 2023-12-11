@@ -232,5 +232,6 @@
                 </Style>
             </Button.Resources>
         </Button>
+        <Label Content="{Binding ExportCount}" HorizontalAlignment="Right" Margin="0,0,160,15" VerticalAlignment="Bottom"/>
     </Grid>
 </Page>

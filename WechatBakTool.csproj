@@ -37,4 +37,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="YearReport\" />
+  </ItemGroup>
+
 </Project>
