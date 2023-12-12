@@ -74,8 +74,8 @@ namespace WechatBakTool.Export
                     if (path == null)
                     {
 #if DEBUG
-                        File.AppendAllText("debug.log", string.Format("[D]{0} {1}:{2}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Img Error Path=>", path));
-                        File.AppendAllText("debug.log", string.Format("[D]{0} {1}:{2}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),"Img Error Msg=>",JsonConvert.SerializeObject(msg)));
+                        File.AppendAllText("debug.log", string.Format("[D]{0} {1}:{2}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Img Error Path=>", path));
+                        File.AppendAllText("debug.log", string.Format("[D]{0} {1}:{2}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),"Img Error Msg=>",JsonConvert.SerializeObject(msg)));
 #endif
                         HtmlBody += string.Format("<p class=\"content\">{0}</p></div>", "图片转换出现错误或文件不存在");
                         continue;

@@ -10,7 +10,7 @@ using System.Windows.Media.Imaging;
 
 namespace WechatBakTool.Model
 {
-    public class UserBakConfig : INotifyPropertyChanged
+    public class UserBakConfig
     {
         public string UserResPath { get; set; } = "";
         public string UserWorkspacePath { get; set; } = "";
@@ -25,12 +25,6 @@ namespace WechatBakTool.Model
         public string Account { get; set; } = "";
         public string Friends_Number { get; set; } = "-";
         public string Msg_Number { get; set; } = "-";
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 
     public class WXCount
@@ -122,6 +116,8 @@ namespace WechatBakTool.Model
         public int LocalId { get; set; }
         [Column("Type")]
         public int Type { get; set; }
+        [Column("SubType")]
+        public int SubType { get; set; }
         [Column("CreateTime")]
         public long CreateTime { get; set; }
         [Column("IsSender")]

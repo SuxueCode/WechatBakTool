@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +16,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using System.Xml;
 using WechatBakTool.Export;
 using WechatBakTool.Model;
 using WechatBakTool.ViewModel;
@@ -85,6 +89,14 @@ namespace WechatBakTool.Pages
             export.SetMsg(UserReader!, contact, workspaceViewModel);
             export.SetEnd();
             export.Save(path);
+        }
+
+        private void btn_emoji_download_Click(object sender, RoutedEventArgs e)
+        {
+            if (UserReader != null)
+            {
+                UserReader.PreDownloadEmoji();
+            }
         }
     }
 }
