@@ -18,6 +18,9 @@ using System.Xml.Linq;
 using WechatBakTool.Helpers;
 using WechatBakTool.Model;
 using System.Windows;
+using System.Net.Http;
+using System.Reflection.Metadata;
+using System.Threading;
 
 namespace WechatBakTool
 {
@@ -27,6 +30,8 @@ namespace WechatBakTool
         private UserBakConfig? UserBakConfig = null;
         private Hashtable HeadImgCache = new Hashtable();
         private Hashtable UserNameCache = new Hashtable();
+        private Hashtable EmojiCache = new Hashtable();
+        private HttpClient httpClient = new HttpClient();
         public WXUserReader(UserBakConfig userBakConfig) {
             string path = Path.Combine(userBakConfig.UserWorkspacePath, "DecDB");
             UserBakConfig = userBakConfig;
@@ -48,9 +53,21 @@ namespace WechatBakTool
             }
         }
 
+        private SQLiteConnection? getCon(string name)
+        {
+            if (DBInfo.ContainsKey(name))
+            {
+                return DBInfo[name];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public void InitCache()
         {
-            SQLiteConnection con = DBInfo["Misc"];
+            SQLiteConnection? con = getCon("Misc");
             if (con == null)
                 return;
 
@@ -72,6 +89,101 @@ namespace WechatBakTool
             }
         }
 
+        public void EmojiCacheInit()
+        {
+            string emoji_path = Path.Combine(UserBakConfig!.UserWorkspacePath, "Emoji");
+            if (Directory.Exists(emoji_path))
+            {
+                string[] files = Directory.GetFiles(emoji_path);
+                foreach (string file in files)
+                {
+                    FileInfo fileInfo = new FileInfo(file);
+                    string[] names = fileInfo.Name.Split(".");
+                    if (!EmojiCache.ContainsKey(names[0]))
+                    {
+                        EmojiCache.Add(names[0], 1);
+                    }
+                }
+            }
+        }
+
+        public void PreDownloadEmoji()
+        {
+            if (UserBakConfig == null)
+                return;
+
+            HttpClientHandler handler = new HttpClientHandler() { AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate };
+            HttpClient httpClient = new HttpClient(handler);
+
+            List<WXMsg> msgs = GetTypeMsg("47");
+            int i = 0;
+
+            EmojiCacheInit();
+
+            foreach (var msg in msgs)
+            {
+                i++;
+                if (i % 5 == 0)
+                {
+                    // 每5次让下载线程休息1秒
+                    Thread.Sleep(1000);
+                }
+                try
+                {
+                    XmlDocument xmlDocument = new XmlDocument();
+                    xmlDocument.LoadXml(msg.StrContent);
+                    XmlNode? node = xmlDocument.SelectSingleNode("/msg/emoji");
+                    if (node != null)
+                    {
+                        if (node.Attributes != null)
+                        {
+                            string type = "";
+                            string md5 = "";
+                            string url = "";
+                            XmlNode? item = node.Attributes.GetNamedItem("type");
+                            type = item != null ? item.InnerText : "";
+
+                            item = node.Attributes.GetNamedItem("md5");
+                            md5 = item != null ? item.InnerText : "";
+
+                            item = node.Attributes.GetNamedItem("cdnurl");
+                            url = item != null ? item.InnerText : "";
+
+                            if (EmojiCache.ContainsKey(md5))
+                                continue;
+
+                            if (url == "")
+                                continue;
+
+                            else
+                            {
+                                string path = Path.Combine(UserBakConfig.UserWorkspacePath, "Emoji", md5 + ".jpg");
+                                try
+                                {
+                                    HttpResponseMessage res = httpClient.GetAsync(url).Result;
+                                    if (res.IsSuccessStatusCode)
+                                    {
+                                        using (FileStream fs = File.Create(path))
+                                        {
+                                            res.Content.ReadAsStream().CopyTo(fs);
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+        }
+
         public byte[]? GetHeadImgCahce(string username)
         {
             if (HeadImgCache.ContainsKey(username))
@@ -87,7 +199,7 @@ namespace WechatBakTool
 
         public int[] GetWXCount()
         {
-            SQLiteConnection con = DBInfo["MicroMsg"];
+            SQLiteConnection? con = getCon("MicroMsg");
             if (con == null)
                 return new int[] { 0, 0 };
 
@@ -97,22 +209,19 @@ namespace WechatBakTool
             int msgCount = 0;
             for (int i = 0; i <= 99; i++)
             {
-                if (DBInfo.ContainsKey("MSG" + i.ToString()))
-                {
-                    con = DBInfo["MSG" + i.ToString()];
-                    if (con == null)
-                        return new int[] { userCount, 0 };
+                con = getCon("MSG" + i.ToString());
+                if (con == null)
+                    return new int[] { userCount, msgCount };
 
-                    query = "select count(*) as count from MSG";
-                    msgCount += con.Query<WXCount>(query)[0].Count;
-                }
+                query = "select count(*) as count from MSG";
+                msgCount += con.Query<WXCount>(query)[0].Count;
             }
             return new int[] { userCount, msgCount };
         }
 
         public ObservableCollection<WXContact> GetWXContacts(string? name = null,bool all = false)
         {
-            SQLiteConnection con = DBInfo["MicroMsg"];
+            SQLiteConnection? con = getCon("MicroMsg");
             if (con == null)
                 return new ObservableCollection<WXContact>();
             string query = @"select contact.*,session.strContent,contactHeadImgUrl.smallHeadImgUrl,contactHeadImgUrl.bigHeadImgUrl from contact 
@@ -146,13 +255,23 @@ namespace WechatBakTool
                 byte[]? imgBytes = GetHeadImgCahce(contact.UserName);
                 if (imgBytes != null)
                 {
-                    MemoryStream stream = new MemoryStream(imgBytes);
-                    BitmapImage bitmapImage = new BitmapImage();
-                    bitmapImage.BeginInit();
-                    bitmapImage.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-                    bitmapImage.StreamSource = stream;
-                    bitmapImage.EndInit();
-                    contact.Avatar = bitmapImage;
+                    try
+                    {
+                        MemoryStream stream = new MemoryStream(imgBytes);
+                        BitmapImage bitmapImage = new BitmapImage();
+                        bitmapImage.BeginInit();
+                        bitmapImage.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+                        bitmapImage.StreamSource = stream;
+                        bitmapImage.EndInit();
+                        bitmapImage.Freeze();
+                        contact.Avatar = bitmapImage;
+                    }
+                    catch
+                    {
+#if DEBUG
+                        File.AppendAllText("debug.log", string.Format("[D]{0} {1}:{2}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "BitmapConvert Err=>Length", imgBytes.Length));
+#endif
+                    }
                 }
                 else
                     continue;
@@ -163,7 +282,7 @@ namespace WechatBakTool
 
         public List<WXUserImg>? GetUserImgs()
         {
-            SQLiteConnection con = DBInfo["MicroMsg"];
+            SQLiteConnection? con = getCon("MicroMsg");
             if (con == null)
                 return null;
             string query = "select * from contactHeadImgUrl";
@@ -172,107 +291,133 @@ namespace WechatBakTool
 
         public List<WXChatRoom>? GetWXChatRooms()
         {
-            SQLiteConnection con = DBInfo["MicroMsg"];
+            SQLiteConnection? con = getCon("MicroMsg");
             if (con == null)
                 return null;
             string query = "select * from ChatRoom";
             return con.Query<WXChatRoom>(query);
+        }
+
+        public List<WXMsg> GetTypeMsg(string type)
+        {
+            List<WXMsg> tmp = new List<WXMsg>();
+            for (int i = 0; i <= 99; i++)
+            {
+                SQLiteConnection? con = getCon("MSG" + i.ToString());
+                if (con == null)
+                    return tmp;
+
+                string query = "select * from MSG where Type=?";
+                List<WXMsg> wXMsgs = con.Query<WXMsg>(query, type);
+                tmp.AddRange(wXMsgs);
+            }
+            return tmp;
         }
         public List<WXMsg>? GetWXMsgs(string uid,string msg = "")
         {
             List<WXMsg> tmp = new List<WXMsg>();
             for (int i = 0; i <= 99; i++)
             {
-                if(DBInfo.ContainsKey("MSG" + i.ToString()))
+                SQLiteConnection? con = getCon("MSG" + i.ToString());
+                if (con == null)
+                    return tmp;
+
+                List<WXMsg>? wXMsgs = null;
+                if (msg == "")
                 {
-                    SQLiteConnection con = DBInfo["MSG" + i.ToString()];
-                    if (con == null)
-                        return tmp;
+                    string query = "select * from MSG where StrTalker=?";
+                    wXMsgs = con.Query<WXMsg>(query, uid);
+                }
+                else if (uid == "")
+                {
+                    string query = "select * from MSG where StrContent like ?";
+                    wXMsgs = con.Query<WXMsg>(query, string.Format("%{0}%", msg));
+                }
+                else
+                {
+                    string query = "select * from MSG where StrTalker=? and StrContent like ?";
+                    wXMsgs = con.Query<WXMsg>(query, uid, string.Format("%{0}%", msg));
+                }
 
-                    List<WXMsg>? wXMsgs = null;
-                    if (msg == "")
+                foreach (WXMsg w in wXMsgs)
+                {
+                    if (UserNameCache.ContainsKey(w.StrTalker))
                     {
-                        string query = "select * from MSG where StrTalker=?";
-                        wXMsgs = con.Query<WXMsg>(query, uid);
-                    }
-                    else if(uid == "")
-                    {
-                        string query = "select * from MSG where StrContent like ?";
-                        wXMsgs = con.Query<WXMsg>(query, string.Format("%{0}%", msg));
-                    }
-                    else
-                    {
-                        string query = "select * from MSG where StrTalker=? and StrContent like ?";
-                        wXMsgs = con.Query<WXMsg>(query, uid, string.Format("%{0}%", msg));
-                    }
-
-                    foreach (WXMsg w in wXMsgs)
-                    {
-                        if (UserNameCache.ContainsKey(w.StrTalker))
+                        WXContact? contact = UserNameCache[w.StrTalker] as WXContact;
+                        if (contact != null)
                         {
-                            WXContact? contact = UserNameCache[w.StrTalker] as WXContact;
-                            if (contact != null)
+                            if (contact.Remark != "")
+                                w.NickName = contact.Remark;
+                            else
+                                w.NickName = contact.NickName;
+                        }
+
+                    }
+
+                    if (uid.Contains("@chatroom"))
+                    {
+                        string userId = "";
+
+                        if (w.BytesExtra == null)
+                            continue;
+
+                        string sl = BitConverter.ToString(w.BytesExtra).Replace("-", "");
+
+                        ProtoMsg protoMsg;
+                        using (MemoryStream stream = new MemoryStream(w.BytesExtra))
+                        {
+                            protoMsg = ProtoBuf.Serializer.Deserialize<ProtoMsg>(stream);
+                        }
+
+                        if (protoMsg.TVMsg != null)
+                        {
+                            foreach (TVType _tmp in protoMsg.TVMsg)
                             {
-                                if (contact.Remark != "")
-                                    w.NickName = contact.Remark;
-                                else
-                                    w.NickName = contact.NickName;
+                                if (_tmp.Type == 1)
+                                    userId = _tmp.TypeValue;
                             }
                         }
 
-                        if (uid.Contains("@chatroom"))
+
+                        if (!w.IsSender)
                         {
-                            string userId = "";
-
-                            if (w.BytesExtra == null)
-                                continue;
-
-                            string sl = BitConverter.ToString(w.BytesExtra).Replace("-", "");
-
-                            ProtoMsg protoMsg;
-                            using (MemoryStream stream = new MemoryStream(w.BytesExtra))
+                            if (UserNameCache.ContainsKey(userId))
                             {
-                                protoMsg = ProtoBuf.Serializer.Deserialize<ProtoMsg>(stream);
-                            }
-
-                            if(protoMsg.TVMsg != null)
-                            {
-                                foreach(TVType _tmp in protoMsg.TVMsg)
-                                {
-                                    if (_tmp.Type == 1)
-                                        userId = _tmp.TypeValue;
-                                }
-                            }
-                            
-
-                            if (!w.IsSender)
-                            {
-                                if(UserNameCache.ContainsKey(userId))
-                                {
-                                    WXContact? contact = UserNameCache[userId] as WXContact;
-                                    if (contact != null)
-                                        w.NickName = contact.Remark == "" ? contact.NickName : contact.Remark;
-                                }
-                                else
-                                {
-                                    w.NickName = userId;
-                                }
+                                WXContact? contact = UserNameCache[userId] as WXContact;
+                                if (contact != null)
+                                    w.NickName = contact.Remark == "" ? contact.NickName : contact.Remark;
                             }
                             else
                             {
-                                w.NickName = "我";
+                                w.NickName = userId;
                             }
                         }
-                        
-                        tmp.Add(w);
                     }
+                    if (w.IsSender)
+                        w.NickName = "我";
+
+                    if (w.Type != 1)
+                    {
+                        if (w.Type == 10000)
+                        {
+                            w.Type = 1;
+                            w.NickName = "系统消息";
+                            w.StrContent = w.StrContent.Replace("<revokemsg>", "").Replace("</revokemsg>", "");
+                        }
+                        else
+                        {
+                            w.StrContent = "[界面未支持格式]Type=" + w.Type;
+                        }
+                    }
+                    tmp.Add(w);
+
                 }
             }
             return tmp;
         }
         public List<WXSessionAttachInfo>? GetWXMsgAtc()
         {
-            SQLiteConnection con = DBInfo["MultiSearchChatMsg"];
+            SQLiteConnection? con = getCon("MultiSearchChatMsg");
             if (con == null)
                 return null;
 
@@ -287,7 +432,7 @@ namespace WechatBakTool
         }
         public WXSessionAttachInfo? GetWXMsgAtc(WXMsg msg)
         {
-            SQLiteConnection con = DBInfo["MultiSearchChatMsg"];
+            SQLiteConnection? con = getCon("MultiSearchChatMsg");
             if (con == null)
                 return null;
 
@@ -316,17 +461,14 @@ namespace WechatBakTool
         {
             for (int i = 0; i <= 99; i++)
             {
-                if(DBInfo.ContainsKey("MediaMSG" + i.ToString()))
-                {
-                    SQLiteConnection con = DBInfo["MediaMSG" + i.ToString()];
-                    if (con == null)
-                        continue;
+                SQLiteConnection? con = getCon("MediaMSG" + i.ToString());
+                if (con == null)
+                    continue;
 
-                    string query = "select * from Media where Reserved0=?";
-                    List<WXMediaMsg> wXMsgs = con.Query<WXMediaMsg>(query, msg.MsgSvrID);
-                    if (wXMsgs.Count != 0)
-                        return wXMsgs[0];
-                }
+                string query = "select * from Media where Reserved0=?";
+                List<WXMediaMsg> wXMsgs = con.Query<WXMediaMsg>(query, msg.MsgSvrID);
+                if (wXMsgs.Count != 0)
+                    return wXMsgs[0];
             }
             return null;
         }
@@ -443,23 +585,21 @@ namespace WechatBakTool
             List<WXMsgGroup> g = new List<WXMsgGroup>();
             for (int i = 0; i <= 99; i++)
             {
-                if (DBInfo.ContainsKey("MSG" + i.ToString()))
-                {
-                    SQLiteConnection con = DBInfo["MSG" + i.ToString()];
-                    if (con == null)
-                        return g;
+                SQLiteConnection? con = getCon("MSG" + i.ToString());
+                if (con == null)
+                    return g;
 
-                    string query = "select StrTalker,Count(localId) as MsgCount from MSG GROUP BY StrTalker";
-                    List<WXMsgGroup> wXMsgs = con.Query<WXMsgGroup>(query);
-                    foreach (WXMsgGroup w in wXMsgs)
-                    {
-                        WXMsgGroup? tmp = g.Find(x => x.UserName == w.UserName);
-                        if (tmp == null)
-                            g.Add(w);
-                        else
-                            tmp.MsgCount += g.Count;
-                    }
+                string query = "select StrTalker,Count(localId) as MsgCount from MSG GROUP BY StrTalker";
+                List<WXMsgGroup> wXMsgs = con.Query<WXMsgGroup>(query);
+                foreach (WXMsgGroup w in wXMsgs)
+                {
+                    WXMsgGroup? tmp = g.Find(x => x.UserName == w.UserName);
+                    if (tmp == null)
+                        g.Add(w);
+                    else
+                        tmp.MsgCount += g.Count;
                 }
+
             }
             return g;
         }

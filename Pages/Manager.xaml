@@ -14,5 +14,9 @@
         <CheckBox Name="cb_user" Margin="90,85" Content="好友聊天" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <Button Name="btn_export_all" Margin="35,110" Height="26" Width="60" Content="导出" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#2775b6" Foreground="White" BorderThickness="0" Click="btn_export_all_Click"></Button>
         <Label Content="{Binding LabelStatus}" HorizontalAlignment="Left" Margin="110,110,0,0" VerticalAlignment="Top"/>
+
+        <Label Margin="30,155" Content="表情包预下载" HorizontalAlignment="Left" VerticalAlignment="Top" FontWeight="Bold" />
+        <Button Name="btn_emoji_download" Margin="35,185" Height="26" Width="60" Content="导出" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#2775b6" Foreground="White" BorderThickness="0" Click="btn_emoji_download_Click"></Button>
+
     </Grid>
 </Page>
