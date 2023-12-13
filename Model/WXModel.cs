@@ -128,6 +128,7 @@ namespace WechatBakTool.Model
         public string StrTalker { get; set; } = "";
         [Column("StrContent")]
         public string StrContent { get; set; } = "";
+        public string DisplayContent { get; set; } = "";
         [Column("CompressContent")]
         public byte[]? CompressContent { get; set; }
         [Column("BytesExtra")]

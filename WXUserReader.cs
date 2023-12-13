@@ -21,6 +21,7 @@ using System.Windows;
 using System.Net.Http;
 using System.Reflection.Metadata;
 using System.Threading;
+using Newtonsoft.Json;
 
 namespace WechatBakTool
 {
@@ -37,6 +38,7 @@ namespace WechatBakTool
             UserBakConfig = userBakConfig;
             LoadDB(path);
             InitCache();
+            EmojiCacheInit();
         }
 
         public void LoadDB(string path)
@@ -107,7 +109,7 @@ namespace WechatBakTool
             }
         }
 
-        public void PreDownloadEmoji()
+        public void PreDownloadEmoji(string username = "")
         {
             if (UserBakConfig == null)
                 return;
@@ -115,11 +117,10 @@ namespace WechatBakTool
             HttpClientHandler handler = new HttpClientHandler() { AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate };
             HttpClient httpClient = new HttpClient(handler);
 
-            List<WXMsg> msgs = GetTypeMsg("47");
+            List<WXMsg> msgs = GetTypeMsg("47", username);
             int i = 0;
 
-            EmojiCacheInit();
-
+            // 下载前的Emoji Cache不用做了，在Init的时候已经做了
             foreach (var msg in msgs)
             {
                 i++;
@@ -150,14 +151,18 @@ namespace WechatBakTool
                             url = item != null ? item.InnerText : "";
 
                             if (EmojiCache.ContainsKey(md5))
+                            {
+                                i--;
                                 continue;
-
+                            }
                             if (url == "")
+                            {
+                                i--;
                                 continue;
-
+                            }
                             else
                             {
-                                string path = Path.Combine(UserBakConfig.UserWorkspacePath, "Emoji", md5 + ".jpg");
+                                string path = Path.Combine(UserBakConfig.UserWorkspacePath, "Emoji", md5 + ".gif");
                                 try
                                 {
                                     HttpResponseMessage res = httpClient.GetAsync(url).Result;
@@ -182,6 +187,9 @@ namespace WechatBakTool
 
                 }
             }
+
+            // 下载完成后可能变化，检查一下
+            EmojiCacheInit();
         }
 
         public byte[]? GetHeadImgCahce(string username)
@@ -298,7 +306,7 @@ namespace WechatBakTool
             return con.Query<WXChatRoom>(query);
         }
 
-        public List<WXMsg> GetTypeMsg(string type)
+        public List<WXMsg> GetTypeMsg(string type,string username)
         {
             List<WXMsg> tmp = new List<WXMsg>();
             for (int i = 0; i <= 99; i++)
@@ -307,8 +315,17 @@ namespace WechatBakTool
                 if (con == null)
                     return tmp;
 
-                string query = "select * from MSG where Type=?";
-                List<WXMsg> wXMsgs = con.Query<WXMsg>(query, type);
+                List<WXMsg> wXMsgs;
+                if (username == "")
+                {
+                    string query = "select * from MSG where Type=?";
+                    wXMsgs = con.Query<WXMsg>(query, type);
+                }
+                else
+                {
+                    string query = "select * from MSG where Type=? and StrTalker = ?";
+                    wXMsgs = con.Query<WXMsg>(query, type, username);
+                }
                 tmp.AddRange(wXMsgs);
             }
             return tmp;
@@ -351,9 +368,9 @@ namespace WechatBakTool
                             else
                                 w.NickName = contact.NickName;
                         }
-
                     }
 
+                    // 群聊处理
                     if (uid.Contains("@chatroom"))
                     {
                         string userId = "";
@@ -393,20 +410,37 @@ namespace WechatBakTool
                             }
                         }
                     }
+                    
+                    
+                    // 发送人名字处理
                     if (w.IsSender)
                         w.NickName = "我";
 
+                    w.DisplayContent = w.StrContent;
+                    // 额外格式处理
                     if (w.Type != 1)
                     {
                         if (w.Type == 10000)
                         {
                             w.Type = 1;
                             w.NickName = "系统消息";
-                            w.StrContent = w.StrContent.Replace("<revokemsg>", "").Replace("</revokemsg>", "");
+                            w.DisplayContent = w.StrContent.Replace("<revokemsg>", "").Replace("</revokemsg>", "");
+                        }
+                        else if (w.Type == 49 && (w.SubType == 6 || w.SubType == 19 || w.SubType == 40))
+                        {
+                            WXSessionAttachInfo? attachInfos = GetWXMsgAtc(w);
+                            if (attachInfos == null)
+                            {
+                                w.DisplayContent = "附件不存在";
+                            }
+                            else
+                            {
+                                w.DisplayContent = Path.Combine(UserBakConfig!.UserResPath, attachInfos.attachPath);
+                            }
                         }
                         else
                         {
-                            w.StrContent = "[界面未支持格式]Type=" + w.Type;
+                            w.DisplayContent = "[界面未支持格式]Type=" + w.Type;
                         }
                     }
                     tmp.Add(w);
@@ -481,9 +515,10 @@ namespace WechatBakTool
             if (!Directory.Exists(tmpPath))
                 Directory.CreateDirectory(tmpPath);
 
+            // 这部分是查找
             // 如果是图片和视频，从附件库中搜索
             string? path = null;
-            if (type == WXMsgType.Image || type == WXMsgType.Video)
+            if (type == WXMsgType.Image || type == WXMsgType.Video || type == WXMsgType.File)
             {
                 WXSessionAttachInfo? atcInfo = GetWXMsgAtc(msg);
                 if (atcInfo == null)
@@ -507,39 +542,61 @@ namespace WechatBakTool
                 }
                 path = tmp_file_path;
             }
+            else if (type == WXMsgType.Emoji)
+            {
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.LoadXml(msg.StrContent);
+                XmlNode? node = xmlDocument.SelectSingleNode("/msg/emoji");
+                if (node != null)
+                {
+                    if (node.Attributes != null)
+                    {
+                        XmlNode? item = node.Attributes.GetNamedItem("md5");
+                        string md5 = item != null ? item.InnerText : "";
+                        if (EmojiCache.ContainsKey(md5))
+                        {
+                            path = string.Format("Emoji\\{0}.gif", md5);
+                        }
+                    }
+                }
+            }
 
             if (path == null)
                 return null;
 
+            // 这部分是解密
             // 获取到原路径后，开始进行解密转移,只有图片和语音需要解密，解密后是直接归档目录
-            if(type == WXMsgType.Image || type== WXMsgType.Audio)
+            if (type == WXMsgType.Image || type == WXMsgType.Audio)
             {
                 path = DecryptAttachment(type, path);
             }
-            else if (type == WXMsgType.Video)
+            else if (type == WXMsgType.Video || type == WXMsgType.File)
             {
-                string video_dir = Path.Combine(UserBakConfig.UserWorkspacePath, "Video");
-                if(!Directory.Exists(video_dir))
-                    Directory.CreateDirectory(video_dir);
+                string to_dir;
+                if (type == WXMsgType.Video)
+                    to_dir = Path.Combine(UserBakConfig.UserWorkspacePath, "Video");
+                else
+                    to_dir = Path.Combine(UserBakConfig.UserWorkspacePath, "File");
+                if (!Directory.Exists(to_dir))
+                    Directory.CreateDirectory(to_dir);
                 FileInfo fileInfo = new FileInfo(path);
                 // 目标视频路径
-                string video_file_path = Path.Combine(video_dir, fileInfo.Name);
+                string to_file_path = Path.Combine(to_dir, fileInfo.Name);
                 // 视频的路径是相对路径，需要加上资源目录
                 path = Path.Combine(UserBakConfig.UserResPath, path);
                 // 原文件存在，目标不存在
-                if (!File.Exists(video_file_path) && File.Exists(path))
+                if (!File.Exists(to_file_path) && File.Exists(path))
                 {
                     // 复制
-                    File.Copy(path, video_file_path);
-                    path = video_file_path;
+                    File.Copy(path, to_file_path);
+                    path = to_file_path;
                 }
-                else if (File.Exists(video_file_path))
+                else if (File.Exists(to_file_path))
                 {
-                    path = video_file_path;
+                    path = to_file_path;
                 }
                 else
                     return null;
-                    
             }
 
             if (path == null)
@@ -611,5 +668,6 @@ namespace WechatBakTool
         Video = 1,
         Audio = 2,
         File = 3,
+        Emoji = 4,
     }
 }

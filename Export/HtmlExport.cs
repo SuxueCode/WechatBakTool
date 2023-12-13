@@ -10,6 +10,7 @@ using WechatBakTool.Model;
 using System.Xml;
 using Newtonsoft.Json;
 using WechatBakTool.ViewModel;
+using System.Security.Policy;
 
 namespace WechatBakTool.Export
 {
@@ -92,53 +93,82 @@ namespace WechatBakTool.Export
                     }
                     HtmlBody += string.Format("<p class=\"content\"><video controls style=\"max-height:300px;max-width:300px;\"><source src=\"{0}\" type=\"video/mp4\" /></video></p></div>", path);
                 }
+                else if(msg.Type == 47)
+                {
+                    string? path = reader.GetAttachment(WXMsgType.Emoji, msg);
+                    if (path == null)
+                    {
+#if DEBUG
+                        File.AppendAllText("debug.log", string.Format("[D]{0} {1}:{2}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Emoji Error Path=>", path));
+                        File.AppendAllText("debug.log", string.Format("[D]{0} {1}:{2}\n", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), "Emoji Error Msg=>", JsonConvert.SerializeObject(msg)));
+#endif
+                        HtmlBody += string.Format("<p class=\"content\">{0}</p></div>", "表情未预下载或加密表情");
+                        continue;
+                    }
+                    HtmlBody += string.Format("<p class=\"content\"><img src=\"{0}\" style=\"max-height:300px;max-width:300px;\"/></p></div>", path);
+                }
                 else if (msg.Type == 49)
                 {
-                    using (var decoder = LZ4Decoder.Create(true, 64))
+                    if(msg.SubType == 6||msg.SubType == 19||msg.SubType == 40)
                     {
-                        byte[] target = new byte[10240];
-                        int res = 0;
-                        if (msg.CompressContent != null)
-                            res = LZ4Codec.Decode(msg.CompressContent, 0, msg.CompressContent.Length, target, 0, target.Length);
-
-                        byte[] data = target.Skip(0).Take(res).ToArray();
-                        string xml = Encoding.UTF8.GetString(data);
-                        if (!string.IsNullOrEmpty(xml))
+                        string? path = reader.GetAttachment(WXMsgType.File, msg);
+                        if(path == null)
                         {
-                            xml = xml.Replace("\n", "");
-                            XmlDocument xmlObj = new XmlDocument();
-                            xmlObj.LoadXml(xml);
-                            if (xmlObj.DocumentElement != null)
-                            {
-                                string title = "";
-                                string appName = "";
-                                string url = "";
-                                XmlNodeList? findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/title");
-                                if (findNode != null)
-                                {
-                                    if (findNode.Count > 0)
-                                    {
-                                        title = findNode[0]!.InnerText;
-                                    }
-                                }
-                                findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/sourcedisplayname");
-                                if (findNode != null)
-                                {
-                                    if (findNode.Count > 0)
-                                    {
-                                        appName = findNode[0]!.InnerText;
-                                    }
-                                }
-                                findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/url");
-                                if (findNode != null)
-                                {
-                                    if (findNode.Count > 0)
-                                    {
-                                        url = findNode[0]!.InnerText;
-                                    }
-                                }
-                                HtmlBody += string.Format("<p class=\"content\">{0}|{1}</p><p><a href=\"{2}\">点击访问</a></p></div>", appName, title, url);
+                            HtmlBody += string.Format("<p class=\"content\">{0}</p></div>", "文件不存在");
+                            continue;
+                        }
+                        else
+                        {
+                            HtmlBody += string.Format("<p class=\"content\">{0}</p><p><a href=\"{1}\">点击访问</a></p></div>", "文件：" + path, path);
+                        }
+                    }
+                    else
+                    {
+                        using (var decoder = LZ4Decoder.Create(true, 64))
+                        {
+                            byte[] target = new byte[10240];
+                            int res = 0;
+                            if (msg.CompressContent != null)
+                                res = LZ4Codec.Decode(msg.CompressContent, 0, msg.CompressContent.Length, target, 0, target.Length);
 
+                            byte[] data = target.Skip(0).Take(res).ToArray();
+                            string xml = Encoding.UTF8.GetString(data);
+                            if (!string.IsNullOrEmpty(xml))
+                            {
+                                xml = xml.Replace("\n", "");
+                                XmlDocument xmlObj = new XmlDocument();
+                                xmlObj.LoadXml(xml);
+                                if (xmlObj.DocumentElement != null)
+                                {
+                                    string title = "";
+                                    string appName = "";
+                                    string url = "";
+                                    XmlNodeList? findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/title");
+                                    if (findNode != null)
+                                    {
+                                        if (findNode.Count > 0)
+                                        {
+                                            title = findNode[0]!.InnerText;
+                                        }
+                                    }
+                                    findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/sourcedisplayname");
+                                    if (findNode != null)
+                                    {
+                                        if (findNode.Count > 0)
+                                        {
+                                            appName = findNode[0]!.InnerText;
+                                        }
+                                    }
+                                    findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/url");
+                                    if (findNode != null)
+                                    {
+                                        if (findNode.Count > 0)
+                                        {
+                                            url = findNode[0]!.InnerText;
+                                        }
+                                    }
+                                    HtmlBody += string.Format("<p class=\"content\">{0}|{1}</p><p><a href=\"{2}\">点击访问</a></p></div>", appName, title, url);
+                                }
                             }
                         }
                     }

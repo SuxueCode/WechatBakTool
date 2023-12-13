@@ -114,23 +114,10 @@ namespace WechatBakTool.Pages
             Process.Start("explorer.exe ", Main2.CurrentUserBakConfig!.UserWorkspacePath);
         }
 
-        private void btn_analyse_Click(object sender, RoutedEventArgs e)
-        {
-            if (UserReader == null || Main2.CurrentUserBakConfig == null)
-            {
-                MessageBox.Show("请先读取数据");
-                return;
-            }
-            Analyse analyse = new Analyse(Main2.CurrentUserBakConfig, UserReader);
-            analyse.Show();
-        }
-
         private void Export_Click(object sender, RoutedEventArgs e)
         {
             Task.Run(() =>
             {
-                
-
                 if (ViewModel.WXContact == null || UserReader == null)
                 {
                     MessageBox.Show("请选择联系人", "错误");
@@ -169,6 +156,17 @@ namespace WechatBakTool.Pages
                 MessageBox.Show("导出完成", "提示");
             });
             
+        }
+
+        private void btn_pre_emoji_Click(object sender, RoutedEventArgs e)
+        {
+            if(UserReader != null && ViewModel.WXContact != null)
+            {
+                Task.Run(() => {
+                    UserReader.PreDownloadEmoji(ViewModel.WXContact.UserName);
+                    MessageBox.Show("用户所有表情预下载完毕");
+                });
+            }
         }
     }
 }

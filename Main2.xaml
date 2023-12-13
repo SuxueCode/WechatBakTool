@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WechatBakTool"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen" WindowStyle="None" WindowState="Normal" Background="Transparent" AllowsTransparency="True" ResizeMode="NoResize"
-        Title="Main2" Height="550" Width="950"  >
+        Title="WechatBakTool" Height="550" Width="950"  >
     <Window.Resources>
         <Style TargetType="local:Main2">
             <!-- 设置窗体的WindowChrome -->

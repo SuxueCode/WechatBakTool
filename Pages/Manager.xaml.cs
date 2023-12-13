@@ -95,8 +95,23 @@ namespace WechatBakTool.Pages
         {
             if (UserReader != null)
             {
-                UserReader.PreDownloadEmoji();
+                Task.Run(() =>
+                {
+                    UserReader.PreDownloadEmoji();
+                    MessageBox.Show("所有表情预下载完毕");
+                });
             }
+        }
+
+        private void btn_analyse_Click(object sender, RoutedEventArgs e)
+        {
+            if (UserReader == null || Main2.CurrentUserBakConfig == null)
+            {
+                MessageBox.Show("请先读取数据");
+                return;
+            }
+            Analyse analyse = new Analyse(Main2.CurrentUserBakConfig, UserReader);
+            analyse.Show();
         }
     }
 }
