@@ -149,5 +149,52 @@ namespace WechatBakTool.Helpers
             // Return list
             return ltei;
         }
+
+        public static List<long> SearchProcessAllMemory(Process process, string searchString)
+        {
+            IntPtr minAddress = IntPtr.Zero;
+            IntPtr maxAddress = IntPtr.MaxValue;
+            List<long> addrList = new List<long>();
+
+            while (minAddress.ToInt64() < maxAddress.ToInt64())
+            {
+                MEMORY_BASIC_INFORMATION64 memInfo;
+                int result = VirtualQueryEx(process.Handle, minAddress, out memInfo, (uint)Marshal.SizeOf(typeof(MEMORY_BASIC_INFORMATION64)));
+
+                if (result == 0)
+                {
+                    break;
+                }
+
+                if (memInfo.State == MEM_COMMIT && (memInfo.Protect == PAGE_EXECUTE || memInfo.Protect == PAGE_EXECUTE_READ || memInfo.Protect == PAGE_EXECUTE_READ || memInfo.Protect == PAGE_READWRITE || memInfo.Protect == PAGE_READONLY))
+                {
+                    byte[] buffer = new byte[(long)memInfo.RegionSize];
+                    bool success = ReadProcessMemory(process.Handle, memInfo.BaseAddress, buffer, buffer.Length, out _);
+
+                    if (success)
+                    {
+                        byte[] search = Encoding.ASCII.GetBytes(searchString);
+                        for (int i = 0; i < buffer.Length - 8; i++)
+                        {
+                            if (buffer[i] == search[0])
+                            {
+                                for (int s = 1; s < search.Length; s++)
+                                {
+                                    if (buffer[i + s] != search[s])
+                                        break;
+                                    if (s == search.Length - 1)
+                                    {
+                                        addrList.Add((long)memInfo.BaseAddress + i);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                minAddress = new IntPtr(memInfo.BaseAddress.ToInt64() + (long)memInfo.RegionSize);
+            }
+            return addrList;
+        }
+
     }
 }

@@ -26,7 +26,7 @@ namespace WechatBakTool.Helpers
         const int DEFAULT_ITER = 64000;
         const int DEFAULT_PAGESIZE = 4096; //4048数据 + 16IV + 20 HMAC + 12
         const string SQLITE_HEADER = "SQLite format 3";
-        public static byte[]? GetWechatKey(string pid, bool mem_find_key, string account)
+        public static byte[]? GetWechatKey(string pid, int find_key_type, string account)
         {
             Process process = Process.GetProcessById(int.Parse(pid));
             ProcessModule? module = ProcessHelper.FindProcessModule(process.Id, "WeChatWin.dll");
@@ -40,9 +40,7 @@ namespace WechatBakTool.Helpers
                 return null;
             }
 
-
-
-            if (!mem_find_key)
+            if (find_key_type == 1)
             {
                 List<VersionInfo>? info = null;
                 string json = File.ReadAllText("version.json");
@@ -69,21 +67,67 @@ namespace WechatBakTool.Helpers
                     }
                 }
             }
-            else
+            else if(find_key_type == 2)
             {
                 List<int> read = ProcessHelper.FindProcessMemory(process.Handle, module, account);
                 if (read.Count >= 2)
                 {
                     byte[] buffer = new byte[8];
                     int key_offset = read[1] - 64;
-                    if (ProcessHelper.ReadProcessMemory(process.Handle, module.BaseAddress + key_offset, buffer, buffer.Length, out _))
+                    if (NativeAPI.ReadProcessMemory(process.Handle, module.BaseAddress + key_offset, buffer, buffer.Length, out _))
                     {
                         ulong addr = BitConverter.ToUInt64(buffer, 0);
 
                         byte[] key_bytes = new byte[32];
-                        if (ProcessHelper.ReadProcessMemory(process.Handle, (IntPtr)addr, key_bytes, key_bytes.Length, out _))
+                        if (NativeAPI.ReadProcessMemory(process.Handle, (IntPtr)addr, key_bytes, key_bytes.Length, out _))
                         {
                             return key_bytes;
+                        }
+                    }
+                }
+            }
+            else if (find_key_type == 3)
+            {
+                string searchString = "-----BEGIN PUBLIC KEY-----";
+                List<long> addr = NativeAPIHelper.SearchProcessAllMemory(process, searchString);
+                if (addr.Count > 0)
+                {
+                    foreach (long a in addr)
+                    {
+                        byte[] buffer = new byte[module.ModuleMemorySize];
+                        byte[] search = BitConverter.GetBytes(a);
+                        Array.Resize(ref search, 8);
+                        int read = 0;
+
+                        List<int> offset = new List<int>();
+                        if (NativeAPI.ReadProcessMemory(process.Handle, module.BaseAddress, buffer, buffer.Length, out read))
+                        {
+                            for (int i = 0; i < buffer.Length; i++)
+                            {
+                                if (buffer[i] == search[0])
+                                {
+                                    for (int s = 1; s < search.Length; s++)
+                                    {
+                                        if (buffer[i + s] != search[s])
+                                            break;
+                                        if (s == search.Length - 1)
+                                        {
+                                            long iii = (long)module.BaseAddress + i - 0xd8;
+
+                                            byte[] key = new byte[8];
+                                            if (NativeAPI.ReadProcessMemory(process.Handle, new IntPtr(iii), key, key.Length, out _))
+                                            {
+                                                ulong key_addr = BitConverter.ToUInt64(key, 0);
+
+                                                byte[] key_bytes = new byte[32];
+                                                NativeAPI.ReadProcessMemory(process.Handle, (IntPtr)key_addr, key_bytes, key_bytes.Length, out _);
+                                                string key1 = BitConverter.ToString(key_bytes, 0);
+                                                return key_bytes;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -91,6 +135,10 @@ namespace WechatBakTool.Helpers
                 {
                     throw new Exception("搜索不到微信账号，请确认用户名是否正确，如错误请重新新建工作区，务必确认账号是否正确");
                 }
+            }
+            else if (find_key_type == 3)
+            {
+                string searchString = "-----BEGIN PUBLIC KEY-----";
             }
             return null;
         }

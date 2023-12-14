@@ -12,6 +12,12 @@ namespace WechatBakTool.Helpers
         internal static uint NTSTATUS_STATUS_INFO_LENGTH_MISMATCH = 0xC0000004;
         internal static uint NTSTATUS_STATUS_ACCESS_DENIED = 0xC0000022;
 
+        internal static uint MEM_COMMIT = 0x1000;
+        internal static uint PAGE_READONLY = 0x02;
+        internal static uint PAGE_READWRITE = 0x04;
+        internal static uint PAGE_EXECUTE = 0x10;
+        internal static uint PAGE_EXECUTE_READ = 0x20;
+
         // API Constants
         internal static uint SystemExtendedHandleInformation = 0x40;
         internal static uint DUPLICATE_SAME_ACCESS = 0x2;
@@ -115,6 +121,20 @@ namespace WechatBakTool.Helpers
             public uint Reserved;
         }
 
+
+        public struct MEMORY_BASIC_INFORMATION64
+        {
+            public IntPtr BaseAddress;
+            public IntPtr AllocationBase;
+            public uint AllocationProtect;
+            public uint __alignment1;
+            public ulong RegionSize;
+            public uint State;
+            public uint Protect;
+            public uint Type;
+            public uint __alignment2;
+        }
+
         // Enums
         //=================================================
 
@@ -208,5 +228,12 @@ namespace WechatBakTool.Helpers
 
         [DllImport("kernel32.dll")]
         internal static extern IntPtr GetCurrentProcess();
+
+        [DllImport("kernel32.dll")]
+        internal static extern int VirtualQueryEx(IntPtr hProcess, IntPtr lpAddress, out MEMORY_BASIC_INFORMATION64 lpBuffer, uint dwLength);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer, int nSize, out int lpNumberOfBytesRead);
+
     }
 }
