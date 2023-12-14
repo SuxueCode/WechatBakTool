@@ -126,7 +126,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
         <!-- 这里是listview滚动条的滑动块部分样式-->
         <Style x:Key="ScrollBarThumbVertical" TargetType="{x:Type Thumb}">
             <Setter Property="OverridesDefaultStyle" Value="true"/>
@@ -158,7 +158,7 @@
             <Grid Margin="0">
                 <Label Margin="60,8,0,0" FontWeight="Bold" VerticalAlignment="Top" Content="{Binding NickName}"/>
                 <Label Margin="60,25,0,8" VerticalAlignment="Top" HorizontalAlignment="Left" Width="380">
-                    <TextBlock Text="{Binding StrContent}" TextWrapping="Wrap"  />
+                    <TextBlock Text="{Binding DisplayContent}" TextWrapping="Wrap"  />
                 </Label>
             </Grid>
         </DataTemplate>
@@ -215,7 +215,7 @@
         </ListView>
         <Label Content="{Binding WXContact.NickName}" HorizontalAlignment="Left" Margin="258,21,0,0" VerticalAlignment="Top"/>
         <ListView x:Name="list_msg" Margin="230,60,0,60" Background="Transparent" BorderThickness="0,1,0,1" BorderBrush="#BB2775b6" ItemTemplate="{DynamicResource MsgText}">
-            
+
         </ListView>
         <ComboBox Name="cb_export" Width="120" Height="30" Style="{StaticResource ComboBoxStyle}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="30,15" ItemsSource="{Binding ExportItems}" SelectedItem="{Binding SelectExportItem}" DisplayMemberPath="Name" SelectedValuePath="Value" IsEnabled="{Binding SelectContact}" Background="#2775b6" />
         <Button x:Name="btn_open_workspace" Width="80" Height="30" Style="{StaticResource  ButtonStyle}" Content="打开文件夹" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,390,15" Click="btn_open_workspace_Click">
@@ -225,7 +225,7 @@
                 </Style>
             </Button.Resources>
         </Button>
-        <Button x:Name="btn_analyse" Width="80" Height="30" Style="{StaticResource  ButtonStyle}" Content="旧版消息工具" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,292,15" Click="btn_analyse_Click" >
+        <Button x:Name="btn_pre_emoji" Width="80" Height="30" Style="{StaticResource  ButtonStyle}" Content="表情预下载" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,292,15" IsEnabled="{Binding SelectContact}" Click="btn_pre_emoji_Click" >
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="3"/>

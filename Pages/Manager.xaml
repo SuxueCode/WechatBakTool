@@ -15,8 +15,11 @@
         <Button Name="btn_export_all" Margin="35,110" Height="26" Width="60" Content="导出" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#2775b6" Foreground="White" BorderThickness="0" Click="btn_export_all_Click"></Button>
         <Label Content="{Binding LabelStatus}" HorizontalAlignment="Left" Margin="110,110,0,0" VerticalAlignment="Top"/>
 
-        <Label Margin="30,155" Content="表情包预下载" HorizontalAlignment="Left" VerticalAlignment="Top" FontWeight="Bold" />
-        <Button Name="btn_emoji_download" Margin="35,185" Height="26" Width="60" Content="导出" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#2775b6" Foreground="White" BorderThickness="0" Click="btn_emoji_download_Click"></Button>
+        <Label Margin="30,155,0,0" Content="表情包预下载" HorizontalAlignment="Left" VerticalAlignment="Top" FontWeight="Bold" />
+        <Button Name="btn_emoji_download" Margin="35,185,0,0" Height="26" Width="60" Content="导出" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#2775b6" Foreground="White" BorderThickness="0" Click="btn_emoji_download_Click"></Button>
+
+        <Label Margin="30,225,0,0" Content="旧版分析工具" HorizontalAlignment="Left" VerticalAlignment="Top" FontWeight="Bold" />
+        <Button Name="btn_analyse" Margin="35,255,0,0" Height="26" Width="60" Content="打开" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#2775b6" Foreground="White" BorderThickness="0" Click="btn_analyse_Click" ></Button>
 
     </Grid>
 </Page>

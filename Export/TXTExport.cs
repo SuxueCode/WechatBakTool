@@ -70,67 +70,74 @@ namespace WechatBakTool.Export
                         txtMsg = "[视频]";
                         break;
                     case 49:
-                        try
+                        if (msg.SubType == 6 || msg.SubType == 19 || msg.SubType == 40)
                         {
-                            using (var decoder = LZ4Decoder.Create(true, 64))
+                            txtMsg = "[文件]";
+                        }
+                        else
+                        {
+                            try
                             {
-                                byte[] target = new byte[10240];
-                                int res = 0;
-                                if (msg.CompressContent != null)
-                                    res = LZ4Codec.Decode(msg.CompressContent, 0, msg.CompressContent.Length, target, 0, target.Length);
-
-                                byte[] data = target.Skip(0).Take(res).ToArray();
-                                string xml = Encoding.UTF8.GetString(data);
-                                if (!string.IsNullOrEmpty(xml))
+                                using (var decoder = LZ4Decoder.Create(true, 64))
                                 {
-                                    xml = xml.Replace("\n", "");
-                                    XmlDocument xmlObj = new XmlDocument();
-                                    xmlObj.LoadXml(xml);
-                                    if (xmlObj.DocumentElement != null)
+                                    byte[] target = new byte[10240];
+                                    int res = 0;
+                                    if (msg.CompressContent != null)
+                                        res = LZ4Codec.Decode(msg.CompressContent, 0, msg.CompressContent.Length, target, 0, target.Length);
+
+                                    byte[] data = target.Skip(0).Take(res).ToArray();
+                                    string xml = Encoding.UTF8.GetString(data);
+                                    if (!string.IsNullOrEmpty(xml))
                                     {
-                                        string title = "";
-                                        string appName = "";
-                                        string url = "";
-                                        XmlNodeList? findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/title");
-                                        if (findNode != null)
+                                        xml = xml.Replace("\n", "");
+                                        XmlDocument xmlObj = new XmlDocument();
+                                        xmlObj.LoadXml(xml);
+                                        if (xmlObj.DocumentElement != null)
                                         {
-                                            if (findNode.Count > 0)
+                                            string title = "";
+                                            string appName = "";
+                                            string url = "";
+                                            XmlNodeList? findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/title");
+                                            if (findNode != null)
                                             {
-                                                title = findNode[0]!.InnerText;
+                                                if (findNode.Count > 0)
+                                                {
+                                                    title = findNode[0]!.InnerText;
+                                                }
                                             }
+                                            findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/sourcedisplayname");
+                                            if (findNode != null)
+                                            {
+                                                if (findNode.Count > 0)
+                                                {
+                                                    appName = findNode[0]!.InnerText;
+                                                }
+                                            }
+                                            findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/url");
+                                            if (findNode != null)
+                                            {
+                                                if (findNode.Count > 0)
+                                                {
+                                                    url = findNode[0]!.InnerText;
+                                                }
+                                            }
+                                            txtMsg = string.Format("{0},标题：{1},链接：{2}", appName, title, url);
                                         }
-                                        findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/sourcedisplayname");
-                                        if (findNode != null)
+                                        else
                                         {
-                                            if (findNode.Count > 0)
-                                            {
-                                                appName = findNode[0]!.InnerText;
-                                            }
+                                            txtMsg = "[分享链接出错了]";
                                         }
-                                        findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/url");
-                                        if (findNode != null)
-                                        {
-                                            if (findNode.Count > 0)
-                                            {
-                                                url = findNode[0]!.InnerText;
-                                            }
-                                        }
-                                        txtMsg = string.Format("{0},标题：{1},链接：{2}", appName, title, url);
                                     }
                                     else
                                     {
                                         txtMsg = "[分享链接出错了]";
                                     }
                                 }
-                                else
-                                {
-                                    txtMsg = "[分享链接出错了]";
-                                }
                             }
-                        }
-                        catch
-                        {
-                            txtMsg = "[分享链接出错了]";
+                            catch
+                            {
+                                txtMsg = "[分享链接出错了]";
+                            }
                         }
                         break;
                 }
