@@ -48,17 +48,19 @@ namespace WechatBakTool.Helpers
                 uint nLength = 0;
                 hObjectName = AllocManagedMemory(256 * 1024);
 
-                // 查询句柄名称
-                while (NtQueryObject(ipHandle, OBJECT_INFORMATION_CLASS.ObjectNameInformation, hObjectName, nLength, ref nLength) == NTSTATUS_STATUS_INFO_LENGTH_MISMATCH)
+                Task.Run(() =>
                 {
-                    FreeManagedMemory(hObjectName);
-                    if (nLength == 0)
+                    // 查询句柄名称
+                    while (NtQueryObject(ipHandle, OBJECT_INFORMATION_CLASS.ObjectNameInformation, hObjectName, nLength, ref nLength) == NTSTATUS_STATUS_INFO_LENGTH_MISMATCH)
                     {
-                        Console.WriteLine("Length returned at zero!");
-                        return "";
+                        FreeManagedMemory(hObjectName);
+                        if (nLength == 0)
+                        {
+                            Console.WriteLine("Length returned at zero!");
+                        }
+                        hObjectName = AllocManagedMemory(nLength);
                     }
-                    hObjectName = AllocManagedMemory(nLength);
-                }
+                }).Wait(100);
                 OBJECT_NAME_INFORMATION? objObjectName = new OBJECT_NAME_INFORMATION();
                 objObjectName = Marshal.PtrToStructure(hObjectName, objObjectName.GetType()) as OBJECT_NAME_INFORMATION?;
                 if (objObjectName == null)
