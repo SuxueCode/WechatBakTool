@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -25,7 +26,7 @@ namespace WechatBakTool.Helpers
         const int DEFAULT_ITER = 64000;
         const int DEFAULT_PAGESIZE = 4096; //4048数据 + 16IV + 20 HMAC + 12
         const string SQLITE_HEADER = "SQLite format 3";
-        public static byte[]? GetWechatKey(string pid, bool mem_find_key, string account)
+        public static byte[]? GetWechatKey(string pid, int find_key_type, string account)
         {
             Process process = Process.GetProcessById(int.Parse(pid));
             ProcessModule? module = ProcessHelper.FindProcessModule(process.Id, "WeChatWin.dll");
@@ -39,9 +40,7 @@ namespace WechatBakTool.Helpers
                 return null;
             }
 
-
-
-            if (!mem_find_key)
+            if (find_key_type == 1)
             {
                 List<VersionInfo>? info = null;
                 string json = File.ReadAllText("version.json");
@@ -68,21 +67,67 @@ namespace WechatBakTool.Helpers
                     }
                 }
             }
-            else
+            else if(find_key_type == 2)
             {
                 List<int> read = ProcessHelper.FindProcessMemory(process.Handle, module, account);
                 if (read.Count >= 2)
                 {
                     byte[] buffer = new byte[8];
                     int key_offset = read[1] - 64;
-                    if (ProcessHelper.ReadProcessMemory(process.Handle, module.BaseAddress + key_offset, buffer, buffer.Length, out _))
+                    if (NativeAPI.ReadProcessMemory(process.Handle, module.BaseAddress + key_offset, buffer, buffer.Length, out _))
                     {
                         ulong addr = BitConverter.ToUInt64(buffer, 0);
 
                         byte[] key_bytes = new byte[32];
-                        if (ProcessHelper.ReadProcessMemory(process.Handle, (IntPtr)addr, key_bytes, key_bytes.Length, out _))
+                        if (NativeAPI.ReadProcessMemory(process.Handle, (IntPtr)addr, key_bytes, key_bytes.Length, out _))
                         {
                             return key_bytes;
+                        }
+                    }
+                }
+            }
+            else if (find_key_type == 3)
+            {
+                string searchString = "-----BEGIN PUBLIC KEY-----";
+                List<long> addr = NativeAPIHelper.SearchProcessAllMemory(process, searchString);
+                if (addr.Count > 0)
+                {
+                    foreach (long a in addr)
+                    {
+                        byte[] buffer = new byte[module.ModuleMemorySize];
+                        byte[] search = BitConverter.GetBytes(a);
+                        Array.Resize(ref search, 8);
+                        int read = 0;
+
+                        List<int> offset = new List<int>();
+                        if (NativeAPI.ReadProcessMemory(process.Handle, module.BaseAddress, buffer, buffer.Length, out read))
+                        {
+                            for (int i = 0; i < buffer.Length - 8; i++)
+                            {
+                                if (buffer[i] == search[0])
+                                {
+                                    for (int s = 1; s < search.Length; s++)
+                                    {
+                                        if (buffer[i + s] != search[s])
+                                            break;
+                                        if (s == search.Length - 1)
+                                        {
+                                            long iii = (long)module.BaseAddress + i - 0xd8;
+
+                                            byte[] key = new byte[8];
+                                            if (NativeAPI.ReadProcessMemory(process.Handle, new IntPtr(iii), key, key.Length, out _))
+                                            {
+                                                ulong key_addr = BitConverter.ToUInt64(key, 0);
+
+                                                byte[] key_bytes = new byte[32];
+                                                NativeAPI.ReadProcessMemory(process.Handle, (IntPtr)key_addr, key_bytes, key_bytes.Length, out _);
+                                                string key1 = BitConverter.ToString(key_bytes, 0);
+                                                return key_bytes;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -90,6 +135,10 @@ namespace WechatBakTool.Helpers
                 {
                     throw new Exception("搜索不到微信账号，请确认用户名是否正确，如错误请重新新建工作区，务必确认账号是否正确");
                 }
+            }
+            else if (find_key_type == 3)
+            {
+                string searchString = "-----BEGIN PUBLIC KEY-----";
             }
             return null;
         }
@@ -179,99 +228,50 @@ namespace WechatBakTool.Helpers
         {
             return BitConverter.ToString(bytes, 0).Replace("-", string.Empty).ToLower().ToUpper();
         }
+
+        private static List<byte[]> ImgHeader = new List<byte[]>()
+        {
+            new byte[] { 0xFF, 0xD8 },//JPG
+            new byte[] { 0x89, 0x50 },//PNG
+            new byte[] { 0x42, 0x4D },//BMP
+            new byte[] { 0x47, 0x49 },//GIF
+            new byte[] { 0x49, 0x49 },//TIF
+            new byte[] { 0x4D, 0x4D },//TIF
+        };
         public static byte[] DecImage(string source)
         {
             //读取数据
             byte[] fileBytes = File.ReadAllBytes(source);
             //算差异转换
-            byte key = GetImgKey(fileBytes);
-            fileBytes = ConvertData(fileBytes, key);
-            return fileBytes;
+            foreach (byte[] b in ImgHeader)
+            {
+                byte t = (byte)(fileBytes[0] ^ b[0]);
+                byte[] decData = fileBytes.Select(b => (byte)(b ^ t)).ToArray();
+                if (b[1] != decData[1])
+                    continue;
+                else
+                {
+                    return decData;
+                }
+            }
+            return new byte[0];
         }
         public static string CheckFileType(byte[] data)
         {
-            switch (data[0])
-            {
-                case 0XFF:  //byte[] jpg = new byte[] { 0xFF, 0xD8, 0xFF };
-                    {
-                        if (data[1] == 0xD8 && data[2] == 0xFF)
-                        {
-                            return ".jpg";
-                        }
-                        break;
-                    }
-                case 0x89:  //byte[] png = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
-                    {
-                        if (data[1] == 0x50 && data[2] == 0x4E && data[7] == 0x0A)
-                        {
-                            return ".png";
-                        }
-                        break;
-                    }
-                case 0x42:  //byte[] bmp = new byte[] { 0x42, 0x4D };
-                    {
-                        if (data[1] == 0X4D)
-                        {
-                            return ".bmp";
-                        }
-                        break;
-                    }
-                case 0x47:  //byte[] gif = new byte[] { 0x47, 0x49, 0x46, 0x38, 0x39(0x37), 0x61 };
-                    {
-                        if (data[1] == 0x49 && data[2] == 0x46 && data[3] == 0x38 && data[5] == 0x61)
-                        {
-                            return ".gif";
-                        }
-                        break;
-                    }
-                case 0x49:  // byte[] tif = new byte[] { 0x49, 0x49, 0x2A, 0x00 };
-                    {
-                        if (data[1] == 0x49 && data[2] == 0x2A && data[3] == 0x00)
-                        {
-                            return ".tif";
-                        }
-                        break;
-                    }
-                case 0x4D:  //byte[] tif = new byte[] { 0x4D, 0x4D, 0x2A, 0x00 };
-                    {
-                        if (data[1] == 0x4D && data[2] == 0x2A && data[3] == 0x00)
-                        {
-                            return ".tif";
-                        }
-                        break;
-                    }
-            }
-
-            return ".dat";
-        }
-        private static byte GetImgKey(byte[] fileRaw)
-        {
-            byte[] raw = new byte[8];
-            for (int i = 0; i < 8; i++)
-            {
-                raw[i] = fileRaw[i];
-            }
-
-            for (byte key = 0x01; key < 0xFF; key++)
-            {
-                byte[] buf = new byte[8];
-                raw.CopyTo(buf, 0);
-
-                if (CheckFileType(ConvertData(buf, key)) != ".dat")
-                {
-                    return key;
-                }
-            }
-            return 0x00;
-        }
-        private static byte[] ConvertData(byte[] data, byte key)
-        {
-            for (int i = 0; i < data.Length; i++)
-            {
-                data[i] ^= key;
-            }
-
-            return data;
+            if (data[0] == 0xFF && data[1] == 0xD8)
+                return ".jpg";
+            else if (data[0] == 0x89 && data[1] == 0x50)
+                return ".png";
+            else if (data[0] == 0x42 && data[1] == 0X4D)
+                return ".bmp";
+            else if (data[0] == 0x47 && data[1] == 0x49)
+                return ".gif";
+            else if (data[0] == 0x49 && data[1] == 0x49)
+                return ".tif";
+            else if (data[0] == 0x4D && data[1] == 0x4D)
+                return ".tif";
+            else
+                return ".dat";
         }
         public static string SaveDecImage(byte[] fileRaw,string source,string to_dir,string type)
         {

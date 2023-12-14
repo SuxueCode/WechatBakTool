@@ -17,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using WechatBakTool.Export;
+using WechatBakTool.Helpers;
 using WechatBakTool.Model;
 using WechatBakTool.ViewModel;
 
@@ -100,12 +101,20 @@ namespace WechatBakTool.Pages
                 MessageBox.Show("请选择联系人", "错误");
                 return;
             }
-            string path = Path.Combine(Main2.CurrentUserBakConfig!.UserWorkspacePath, ViewModel.WXContact.UserName + ".txt");
-            IExport export = new TXTExport();
-            export.InitTemplate(ViewModel.WXContact, path);
-            export.SetMsg(UserReader, ViewModel.WXContact, ViewModel);
-            export.SetEnd();
-            export.Save(path);
+            try
+            {
+                string path = Path.Combine(Main2.CurrentUserBakConfig!.UserWorkspacePath, ViewModel.WXContact.UserName + ".txt");
+                IExport export = new TXTExport();
+                export.InitTemplate(ViewModel.WXContact, path);
+                export.SetMsg(UserReader, ViewModel.WXContact, ViewModel);
+                export.SetEnd();
+                export.Save(path);
+            }catch(Exception ex)
+            {
+                File.AppendAllText("1.log", ex.Message);
+                MessageBox.Show(ex.Message);
+            }
+            
             MessageBox.Show("导出完成");
         }
 

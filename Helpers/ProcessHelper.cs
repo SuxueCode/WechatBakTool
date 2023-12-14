@@ -32,7 +32,7 @@ namespace WechatBakTool.Helpers
 
             List<int> offset = new List<int>();
             int readBytes;
-            bool success = ReadProcessMemory(processHandle, module.BaseAddress, buffer, buffer.Length,out readBytes);
+            bool success = NativeAPI.ReadProcessMemory(processHandle, module.BaseAddress, buffer, buffer.Length,out readBytes);
 
             if (!success || readBytes == 0)
             {
@@ -64,14 +64,12 @@ namespace WechatBakTool.Helpers
         {
             byte[] array = new byte[nSize];
             int readByte;
-            if (!ReadProcessMemory(hProcess, lpBaseAddress, array, nSize, out readByte))
+            if (!NativeAPI.ReadProcessMemory(hProcess, lpBaseAddress, array, nSize, out readByte))
                 return null;
             else
                 return array;
         }
 
-        [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer, int nSize, out int lpNumberOfBytesRead);
         
     }
 

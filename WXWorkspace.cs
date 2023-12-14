@@ -38,12 +38,13 @@ namespace WechatBakTool
             if (!UserBakConfig.Decrypt)
             {
                 byte[]? key = null;
-                key = DecryptionHelper.GetWechatKey(pid, type == 2, UserBakConfig.Account);
+                viewModel.LabelStatus = "正在获取秘钥，需要1 - 10秒左右";
+                key = DecryptionHelper.GetWechatKey(pid, type, UserBakConfig.Account);
                 if (key == null)
                 {
                     throw new Exception("获取到的密钥为空，获取失败");
                 }
-                string key_string = BitConverter.ToString(key, 0).Replace("-", string.Empty).ToLower().ToUpper();
+
                 string source = Path.Combine(UserBakConfig.UserWorkspacePath, "OriginalDB");
                 string to = Path.Combine(UserBakConfig.UserWorkspacePath, "DecDB");
 

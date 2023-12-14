@@ -48,17 +48,19 @@ namespace WechatBakTool.Helpers
                 uint nLength = 0;
                 hObjectName = AllocManagedMemory(256 * 1024);
 
-                // 查询句柄名称
-                while (NtQueryObject(ipHandle, OBJECT_INFORMATION_CLASS.ObjectNameInformation, hObjectName, nLength, ref nLength) == NTSTATUS_STATUS_INFO_LENGTH_MISMATCH)
+                Task.Run(() =>
                 {
-                    FreeManagedMemory(hObjectName);
-                    if (nLength == 0)
+                    // 查询句柄名称
+                    while (NtQueryObject(ipHandle, OBJECT_INFORMATION_CLASS.ObjectNameInformation, hObjectName, nLength, ref nLength) == NTSTATUS_STATUS_INFO_LENGTH_MISMATCH)
                     {
-                        Console.WriteLine("Length returned at zero!");
-                        return "";
+                        FreeManagedMemory(hObjectName);
+                        if (nLength == 0)
+                        {
+                            Console.WriteLine("Length returned at zero!");
+                        }
+                        hObjectName = AllocManagedMemory(nLength);
                     }
-                    hObjectName = AllocManagedMemory(nLength);
-                }
+                }).Wait(100);
                 OBJECT_NAME_INFORMATION? objObjectName = new OBJECT_NAME_INFORMATION();
                 objObjectName = Marshal.PtrToStructure(hObjectName, objObjectName.GetType()) as OBJECT_NAME_INFORMATION?;
                 if (objObjectName == null)
@@ -147,5 +149,52 @@ namespace WechatBakTool.Helpers
             // Return list
             return ltei;
         }
+
+        public static List<long> SearchProcessAllMemory(Process process, string searchString)
+        {
+            IntPtr minAddress = IntPtr.Zero;
+            IntPtr maxAddress = IntPtr.MaxValue;
+            List<long> addrList = new List<long>();
+
+            while (minAddress.ToInt64() < maxAddress.ToInt64())
+            {
+                MEMORY_BASIC_INFORMATION64 memInfo;
+                int result = VirtualQueryEx(process.Handle, minAddress, out memInfo, (uint)Marshal.SizeOf(typeof(MEMORY_BASIC_INFORMATION64)));
+
+                if (result == 0)
+                {
+                    break;
+                }
+
+                if (memInfo.State == MEM_COMMIT && (memInfo.Protect == PAGE_EXECUTE || memInfo.Protect == PAGE_EXECUTE_READ || memInfo.Protect == PAGE_EXECUTE_READ || memInfo.Protect == PAGE_READWRITE || memInfo.Protect == PAGE_READONLY))
+                {
+                    byte[] buffer = new byte[(long)memInfo.RegionSize];
+                    bool success = ReadProcessMemory(process.Handle, memInfo.BaseAddress, buffer, buffer.Length, out _);
+
+                    if (success)
+                    {
+                        byte[] search = Encoding.ASCII.GetBytes(searchString);
+                        for (int i = 0; i < buffer.Length - 8; i++)
+                        {
+                            if (buffer[i] == search[0])
+                            {
+                                for (int s = 1; s < search.Length; s++)
+                                {
+                                    if (buffer[i + s] != search[s])
+                                        break;
+                                    if (s == search.Length - 1)
+                                    {
+                                        addrList.Add((long)memInfo.BaseAddress + i);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                minAddress = new IntPtr(memInfo.BaseAddress.ToInt64() + (long)memInfo.RegionSize);
+            }
+            return addrList;
+        }
+
     }
 }

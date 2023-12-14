@@ -544,21 +544,29 @@ namespace WechatBakTool
             }
             else if (type == WXMsgType.Emoji)
             {
-                XmlDocument xmlDocument = new XmlDocument();
-                xmlDocument.LoadXml(msg.StrContent);
-                XmlNode? node = xmlDocument.SelectSingleNode("/msg/emoji");
-                if (node != null)
+                try
                 {
-                    if (node.Attributes != null)
+                    XmlDocument xmlDocument = new XmlDocument();
+                    xmlDocument.LoadXml(msg.StrContent);
+                    XmlNode? node = xmlDocument.SelectSingleNode("/msg/emoji");
+                    if (node != null)
                     {
-                        XmlNode? item = node.Attributes.GetNamedItem("md5");
-                        string md5 = item != null ? item.InnerText : "";
-                        if (EmojiCache.ContainsKey(md5))
+                        if (node.Attributes != null)
                         {
-                            path = string.Format("Emoji\\{0}.gif", md5);
+                            XmlNode? item = node.Attributes.GetNamedItem("md5");
+                            string md5 = item != null ? item.InnerText : "";
+                            if (EmojiCache.ContainsKey(md5))
+                            {
+                                path = string.Format("Emoji\\{0}.gif", md5);
+                            }
                         }
                     }
                 }
+                catch
+                {
+                    return null;
+                }
+                
             }
 
             if (path == null)
@@ -622,6 +630,8 @@ namespace WechatBakTool
                     // 图片的路径是相对路径，需要加上资源目录
                     path = Path.Combine(UserBakConfig.UserResPath, path);
                     byte[] decFileByte = DecryptionHelper.DecImage(path);
+                    if (decFileByte.Length < 2)
+                        new Exception("解密失败，可能是未支持的格式");
                     string decFiletype = DecryptionHelper.CheckFileType(decFileByte);
                     file_path = DecryptionHelper.SaveDecImage(decFileByte, path, img_dir, decFiletype);
                     break;
