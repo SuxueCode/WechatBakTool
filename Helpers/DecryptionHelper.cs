@@ -102,7 +102,7 @@ namespace WechatBakTool.Helpers
                         List<int> offset = new List<int>();
                         if (NativeAPI.ReadProcessMemory(process.Handle, module.BaseAddress, buffer, buffer.Length, out read))
                         {
-                            for (int i = 0; i < buffer.Length - 8; i++)
+                            for (int i = 0; i < buffer.Length - 1; i++)
                             {
                                 if (buffer[i] == search[0])
                                 {

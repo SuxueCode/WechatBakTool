@@ -1,0 +1,25 @@
+﻿<Window x:Class="WechatBakTool.WordCloudSetting"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WechatBakTool"
+        mc:Ignorable="d"
+        Title="词云渲染设置" Height="360" Width="300" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Label HorizontalAlignment="left" VerticalAlignment="Top" Margin="20,10,0,0">渲染高度</Label>
+        <TextBox HorizontalAlignment="left" VerticalAlignment="Top" Margin="25,35,0,0" Width="220" Text="{Binding ImgHeight}"/>
+        <Label HorizontalAlignment="left" VerticalAlignment="Top" Margin="20,60,0,0">渲染宽度</Label>
+        <TextBox HorizontalAlignment="left" VerticalAlignment="Top" Margin="25,85,0,0" Width="220" Text="{Binding ImgWidth}"/>
+        <Label HorizontalAlignment="left" VerticalAlignment="Top" Margin="20,110,0,0">最大词数</Label>
+        <TextBox HorizontalAlignment="left" VerticalAlignment="Top" Margin="25,135,0,0" Width="220" Text="{Binding MaxKeyCount}"/>
+        <Label HorizontalAlignment="left" VerticalAlignment="Top" Margin="20,160,0,0">渲染字体</Label>
+        <ComboBox HorizontalAlignment="left" VerticalAlignment="Top" Margin="25,185,0,0" Width="220" SelectedItem="{Binding Font}" ItemsSource="{Binding FontList}"/>
+        <CheckBox HorizontalAlignment="left" VerticalAlignment="Top" Margin="25,215,0,0" Content="过滤只有一个字的关键词【推荐】" IsChecked="{Binding EnableRemoveOneKey}" />
+
+        <Label HorizontalAlignment="left" VerticalAlignment="Top" Margin="20,235,0,0">自定义过滤词（英文,号分隔）</Label>
+        <TextBox HorizontalAlignment="left" VerticalAlignment="Top" Margin="25,260,0,0" Width="220" Text="{Binding RemoveKey}"/>
+        <Button Content="确定" HorizontalAlignment="Left" Margin="91,293,0,0" VerticalAlignment="Top" Width="100" Click="Button_Click"/>
+
+    </Grid>
+</Window>

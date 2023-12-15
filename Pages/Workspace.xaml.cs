@@ -1,4 +1,6 @@
-﻿using System;
+﻿using JiebaNet.Segmenter;
+using JiebaNet.Segmenter.Common;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,7 +10,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -20,6 +21,10 @@ using WechatBakTool.Export;
 using WechatBakTool.Helpers;
 using WechatBakTool.Model;
 using WechatBakTool.ViewModel;
+using WordCloudSharp;
+using System.Drawing;
+using System.Windows.Controls;
+using System.Text.RegularExpressions;
 
 namespace WechatBakTool.Pages
 {
@@ -35,6 +40,7 @@ namespace WechatBakTool.Pages
             ViewModel.ExportItems = new System.Collections.ObjectModel.ObservableCollection<ExportItem> {
                 new ExportItem(){ Name="导出为HTML",Value=1 },
                 new ExportItem(){ Name="导出为TXT",Value=2 },
+                new ExportItem(){ Name="与他的词云",Value=3 },
             };
             ViewModel.SelectExportItem = ViewModel.ExportItems[0];
             InitializeComponent();
@@ -137,7 +143,77 @@ namespace WechatBakTool.Pages
                     MessageBox.Show("请选择导出方式", "错误");
                     return;
                 }
-                string path = Path.Combine(Main2.CurrentUserBakConfig!.UserWorkspacePath, ViewModel.WXContact.UserName);
+                if(ViewModel.SelectExportItem.Value == 3)
+                {
+                    if(UserReader != null && ViewModel.WXContact != null)
+                    {
+                        WordCloudSettingViewModel setting = new WordCloudSettingViewModel() {
+                            ImgWidth = "1000",
+                            ImgHeight = "1000",
+                            EnableRemoveOneKey = true,
+                        };
+                        Dispatcher.Invoke(() => {
+                            WordCloudSetting wordCloudSetting = new WordCloudSetting(setting);
+                            wordCloudSetting.ShowDialog();
+                        });
+                        
+                        var jieba = new JiebaSegmenter();
+                        Counter<string> counter = new Counter<string>();
+
+                        ViewModel.ExportCount = "词频统计ing...";
+                        List<WXMsg>? msgs = UserReader.GetWXMsgs(ViewModel.WXContact.UserName);
+                        if(msgs!= null)
+                        {
+                            foreach(WXMsg msg in msgs)
+                            {
+                                if(msg.Type == 1)
+                                {
+                                    List<string> list = jieba.Cut(msg.StrContent).ToList();
+                                    counter.Add(list);
+                                }
+                                    
+                            }
+                        }
+                        var orderBy = counter.MostCommon();
+                        ViewModel.ExportCount = "移除部分词语...";
+                        string[] remove_string_list = setting.RemoveKey.Split(",");
+                        foreach(string remove_string in remove_string_list)
+                        {
+                            counter.Remove(remove_string);
+                        }
+                        foreach(var key in orderBy)
+                        {
+                            if (key.Key.Length == 1 && setting.EnableRemoveOneKey)
+                                counter.Remove(key.Key);
+                        }
+
+                        ViewModel.ExportCount = "渲染词云结果";
+                        string resultPath = "result.jpg";
+
+                        var wordCloud = new WordCloud(int.Parse(setting.ImgWidth), int.Parse(setting.ImgHeight), allowVerical: true, fontname: setting.Font);
+
+                        if(orderBy.Count() >= setting.MaxKeyCount)
+                            orderBy = orderBy.Take(setting.MaxKeyCount);
+                        //var wordCloud = new WordCloud(1000, 1000,false, null,-1,1,null, false);
+                        var result = wordCloud.Draw(orderBy.Select(it => it.Key).ToList(), orderBy.Select(it => it.Value).ToList());
+                        result.Save(resultPath);
+                        ViewModel.ExportCount = "完成";
+                        MessageBox.Show("生成完毕", "提示");
+                    }
+                    return;
+                }
+
+                string name = ViewModel.WXContact.NickName;
+                name = name.Replace(@"\", "");
+                name = Regex.Replace(name, "[ \\[ \\] \\^ \\-_*×――(^)$%~!/@#$…&%￥—+=<>《》|!！??？:：•`·、。，；,.;\"‘’“”-]", "");
+                string path = Path.Combine(
+                    Main2.CurrentUserBakConfig!.UserWorkspacePath,
+                    string.Format(
+                        "{0}-{1}",
+                        ViewModel.WXContact.UserName,
+                        ViewModel.WXContact.Remark == "" ? name : ViewModel.WXContact.Remark
+                    )
+                );
                 IExport export;
 
 #if DEBUG

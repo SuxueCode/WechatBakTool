@@ -93,6 +93,7 @@ namespace WechatBakTool
 
         private void new_workspace_fill_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            list_workspace.SelectedItem = null;
             MainFrame.Navigate(new Uri("pack://application:,,,/Pages/CreateWork.xaml?datatime=" + DateTime.Now.Ticks));
         }
 
