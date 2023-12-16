@@ -29,6 +29,9 @@
     <None Update="libssl-1_1.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="mask.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\char_state_tab.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
