@@ -136,10 +136,6 @@ namespace WechatBakTool.Helpers
                     throw new Exception("搜索不到微信账号，请确认用户名是否正确，如错误请重新新建工作区，务必确认账号是否正确");
                 }
             }
-            else if (find_key_type == 3)
-            {
-                string searchString = "-----BEGIN PUBLIC KEY-----";
-            }
             return null;
         }
 
@@ -178,7 +174,7 @@ namespace WechatBakTool.Helpers
                 var page_bytes = BitConverter.GetBytes(page_no + 1);
                 page_bytes.CopyTo(going_to_hashed, DEFAULT_PAGESIZE - reserved - offset + IV_SIZE);
                 //计算分页的Hash
-                var hash_mac_compute = hmac_sha1.ComputeHash(going_to_hashed, 0, going_to_hashed.Count());
+                var hash_mac_compute = hmac_sha1.ComputeHash(going_to_hashed, 0, going_to_hashed.Length);
                 //取出分页中存储的Hash
                 var hash_mac_cached = db_file_bytes.Skip((page_no * DEFAULT_PAGESIZE) + DEFAULT_PAGESIZE - reserved + IV_SIZE).Take(hash_mac_compute.Length).ToArray();
                 //对比两个Hash
@@ -229,7 +225,7 @@ namespace WechatBakTool.Helpers
             return BitConverter.ToString(bytes, 0).Replace("-", string.Empty).ToLower().ToUpper();
         }
 
-        private static List<byte[]> ImgHeader = new List<byte[]>()
+        private readonly static List<byte[]> ImgHeader = new List<byte[]>()
         {
             new byte[] { 0xFF, 0xD8 },//JPG
             new byte[] { 0x89, 0x50 },//PNG
