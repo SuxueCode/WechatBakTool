@@ -147,9 +147,13 @@ namespace WechatBakTool.Pages
                 {
                     if(UserReader != null && ViewModel.WXContact != null)
                     {
+                        System.Drawing.Image? mask = null;
+                        if (File.Exists("mask.png"))
+                            mask = System.Drawing.Image.FromFile("mask.png");
+
                         WordCloudSettingViewModel setting = new WordCloudSettingViewModel() {
-                            ImgWidth = "1000",
-                            ImgHeight = "1000",
+                            ImgWidth = mask == null ? "1000": mask.Width.ToString(),
+                            ImgHeight = mask == null ? "1000" : mask.Height.ToString(),
                             EnableRemoveOneKey = true,
                         };
                         Dispatcher.Invoke(() => {
@@ -190,15 +194,19 @@ namespace WechatBakTool.Pages
                         ViewModel.ExportCount = "渲染词云结果";
                         string resultPath = "result.jpg";
 
-                        var wordCloud = new WordCloud(int.Parse(setting.ImgWidth), int.Parse(setting.ImgHeight), allowVerical: true, fontname: setting.Font);
+                        WordCloud wordCloud;
+                        if(mask != null)
+                            wordCloud = new WordCloud(int.Parse(setting.ImgWidth), int.Parse(setting.ImgHeight), mask: mask, allowVerical: true, fontname: setting.Font);
+                        else
+                            wordCloud = new WordCloud(int.Parse(setting.ImgWidth), int.Parse(setting.ImgHeight), allowVerical: true, fontname: setting.Font);
 
-                        if(orderBy.Count() >= setting.MaxKeyCount)
+                        if (orderBy.Count() >= setting.MaxKeyCount)
                             orderBy = orderBy.Take(setting.MaxKeyCount);
-                        //var wordCloud = new WordCloud(1000, 1000,false, null,-1,1,null, false);
+
                         var result = wordCloud.Draw(orderBy.Select(it => it.Key).ToList(), orderBy.Select(it => it.Value).ToList());
                         result.Save(resultPath);
                         ViewModel.ExportCount = "完成";
-                        MessageBox.Show("生成完毕", "提示");
+                        MessageBox.Show("生成完毕，请查看软件根目录result.jpg", "提示");
                     }
                     return;
                 }

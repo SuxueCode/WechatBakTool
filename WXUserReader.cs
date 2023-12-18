@@ -162,7 +162,7 @@ namespace WechatBakTool
                             }
                             else
                             {
-                                string path = Path.Combine(UserBakConfig.UserWorkspacePath, "Emoji", md5 + ".gif");
+                                string path = Path.Combine(UserBakConfig.UserWorkspacePath, msg.StrTalker, "Emoji", md5 + ".gif");
                                 try
                                 {
                                     HttpResponseMessage res = httpClient.GetAsync(url).Result;
@@ -511,7 +511,7 @@ namespace WechatBakTool
             if (UserBakConfig == null)
                 return null;
 
-            string? tmpPath = Path.Combine(UserBakConfig.UserWorkspacePath, "Temp");
+            string? tmpPath = Path.Combine(UserBakConfig.UserWorkspacePath, msg.StrTalker, "Temp");
             if (!Directory.Exists(tmpPath))
                 Directory.CreateDirectory(tmpPath);
 
@@ -576,15 +576,15 @@ namespace WechatBakTool
             // 获取到原路径后，开始进行解密转移,只有图片和语音需要解密，解密后是直接归档目录
             if (type == WXMsgType.Image || type == WXMsgType.Audio)
             {
-                path = DecryptAttachment(type, path);
+                path = DecryptAttachment(type, path, msg.StrTalker);
             }
             else if (type == WXMsgType.Video || type == WXMsgType.File)
             {
                 string to_dir;
                 if (type == WXMsgType.Video)
-                    to_dir = Path.Combine(UserBakConfig.UserWorkspacePath, "Video");
+                    to_dir = Path.Combine(UserBakConfig.UserWorkspacePath, msg.StrTalker, "Video");
                 else
-                    to_dir = Path.Combine(UserBakConfig.UserWorkspacePath, "File");
+                    to_dir = Path.Combine(UserBakConfig.UserWorkspacePath, msg.StrTalker, "File");
                 if (!Directory.Exists(to_dir))
                     Directory.CreateDirectory(to_dir);
                 FileInfo fileInfo = new FileInfo(path);
@@ -615,7 +615,7 @@ namespace WechatBakTool
             return path;
 
         }
-        public string? DecryptAttachment(WXMsgType type, string path)
+        public string? DecryptAttachment(WXMsgType type, string path,string username)
         {
             if (UserBakConfig == null)
                 return null;
@@ -624,11 +624,13 @@ namespace WechatBakTool
             switch (type)
             {
                 case WXMsgType.Image:
-                    string img_dir = Path.Combine(UserBakConfig.UserWorkspacePath, "Image");
+                    string img_dir = Path.Combine(UserBakConfig.UserWorkspacePath, username, "Image");
                     if (!Directory.Exists(img_dir))
                         Directory.CreateDirectory(img_dir);
                     // 图片的路径是相对路径，需要加上资源目录
                     path = Path.Combine(UserBakConfig.UserResPath, path);
+                    if (!File.Exists(path))
+                        return null;
                     byte[] decFileByte = DecryptionHelper.DecImage(path);
                     if (decFileByte.Length < 2)
                         new Exception("解密失败，可能是未支持的格式");
@@ -636,7 +638,7 @@ namespace WechatBakTool
                     file_path = DecryptionHelper.SaveDecImage(decFileByte, path, img_dir, decFiletype);
                     break;
                 case WXMsgType.Audio:
-                    string audio_dir = Path.Combine(UserBakConfig.UserWorkspacePath, "Audio");
+                    string audio_dir = Path.Combine(UserBakConfig.UserWorkspacePath, username, "Audio");
                     if (!Directory.Exists(audio_dir))
                         Directory.CreateDirectory(audio_dir);
                     FileInfo fileInfo = new FileInfo(path);

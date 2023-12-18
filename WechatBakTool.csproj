@@ -6,9 +6,9 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <AssemblyVersion>0.9.6.0</AssemblyVersion>
-    <FileVersion>0.9.6.0</FileVersion>
-    <Version>0.9.6.0</Version>
+    <AssemblyVersion>0.9.6.1</AssemblyVersion>
+    <FileVersion>0.9.6.1</FileVersion>
+    <Version>0.9.6.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +28,9 @@
     </None>
     <None Update="libssl-1_1.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="mask.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\char_state_tab.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
