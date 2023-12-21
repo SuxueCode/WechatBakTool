@@ -6,10 +6,17 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <AssemblyVersion>0.9.6.0</AssemblyVersion>
-    <FileVersion>0.9.6.0</FileVersion>
-    <Version>0.9.6.0</Version>
+    <AssemblyVersion>0.9.6.2</AssemblyVersion>
+    <FileVersion>0.9.6.2</FileVersion>
+    <Version>0.9.6.2</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="YearReport\**" />
+    <EmbeddedResource Remove="YearReport\**" />
+    <None Remove="YearReport\**" />
+    <Page Remove="YearReport\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
@@ -71,10 +78,6 @@
     <None Update="version.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="YearReport\" />
   </ItemGroup>
 
 </Project>

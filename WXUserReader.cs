@@ -629,6 +629,8 @@ namespace WechatBakTool
                         Directory.CreateDirectory(img_dir);
                     // 图片的路径是相对路径，需要加上资源目录
                     path = Path.Combine(UserBakConfig.UserResPath, path);
+                    if (!File.Exists(path))
+                        return null;
                     byte[] decFileByte = DecryptionHelper.DecImage(path);
                     if (decFileByte.Length < 2)
                         new Exception("解密失败，可能是未支持的格式");

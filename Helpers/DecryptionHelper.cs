@@ -136,6 +136,10 @@ namespace WechatBakTool.Helpers
                     throw new Exception("搜索不到微信账号，请确认用户名是否正确，如错误请重新新建工作区，务必确认账号是否正确");
                 }
             }
+            else if (find_key_type == 3)
+            {
+                string searchString = "-----BEGIN PUBLIC KEY-----";
+            }
             return null;
         }
 
