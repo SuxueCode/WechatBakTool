@@ -164,20 +164,30 @@ namespace WechatBakTool.Pages
                         var jieba = new JiebaSegmenter();
                         Counter<string> counter = new Counter<string>();
 
-                        ViewModel.ExportCount = "词频统计ing...";
-                        List<WXMsg>? msgs = UserReader.GetWXMsgs(ViewModel.WXContact.UserName);
-                        if(msgs!= null)
+                        try
                         {
-                            foreach(WXMsg msg in msgs)
+                            ViewModel.ExportCount = "词频统计ing...";
+                            List<WXMsg>? msgs = UserReader.GetWXMsgs(ViewModel.WXContact.UserName);
+                            if (msgs != null)
                             {
-                                if(msg.Type == 1)
+                                foreach (WXMsg msg in msgs)
                                 {
-                                    List<string> list = jieba.Cut(msg.StrContent).ToList();
-                                    counter.Add(list);
+                                    if (msg.Type == 1)
+                                    {
+                                        List<string> list = jieba.Cut(msg.StrContent).ToList();
+                                        counter.Add(list);
+                                    }
+
                                 }
-                                    
                             }
                         }
+                        catch
+                        {
+                            ViewModel.ExportCount = "异常";
+                            MessageBox.Show("词频统计发生异常，请检查字典文件是否存在", "错误");
+                            return;
+                        }
+                        
                         var orderBy = counter.MostCommon();
                         ViewModel.ExportCount = "移除部分词语...";
                         string[] remove_string_list = setting.RemoveKey.Split(",");
