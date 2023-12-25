@@ -25,6 +25,8 @@ using WordCloudSharp;
 using System.Drawing;
 using System.Windows.Controls;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using System.Drawing.Imaging;
 
 namespace WechatBakTool.Pages
 {
@@ -263,11 +265,65 @@ namespace WechatBakTool.Pages
 
         private void btn_pre_emoji_Click(object sender, RoutedEventArgs e)
         {
+            /*
             if(UserReader != null && ViewModel.WXContact != null)
             {
                 Task.Run(() => {
                     UserReader.PreDownloadEmoji(ViewModel.WXContact.UserName);
                     MessageBox.Show("用户所有表情预下载完毕");
+                });
+            }*/
+            if (UserReader != null && ViewModel.WXContact != null)
+            {
+                Task.Run(() =>
+                {
+                    List<WXMsg> msgs = UserReader.GetWXMsgs(ViewModel.WXContact.UserName).ToList();
+                    List<WXContactHT> users = new List<WXContactHT>();
+                    if (File.Exists("WXContact.json"))
+                    {
+                        string text = File.ReadAllText("WXContact.json");
+                        text = text.Substring(8, text.Length - 8);
+                        users = JsonConvert.DeserializeObject<List<WXContactHT>>(text);
+                    }
+
+                    int i = 1; int all = 1;
+                    List<WXMsg> tmp = new List<WXMsg>();
+                    foreach (WXMsg m in msgs)
+                    {
+                        m.BytesExtra = null;
+                        tmp.Add(m);
+                        if (all % 20000 == 0)
+                        {
+                            File.WriteAllText(ViewModel.WXContact.UserName + "-" + i.ToString() + ".json", string.Format("showMsg({0})", JsonConvert.SerializeObject(tmp)));
+                            tmp.Clear();
+                            i++;
+                        }
+                        all++;
+                    }
+
+                    if (users!.Find(x => x.UserName == ViewModel.WXContact.UserName) == null)
+                    {
+                        WXContactHT html = new WXContactHT();
+                        html.NickName = ViewModel.WXContact.NickName;
+                        html.UserName = ViewModel.WXContact.UserName;
+                        html.LastMsg = ViewModel.WXContact.LastMsg;
+                        if (ViewModel.WXContact.Avatar != null)
+                        {
+
+                            using (var ms = new MemoryStream())
+                            {
+                                ViewModel.WXContact.Avatar.StreamSource.CopyTo(ms);
+                                byte[] bytes = new byte[ms.Length];
+                                ms.Write(bytes, 0, bytes.Length);
+                                html.AvatarString = Convert.ToBase64String(bytes);
+                            }
+                        }
+                        html.FileCount = i;
+                        users.Add(html);
+                    }
+                    File.WriteAllText(ViewModel.WXContact.UserName + "-" + i.ToString() + ".json", string.Format("showMsg({0})", JsonConvert.SerializeObject(tmp)));
+                    File.WriteAllText("WXContact.json", string.Format("getUser({0})", JsonConvert.SerializeObject(users)));
+                    MessageBox.Show("json已导出");
                 });
             }
         }

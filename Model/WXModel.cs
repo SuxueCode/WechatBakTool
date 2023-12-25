@@ -158,6 +158,14 @@ namespace WechatBakTool.Model
         public string Reserved0 { get; set; } = "";
     }
 
+    public class WXContactHT
+    {
+        public string UserName { get; set; } = "";
+        public string NickName { get; set; } = "";
+        public string LastMsg { get; set; } = "";
+        public int FileCount { get; set; } = 1;
+        public string AvatarString { get; set; } = "";
+    }
     [Table("Contact")]
     public class WXContact
     {
