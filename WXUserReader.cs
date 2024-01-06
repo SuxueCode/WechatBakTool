@@ -371,6 +371,10 @@ namespace WechatBakTool
                             w.StrTalker = contact.UserName;
                         }
                     }
+                    else
+                    {
+                        w.NickName = uid;
+                    }
 
                     // 群聊处理
                     if (uid.Contains("@chatroom"))

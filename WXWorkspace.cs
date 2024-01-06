@@ -18,7 +18,7 @@ namespace WechatBakTool
     {
         private UserBakConfig UserBakConfig = new UserBakConfig();
         public WXWorkspace(string path,string account = "") {
-            string checkResult = Init(path, account);
+            string checkResult = Init(path, false, account);
             if (checkResult != "")
                 new Exception(checkResult);
         }
@@ -28,7 +28,7 @@ namespace WechatBakTool
             UserBakConfig = userBakConfig;
         }
 
-        public void DecryptDB(string pid,int type,CreateWorkViewModel viewModel)
+        public void DecryptDB(string pid,int type,CreateWorkViewModel viewModel,string pwd = "")
         {
             if (UserBakConfig == null)
             {
@@ -39,7 +39,17 @@ namespace WechatBakTool
             {
                 byte[]? key = null;
                 viewModel.LabelStatus = "正在获取秘钥，需要1 - 10秒左右";
-                key = DecryptionHelper.GetWechatKey(pid, type, UserBakConfig.Account);
+                if(pwd == "")
+                    key = DecryptionHelper.GetWechatKey(pid, type, UserBakConfig.Account);
+                else
+                {
+                    key = new byte[pwd.Length / 2];
+                    for(int i = 0;i<pwd.Length / 2; i++)
+                    {
+                        key[i] = Convert.ToByte(pwd.Substring(i * 2, 2), 16);
+                    }
+                }
+
                 if (key == null)
                 {
                     throw new Exception("获取到的密钥为空，获取失败");
@@ -104,7 +114,7 @@ namespace WechatBakTool
                 }
             }
         }
-        private string Init(string path,string account = "")
+        private string Init(string path,bool manual,string account = "")
         {
             string curPath = AppDomain.CurrentDomain.BaseDirectory;
             string md5 = GetMd5Hash(path);

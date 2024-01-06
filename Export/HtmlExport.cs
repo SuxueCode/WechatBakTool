@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using WechatBakTool.ViewModel;
 using System.Security.Policy;
 using System.Windows;
+using System.Xml.Linq;
 
 namespace WechatBakTool.Export
 {
@@ -157,30 +158,37 @@ namespace WechatBakTool.Export
                                         }
 
                                         HtmlBody += string.Format("<p class=\"content\">{0}</p>", title);
-                                        findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/recorditem");
-                                        if (findNode != null)
+                                        try
                                         {
-                                            if (findNode.Count > 0)
+                                            findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/recorditem");
+                                            if (findNode != null)
                                             {
-                                                XmlDocument itemObj = new XmlDocument();
-                                                itemObj.LoadXml(findNode[0]!.InnerText);
-                                                XmlNodeList? itemNode = itemObj.DocumentElement.SelectNodes("/recordinfo/datalist/dataitem");
-                                                if (itemNode.Count > 0)
+                                                if (findNode.Count > 0)
                                                 {
-                                                    foreach (XmlNode node in itemNode)
+                                                    XmlDocument itemObj = new XmlDocument();
+                                                    itemObj.LoadXml(findNode[0]!.InnerText);
+                                                    XmlNodeList? itemNode = itemObj.DocumentElement.SelectNodes("/recordinfo/datalist/dataitem");
+                                                    if (itemNode.Count > 0)
                                                     {
-                                                        string nodeMsg;
-                                                        string name = node["sourcename"].InnerText;
-                                                        if (node.Attributes["datatype"].InnerText == "1")
-                                                            nodeMsg = node["datadesc1"].InnerText;
-                                                        else if (node.Attributes["datatype"].InnerText == "2")
-                                                            nodeMsg = "不支持的消息";
-                                                        else
-                                                            nodeMsg = node["datatitle"].InnerText;
-                                                        HtmlBody += string.Format("<p class=\"content\">{0}：{1}</p>", name, nodeMsg);
+                                                        foreach (XmlNode node in itemNode)
+                                                        {
+                                                            string nodeMsg;
+                                                            string name = node["sourcename"].InnerText;
+                                                            if (node.Attributes["datatype"].InnerText == "1")
+                                                                nodeMsg = node["datadesc1"].InnerText;
+                                                            else if (node.Attributes["datatype"].InnerText == "2")
+                                                                nodeMsg = "不支持的消息";
+                                                            else
+                                                                nodeMsg = node["datatitle"].InnerText;
+                                                            HtmlBody += string.Format("<p class=\"content\">{0}：{1}</p>", name, nodeMsg);
+                                                        }
                                                     }
                                                 }
                                             }
+                                        }
+                                        catch
+                                        {
+                                            HtmlBody += string.Format("<p class=\"content\">{0}</p>", "解析异常");
                                         }
                                     }
                                 }
@@ -234,8 +242,6 @@ namespace WechatBakTool.Export
                                                 HtmlBody += string.Format("<p class=\"content\">未知的引用消息</p>");
                                             }
                                         }
-                                            
-                                        
                                     }
                                 }
                             }

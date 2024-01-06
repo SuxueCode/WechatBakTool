@@ -97,6 +97,7 @@ namespace WechatBakTool.Pages
         private void btn_create_worksapce_Click(object sender, RoutedEventArgs e)
         {
             ViewModel.IsEnable = false;
+
             Task.Run(() => {
                 if (ViewModel.KeyType != -1)
                 {
@@ -146,6 +147,26 @@ namespace WechatBakTool.Pages
                 }
                 ViewModel.IsEnable = true;
             });
+        }
+
+        private void cb_manual_Checked(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("该功能仅限用于网络安全研究用途使用，红队同学请在合规授权下进行相关操作","重要提醒！！！！！！！！！");
+            if (MessageBox.Show("我确认获取到合规授权，仅用于网络安全用途使用", "信息确认", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                if (File.Exists("auth.txt"))
+                {
+
+                }
+                else
+                {
+                    MessageBox.Show("未完成声明文件，请先确认声明", "错误");
+                }
+            }
+            else
+            {
+                cb_manual.IsChecked = false;
+            }
         }
     }
 }

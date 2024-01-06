@@ -225,7 +225,7 @@
                 </Style>
             </Button.Resources>
         </Button>
-        <Button x:Name="btn_pre_emoji" Width="80" Height="30" Style="{StaticResource  ButtonStyle}" Content="表情预下载" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,405,292,0" IsEnabled="{Binding SelectContact}" Click="btn_pre_emoji_Click" >
+        <Button x:Name="btn_pre_emoji" Width="80" Height="30" Style="{StaticResource  ButtonStyle}" Content="表情预下载" BorderBrush="Transparent" BorderThickness="0" Background="#2775b6" Foreground="White" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,292,15" IsEnabled="{Binding SelectContact}" Click="btn_pre_emoji_Click" >
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="3"/>

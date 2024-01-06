@@ -92,6 +92,21 @@ namespace WechatBakTool.Pages
                 findName = "";
 
             ViewModel.Contacts = UserReader.GetWXContacts(findName);
+            // 保底回落搜索已删除人员
+            if(ViewModel.Contacts.Count == 0)
+            {
+                var i = UserReader.GetWXMsgs(txt_find_user.Text);
+                if (i != null)
+                {
+                    var g = i.GroupBy(x => x.StrTalker);
+                    ViewModel.Contacts = new System.Collections.ObjectModel.ObservableCollection<WXContact>();
+                    foreach (var x in g)
+                    {
+                        string name = x.Key;
+                        ViewModel.Contacts.Add(new WXContact() { UserName = name, NickName = name });
+                    }
+                }
+            }
         }
 
         private void txt_find_user_GotFocus(object sender, RoutedEventArgs e)
@@ -265,14 +280,14 @@ namespace WechatBakTool.Pages
 
         private void btn_pre_emoji_Click(object sender, RoutedEventArgs e)
         {
-            /*
             if(UserReader != null && ViewModel.WXContact != null)
             {
                 Task.Run(() => {
                     UserReader.PreDownloadEmoji(ViewModel.WXContact.UserName);
                     MessageBox.Show("用户所有表情预下载完毕");
                 });
-            }*/
+            }
+            /*
             if (UserReader != null && ViewModel.WXContact != null)
             {
                 Task.Run(() =>
@@ -292,7 +307,7 @@ namespace WechatBakTool.Pages
                     {
                         m.BytesExtra = null;
                         tmp.Add(m);
-                        if (all % 20000 == 0)
+                        if (all % 10000 == 0)
                         {
                             File.WriteAllText(ViewModel.WXContact.UserName + "-" + i.ToString() + ".json", string.Format("showMsg({0})", JsonConvert.SerializeObject(tmp)));
                             tmp.Clear();
@@ -309,7 +324,6 @@ namespace WechatBakTool.Pages
                         html.LastMsg = ViewModel.WXContact.LastMsg;
                         if (ViewModel.WXContact.Avatar != null)
                         {
-
                             using (var ms = new MemoryStream())
                             {
                                 ViewModel.WXContact.Avatar.StreamSource.CopyTo(ms);
@@ -321,11 +335,13 @@ namespace WechatBakTool.Pages
                         html.FileCount = i;
                         users.Add(html);
                     }
+
                     File.WriteAllText(ViewModel.WXContact.UserName + "-" + i.ToString() + ".json", string.Format("showMsg({0})", JsonConvert.SerializeObject(tmp)));
                     File.WriteAllText("WXContact.json", string.Format("getUser({0})", JsonConvert.SerializeObject(users)));
                     MessageBox.Show("json已导出");
                 });
             }
+            */
         }
     }
 }

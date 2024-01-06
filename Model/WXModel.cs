@@ -165,6 +165,7 @@ namespace WechatBakTool.Model
         public string LastMsg { get; set; } = "";
         public int FileCount { get; set; } = 1;
         public string AvatarString { get; set; } = "";
+        public bool Hidden { get; set; } = false;
     }
     [Table("Contact")]
     public class WXContact
