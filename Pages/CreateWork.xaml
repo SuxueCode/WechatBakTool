@@ -39,7 +39,7 @@
         </Button>
         <Label Margin="210,350,0,0" Content="其他选项：" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         <CheckBox Margin="215,380,0,0" Content="打包资源文件夹（功能规划中）" IsEnabled="False" HorizontalAlignment="Left" VerticalAlignment="Top" />
-        <CheckBox Margin="215,405,0,0" Content="手动模式（功能规划中）" IsEnabled="False" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <CheckBox Name="cb_manual" Checked="cb_manual_Checked"  Margin="215,405,0,0" Content="手动模式" Visibility="Visible" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <Label Name="lab_status" Content="{Binding LabelStatus}" HorizontalAlignment="Left" Margin="30,450,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Page>

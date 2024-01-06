@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using WechatBakTool.ViewModel;
 using System.Security.Policy;
 using System.Windows;
+using System.Xml.Linq;
 
 namespace WechatBakTool.Export
 {
@@ -157,29 +158,88 @@ namespace WechatBakTool.Export
                                         }
 
                                         HtmlBody += string.Format("<p class=\"content\">{0}</p>", title);
-                                        findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/recorditem");
+                                        try
+                                        {
+                                            findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/recorditem");
+                                            if (findNode != null)
+                                            {
+                                                if (findNode.Count > 0)
+                                                {
+                                                    XmlDocument itemObj = new XmlDocument();
+                                                    itemObj.LoadXml(findNode[0]!.InnerText);
+                                                    XmlNodeList? itemNode = itemObj.DocumentElement.SelectNodes("/recordinfo/datalist/dataitem");
+                                                    if (itemNode.Count > 0)
+                                                    {
+                                                        foreach (XmlNode node in itemNode)
+                                                        {
+                                                            string nodeMsg;
+                                                            string name = node["sourcename"].InnerText;
+                                                            if (node.Attributes["datatype"].InnerText == "1")
+                                                                nodeMsg = node["datadesc1"].InnerText;
+                                                            else if (node.Attributes["datatype"].InnerText == "2")
+                                                                nodeMsg = "不支持的消息";
+                                                            else
+                                                                nodeMsg = node["datatitle"].InnerText;
+                                                            HtmlBody += string.Format("<p class=\"content\">{0}：{1}</p>", name, nodeMsg);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            HtmlBody += string.Format("<p class=\"content\">{0}</p>", "解析异常");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else if (msg.SubType == 57)
+                        {
+                            using (var decoder = LZ4Decoder.Create(true, 64))
+                            {
+                                byte[] target = new byte[10240];
+                                int res = 0;
+                                if (msg.CompressContent != null)
+                                    res = LZ4Codec.Decode(msg.CompressContent, 0, msg.CompressContent.Length, target, 0, target.Length);
+
+                                byte[] data = target.Skip(0).Take(res).ToArray();
+                                string xml = Encoding.UTF8.GetString(data);
+                                if (!string.IsNullOrEmpty(xml))
+                                {
+                                    xml = xml.Replace("\n", "");
+                                    XmlDocument xmlObj = new XmlDocument();
+                                    xmlObj.LoadXml(xml);
+                                    if (xmlObj.DocumentElement != null)
+                                    {
+                                        string title = "";
+                                        XmlNodeList? findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/title");
                                         if (findNode != null)
                                         {
                                             if (findNode.Count > 0)
                                             {
-                                                XmlDocument itemObj = new XmlDocument();
-                                                itemObj.LoadXml(findNode[0]!.InnerText);
-                                                XmlNodeList? itemNode = itemObj.DocumentElement.SelectNodes("/recordinfo/datalist/dataitem");
-                                                if (itemNode.Count > 0)
-                                                {
-                                                    foreach (XmlNode node in itemNode)
-                                                    {
-                                                        string nodeMsg;
-                                                        string name = node["sourcename"].InnerText;
-                                                        if (node.Attributes["datatype"].InnerText == "1")
-                                                            nodeMsg = node["datadesc1"].InnerText;
-                                                        else if (node.Attributes["datatype"].InnerText == "2")
-                                                            nodeMsg = "不支持的消息";
-                                                        else
-                                                            nodeMsg = node["datatitle"].InnerText;
-                                                        HtmlBody += string.Format("<p class=\"content\">{0}：{1}</p>", name, nodeMsg);
-                                                    }
-                                                }
+                                                title = findNode[0]!.InnerText;
+                                            }
+                                        }
+
+                                        HtmlBody += string.Format("<p class=\"content\">{0}</p>", title);
+
+                                        XmlNode? type = xmlObj.DocumentElement.SelectSingleNode("/msg/appmsg/refermsg/type");
+                                        if(type != null)
+                                        {
+                                            XmlNode? source = xmlObj.DocumentElement.SelectSingleNode("/msg/appmsg/refermsg/displayname");
+                                            XmlNode? text = xmlObj.DocumentElement.SelectSingleNode("/msg/appmsg/refermsg/content");
+                                            if(type.InnerText == "1" && source != null && text != null)
+                                            {
+                                                HtmlBody += string.Format("<p class=\"content\">[引用]{0}:{1}</p>", source.InnerText, text.InnerText);
+                                            }
+                                            else if(type.InnerText != "1" && source != null && text != null)
+                                            {
+                                                HtmlBody += string.Format("<p class=\"content\">[引用]{0}:非文本消息类型-{1}</p>", source.InnerText, type);
+                                            }
+                                            else
+                                            {
+                                                HtmlBody += string.Format("<p class=\"content\">未知的引用消息</p>");
                                             }
                                         }
                                     }

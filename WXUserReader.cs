@@ -367,7 +367,13 @@ namespace WechatBakTool
                                 w.NickName = contact.Remark;
                             else
                                 w.NickName = contact.NickName;
+
+                            w.StrTalker = contact.UserName;
                         }
+                    }
+                    else
+                    {
+                        w.NickName = uid;
                     }
 
                     // 群聊处理

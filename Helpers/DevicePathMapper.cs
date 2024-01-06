@@ -15,7 +15,10 @@ namespace WechatBakTool.Helpers
 
         public static string FromDevicePath(string devicePath)
         {
-            var drive = Array.Find(DriveInfo.GetDrives(), d => devicePath.StartsWith(d.GetDevicePath(), StringComparison.InvariantCultureIgnoreCase));
+            var drive = Array.Find(
+                DriveInfo.GetDrives(), d =>
+                devicePath.StartsWith(d.GetDevicePath() + "\\", StringComparison.InvariantCultureIgnoreCase)
+            );
             return drive != null ?
                 devicePath.ReplaceFirst(drive.GetDevicePath(), drive.GetDriveLetter()) :
                 null;
