@@ -136,10 +136,6 @@ namespace WechatBakTool.Helpers
                     throw new Exception("搜索不到微信账号，请确认用户名是否正确，如错误请重新新建工作区，务必确认账号是否正确");
                 }
             }
-            else if (find_key_type == 3)
-            {
-                string searchString = "-----BEGIN PUBLIC KEY-----";
-            }
             return null;
         }
 
@@ -192,6 +188,7 @@ namespace WechatBakTool.Helpers
 
                         // 分页标志
                         var page_bytes = BitConverter.GetBytes(page_no + 1);
+                        page_bytes = page_bytes.Take(4).ToArray();
                         page_bytes.CopyTo(going_to_hashed, DEFAULT_PAGESIZE - reserved - offset + IV_SIZE);
                         var hash_mac_compute = hmac_sha1.ComputeHash(going_to_hashed, 0, going_to_hashed.Length);
 
@@ -230,7 +227,7 @@ namespace WechatBakTool.Helpers
                             byte[] reserved_byte = new byte[reserved];
                             fileStream.Seek((page_no * DEFAULT_PAGESIZE) + DEFAULT_PAGESIZE - reserved, SeekOrigin.Begin);
                             fileStream.Read(reserved_byte, 0, Convert.ToInt32(reserved));
-                            reserved_byte.CopyTo(decryped_page_bytes, DEFAULT_PAGESIZE - reserved);
+                            reserved_byte.CopyTo(decryped_page_bytes, Convert.ToInt32(DEFAULT_PAGESIZE - reserved));
 
                             tofileStream.Write(decryped_page_bytes, 0, decryped_page_bytes.Length);
 
