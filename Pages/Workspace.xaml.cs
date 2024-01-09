@@ -27,6 +27,8 @@ using System.Windows.Controls;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using System.Drawing.Imaging;
+using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace WechatBakTool.Pages
 {
@@ -37,6 +39,9 @@ namespace WechatBakTool.Pages
     {
         public WXUserReader? UserReader;
         private WorkspaceViewModel ViewModel = new WorkspaceViewModel();
+        private int PageSize = 100;
+        private int Postion = 0;
+        private bool Loading = false;
         public Workspace()
         {
             ViewModel.ExportItems = new System.Collections.ObjectModel.ObservableCollection<ExportItem> {
@@ -56,7 +61,11 @@ namespace WechatBakTool.Pages
                 UserReader = new WXUserReader(config);
                 if (config.Decrypt)
                 {
-                    ViewModel.Contacts = UserReader.GetWXContacts();
+                    ViewModel.Contacts = null;
+                    Task.Run(() => {
+                        ViewModel.Contacts = UserReader.GetWXContacts();
+                    });
+                    
                 }
             }
         }
@@ -72,14 +81,43 @@ namespace WechatBakTool.Pages
 
         private void list_users_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+
+            ViewModel.WXMsgs.Clear();
+            Postion = 0;
             ViewModel.ExportCount = "";
-            ViewModel.WXContact = list_users.SelectedItem as WXContact;
-            if(ViewModel.WXContact == null || UserReader == null)
-            {
+            
+            loadMsg();
+            if (ViewModel.WXMsgs.Count == 0)
                 return;
+            
+        }
+
+        private void loadMsg()
+        {
+            Loading = true;
+            ViewModel.WXContact = list_users.SelectedItem as WXContact;
+            if (ViewModel.WXContact == null || UserReader == null)
+                return;
+
+            List<WXMsg>? list = UserReader.GetWXMsgs(ViewModel.WXContact.UserName, Postion, PageSize);
+            // Trace.WriteLine(string.Format("{0}->{1}", PageSize, Postion));
+            if (list == null)
+                return;
+            if (list.Count == 0)
+                return;
+            
+            
+            foreach (WXMsg w in list)
+            {
+                ViewModel.WXMsgs.Add(w);
             }
-            List<WXMsg>? msgs = UserReader.GetWXMsgs(ViewModel.WXContact.UserName);
-            list_msg.ItemsSource = msgs;
+
+            Postion = int.Parse(list.Max(x => x.CreateTime).ToString());
+            list_msg.ScrollIntoView(list[0]);
+            Task.Run(() => {
+                Thread.Sleep(500);
+                Loading = false;
+            });
         }
 
         private void txt_find_user_TextChanged(object sender, TextChangedEventArgs e)
@@ -91,22 +129,25 @@ namespace WechatBakTool.Pages
             if (txt_find_user.Text == "搜索...")
                 findName = "";
 
-            ViewModel.Contacts = UserReader.GetWXContacts(findName);
-            // 保底回落搜索已删除人员
-            if(ViewModel.Contacts.Count == 0)
+            Task.Run(() =>
             {
-                var i = UserReader.GetWXMsgs(txt_find_user.Text);
-                if (i != null)
+                ViewModel.Contacts = UserReader.GetWXContacts(findName);
+                // 保底回落搜索已删除人员
+                if (ViewModel.Contacts.Count == 0)
                 {
-                    var g = i.GroupBy(x => x.StrTalker);
-                    ViewModel.Contacts = new System.Collections.ObjectModel.ObservableCollection<WXContact>();
-                    foreach (var x in g)
+                    var i = UserReader.GetWXMsgs(txt_find_user.Text);
+                    if (i != null)
                     {
-                        string name = x.Key;
-                        ViewModel.Contacts.Add(new WXContact() { UserName = name, NickName = name });
+                        var g = i.GroupBy(x => x.StrTalker);
+                        ViewModel.Contacts = new System.Collections.ObjectModel.ObservableCollection<WXContact>();
+                        foreach (var x in g)
+                        {
+                            string name = x.Key;
+                            ViewModel.Contacts.Add(new WXContact() { UserName = name, NickName = name });
+                        }
                     }
                 }
-            }
+            });
         }
 
         private void txt_find_user_GotFocus(object sender, RoutedEventArgs e)
@@ -132,9 +173,9 @@ namespace WechatBakTool.Pages
                 export.SetMsg(UserReader, ViewModel.WXContact, ViewModel);
                 export.SetEnd();
                 export.Save(path);
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                File.AppendAllText("1.log", ex.Message);
                 MessageBox.Show(ex.Message);
             }
             
@@ -287,61 +328,18 @@ namespace WechatBakTool.Pages
                     MessageBox.Show("用户所有表情预下载完毕");
                 });
             }
-            /*
-            if (UserReader != null && ViewModel.WXContact != null)
+        }
+
+        private void list_msg_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (ViewModel.WXMsgs.Count == 0)
+                return;
+
+            if (e.VerticalOffset + e.ViewportHeight == e.ExtentHeight && !Loading)
             {
-                Task.Run(() =>
-                {
-                    List<WXMsg> msgs = UserReader.GetWXMsgs(ViewModel.WXContact.UserName).ToList();
-                    List<WXContactHT> users = new List<WXContactHT>();
-                    if (File.Exists("WXContact.json"))
-                    {
-                        string text = File.ReadAllText("WXContact.json");
-                        text = text.Substring(8, text.Length - 8);
-                        users = JsonConvert.DeserializeObject<List<WXContactHT>>(text);
-                    }
-
-                    int i = 1; int all = 1;
-                    List<WXMsg> tmp = new List<WXMsg>();
-                    foreach (WXMsg m in msgs)
-                    {
-                        m.BytesExtra = null;
-                        tmp.Add(m);
-                        if (all % 10000 == 0)
-                        {
-                            File.WriteAllText(ViewModel.WXContact.UserName + "-" + i.ToString() + ".json", string.Format("showMsg({0})", JsonConvert.SerializeObject(tmp)));
-                            tmp.Clear();
-                            i++;
-                        }
-                        all++;
-                    }
-
-                    if (users!.Find(x => x.UserName == ViewModel.WXContact.UserName) == null)
-                    {
-                        WXContactHT html = new WXContactHT();
-                        html.NickName = ViewModel.WXContact.NickName;
-                        html.UserName = ViewModel.WXContact.UserName;
-                        html.LastMsg = ViewModel.WXContact.LastMsg;
-                        if (ViewModel.WXContact.Avatar != null)
-                        {
-                            using (var ms = new MemoryStream())
-                            {
-                                ViewModel.WXContact.Avatar.StreamSource.CopyTo(ms);
-                                byte[] bytes = new byte[ms.Length];
-                                ms.Write(bytes, 0, bytes.Length);
-                                html.AvatarString = Convert.ToBase64String(bytes);
-                            }
-                        }
-                        html.FileCount = i;
-                        users.Add(html);
-                    }
-
-                    File.WriteAllText(ViewModel.WXContact.UserName + "-" + i.ToString() + ".json", string.Format("showMsg({0})", JsonConvert.SerializeObject(tmp)));
-                    File.WriteAllText("WXContact.json", string.Format("getUser({0})", JsonConvert.SerializeObject(users)));
-                    MessageBox.Show("json已导出");
-                });
+                // 滚动条到达底部的处理逻辑
+                loadMsg();
             }
-            */
         }
     }
 }

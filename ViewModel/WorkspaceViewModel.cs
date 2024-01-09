@@ -17,6 +17,9 @@ namespace WechatBakTool.ViewModel
         private WXContact? wXContact = null;
 
         [ObservableProperty]
+        private ObservableCollection<WXMsg> wXMsgs = new ObservableCollection<WXMsg>();
+
+        [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(LabelStatus))]
         private string exportCount = "";
 

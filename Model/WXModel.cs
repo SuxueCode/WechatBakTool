@@ -114,6 +114,8 @@ namespace WechatBakTool.Model
     {
         [Column("localId")]
         public int LocalId { get; set; }
+        [Column("MsgSequence")]
+        public int MsgSequence { get; set; }
         [Column("Type")]
         public int Type { get; set; }
         [Column("SubType")]

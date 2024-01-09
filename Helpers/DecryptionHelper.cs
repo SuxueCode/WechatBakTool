@@ -143,15 +143,19 @@ namespace WechatBakTool.Helpers
             return null;
         }
 
-        public static byte[] DecryptDB(byte[] db_file_bytes, byte[] password_bytes)
+        public static void DecryptDB(string file, string to_file, byte[] password_bytes)
         {
             //数据库头16字节是盐值
-            var salt = db_file_bytes.Take(16).ToArray();
+            byte[] salt_key = new byte[16];
+
+            FileStream fileStream = new FileStream(file, FileMode.Open, FileAccess.Read);
+            fileStream.Read(salt_key, 0, 16);
+
             //HMAC验证时用的盐值需要亦或0x3a
             byte[] hmac_salt = new byte[16];
-            for (int i = 0; i < salt.Length; i++)
+            for (int i = 0; i < salt_key.Length; i++)
             {
-                hmac_salt[i] = (byte)(salt[i] ^ 0x3a);
+                hmac_salt[i] = (byte)(salt_key[i] ^ 0x3a);
             }
             //计算保留段长度
             int reserved = IV_SIZE;
@@ -161,7 +165,7 @@ namespace WechatBakTool.Helpers
             //密钥扩展，分别对应AES解密密钥和HMAC验证密钥
             byte[] key = new byte[KEY_SIZE];
             byte[] hmac_key = new byte[KEY_SIZE];
-            OpenSSLInterop.PKCS5_PBKDF2_HMAC_SHA1(password_bytes, password_bytes.Length, salt, salt.Length, DEFAULT_ITER, key.Length, key);
+            OpenSSLInterop.PKCS5_PBKDF2_HMAC_SHA1(password_bytes, password_bytes.Length, salt_key, salt_key.Length, DEFAULT_ITER, key.Length, key);
             OpenSSLInterop.PKCS5_PBKDF2_HMAC_SHA1(key, key.Length, hmac_salt, hmac_salt.Length, 2, hmac_key.Length, hmac_key);
 
             int page_no = 0;
@@ -169,8 +173,82 @@ namespace WechatBakTool.Helpers
             Console.WriteLine("开始解密...");
             var hmac_sha1 = HMAC.Create("HMACSHA1");
             hmac_sha1!.Key = hmac_key;
+
             List<byte> decrypted_file_bytes = new List<byte>();
-            while (page_no < db_file_bytes.Length / DEFAULT_PAGESIZE)
+            FileStream tofileStream = new FileStream(to_file, FileMode.OpenOrCreate, FileAccess.Write);
+
+            using (fileStream)
+            {
+                try
+                {
+                    // 当前分页小于计算分页数
+                    while (page_no < fileStream.Length / DEFAULT_PAGESIZE)
+                    {
+                        // 读内容
+                        byte[] decryped_page_bytes = new byte[DEFAULT_PAGESIZE];
+                        byte[] going_to_hashed = new byte[DEFAULT_PAGESIZE - reserved - offset + IV_SIZE + 4];
+                        fileStream.Seek((page_no * DEFAULT_PAGESIZE) + offset, SeekOrigin.Current);
+                        fileStream.Read(going_to_hashed, 0, DEFAULT_PAGESIZE - reserved - offset + IV_SIZE);
+
+                        // 分页标志
+                        var page_bytes = BitConverter.GetBytes(page_no + 1);
+                        page_bytes.CopyTo(going_to_hashed, DEFAULT_PAGESIZE - reserved - offset + IV_SIZE);
+                        var hash_mac_compute = hmac_sha1.ComputeHash(going_to_hashed, 0, going_to_hashed.Length);
+
+                        // 取分页hash
+                        byte[] hash_mac_cached = new byte[hash_mac_compute.Length];
+                        fileStream.Seek((page_no * DEFAULT_PAGESIZE) + DEFAULT_PAGESIZE - reserved + IV_SIZE, SeekOrigin.Current);
+                        fileStream.Read(hash_mac_cached, 0, hash_mac_compute.Length);
+
+                        if (!hash_mac_compute.SequenceEqual(hash_mac_cached) && page_no == 0)
+                        {
+                            Console.WriteLine("Hash错误...");
+                            return;
+                        }
+                        else
+                        {
+                            if (page_no == 0)
+                            {
+                                var header_bytes = Encoding.ASCII.GetBytes(SQLITE_HEADER);
+                                header_bytes.CopyTo(decryped_page_bytes, 0);
+                            }
+
+                            // 加密内容
+                            byte[] page_content = new byte[DEFAULT_PAGESIZE - reserved - offset];
+                            fileStream.Seek((page_no * DEFAULT_PAGESIZE) + offset, SeekOrigin.Current);
+                            fileStream.Read(page_content, 0, DEFAULT_PAGESIZE - reserved - offset);
+
+                            // iv
+                            byte[] iv = new byte[16];
+                            fileStream.Seek((page_no * DEFAULT_PAGESIZE) + (DEFAULT_PAGESIZE - reserved), SeekOrigin.Current);
+                            fileStream.Read(iv, 0, 16);
+
+                            var decrypted_content = AESDecrypt(page_content, key, iv);
+                            decrypted_content.CopyTo(decryped_page_bytes, offset);
+
+                            // 保留
+                            byte[] reserved_byte = new byte[reserved];
+                            fileStream.Seek((page_no * DEFAULT_PAGESIZE) + DEFAULT_PAGESIZE - reserved, SeekOrigin.Current);
+                            fileStream.Read(reserved_byte, 0, reserved);
+                            reserved_byte.CopyTo(decryped_page_bytes, DEFAULT_PAGESIZE - reserved);
+
+                            tofileStream.Write(decryped_page_bytes, 0, decryped_page_bytes.Length);
+
+                        }
+                        page_no++;
+                        offset = 0;
+                    }
+                }catch(Exception ex)
+                {
+                    File.AppendAllText("err.log", "page=>" + page_no.ToString() + "\r\n");
+                    File.AppendAllText("err.log", "size=>" + fileStream.Length.ToString() + "\r\n");
+                    File.AppendAllText("err.log", "postion=>" + ((page_no * DEFAULT_PAGESIZE) + offset).ToString() + "\r\n");
+                    File.AppendAllText("err.log", ex.ToString() + "\r\n");
+                }
+            }
+            /*
+             * 旧版解密
+            while (page_no < fileStream.Length / DEFAULT_PAGESIZE)
             {
                 byte[] decryped_page_bytes = new byte[DEFAULT_PAGESIZE];
                 byte[] going_to_hashed = new byte[DEFAULT_PAGESIZE - reserved - offset + IV_SIZE + 4];
@@ -179,7 +257,6 @@ namespace WechatBakTool.Helpers
                 page_bytes.CopyTo(going_to_hashed, DEFAULT_PAGESIZE - reserved - offset + IV_SIZE);
                 //计算分页的Hash
                 var hash_mac_compute = hmac_sha1.ComputeHash(going_to_hashed, 0, going_to_hashed.Length);
-                //取出分页中存储的Hash
                 var hash_mac_cached = db_file_bytes.Skip((page_no * DEFAULT_PAGESIZE) + DEFAULT_PAGESIZE - reserved + IV_SIZE).Take(hash_mac_compute.Length).ToArray();
                 //对比两个Hash
                 if (!hash_mac_compute.SequenceEqual(hash_mac_cached))
@@ -208,8 +285,9 @@ namespace WechatBakTool.Helpers
                 {
                     decrypted_file_bytes.Add(item);
                 }
-            }
-            return decrypted_file_bytes.ToArray();
+            }*/
+            tofileStream.Close();
+            tofileStream.Dispose();
         }
         public static byte[] AESDecrypt(byte[] content, byte[] key, byte[] iv)
         {
@@ -297,16 +375,8 @@ namespace WechatBakTool.Helpers
             {
                 FileInfo info = new FileInfo(file);
                 viewModel.LabelStatus = "正在解密" + info.Name;
-                var db_bytes = File.ReadAllBytes(file);
-                var decrypted_file_bytes = DecryptDB(db_bytes, key);
-                if (decrypted_file_bytes == null || decrypted_file_bytes.Length == 0)
-                {
-                    Console.WriteLine("解密后的数组为空");
-                }
-                else
-                {
-                    File.WriteAllBytes(Path.Combine(decPath, info.Name), decrypted_file_bytes);
-                }
+                string to_file = Path.Combine(decPath, info.Name);
+                DecryptDB(file,to_file, key);
             }
         }
     }
