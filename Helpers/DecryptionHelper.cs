@@ -19,12 +19,12 @@ namespace WechatBakTool.Helpers
 {
     public class DecryptionHelper
     {
-        const int IV_SIZE = 16;
+        const long IV_SIZE = 16;
         const int HMAC_SHA1_SIZE = 20;
         const int KEY_SIZE = 32;
         const int AES_BLOCK_SIZE = 16;
         const int DEFAULT_ITER = 64000;
-        const int DEFAULT_PAGESIZE = 4096; //4048数据 + 16IV + 20 HMAC + 12
+        const long DEFAULT_PAGESIZE = 4096; //4048数据 + 16IV + 20 HMAC + 12
         const string SQLITE_HEADER = "SQLite format 3";
         public static byte[]? GetWechatKey(string pid, int find_key_type, string account)
         {
@@ -158,7 +158,7 @@ namespace WechatBakTool.Helpers
                 hmac_salt[i] = (byte)(salt_key[i] ^ 0x3a);
             }
             //计算保留段长度
-            int reserved = IV_SIZE;
+            long reserved = IV_SIZE;
             reserved += HMAC_SHA1_SIZE;
             reserved = ((reserved % AES_BLOCK_SIZE) == 0) ? reserved : ((reserved / AES_BLOCK_SIZE) + 1) * AES_BLOCK_SIZE;
 
@@ -168,8 +168,8 @@ namespace WechatBakTool.Helpers
             OpenSSLInterop.PKCS5_PBKDF2_HMAC_SHA1(password_bytes, password_bytes.Length, salt_key, salt_key.Length, DEFAULT_ITER, key.Length, key);
             OpenSSLInterop.PKCS5_PBKDF2_HMAC_SHA1(key, key.Length, hmac_salt, hmac_salt.Length, 2, hmac_key.Length, hmac_key);
 
-            int page_no = 0;
-            int offset = 16;
+            long page_no = 0;
+            long offset = 16;
             Console.WriteLine("开始解密...");
             var hmac_sha1 = HMAC.Create("HMACSHA1");
             hmac_sha1!.Key = hmac_key;
@@ -188,7 +188,7 @@ namespace WechatBakTool.Helpers
                         byte[] decryped_page_bytes = new byte[DEFAULT_PAGESIZE];
                         byte[] going_to_hashed = new byte[DEFAULT_PAGESIZE - reserved - offset + IV_SIZE + 4];
                         fileStream.Seek((page_no * DEFAULT_PAGESIZE) + offset, SeekOrigin.Begin);
-                        fileStream.Read(going_to_hashed, 0, DEFAULT_PAGESIZE - reserved - offset + IV_SIZE);
+                        fileStream.Read(going_to_hashed, 0, Convert.ToInt32(DEFAULT_PAGESIZE - reserved - offset + IV_SIZE));
 
                         // 分页标志
                         var page_bytes = BitConverter.GetBytes(page_no + 1);
@@ -216,7 +216,7 @@ namespace WechatBakTool.Helpers
                             // 加密内容
                             byte[] page_content = new byte[DEFAULT_PAGESIZE - reserved - offset];
                             fileStream.Seek((page_no * DEFAULT_PAGESIZE) + offset, SeekOrigin.Begin);
-                            fileStream.Read(page_content, 0, DEFAULT_PAGESIZE - reserved - offset);
+                            fileStream.Read(page_content, 0, Convert.ToInt32(DEFAULT_PAGESIZE - reserved - offset));
 
                             // iv
                             byte[] iv = new byte[16];
@@ -229,7 +229,7 @@ namespace WechatBakTool.Helpers
                             // 保留
                             byte[] reserved_byte = new byte[reserved];
                             fileStream.Seek((page_no * DEFAULT_PAGESIZE) + DEFAULT_PAGESIZE - reserved, SeekOrigin.Begin);
-                            fileStream.Read(reserved_byte, 0, reserved);
+                            fileStream.Read(reserved_byte, 0, Convert.ToInt32(reserved));
                             reserved_byte.CopyTo(decryped_page_bytes, DEFAULT_PAGESIZE - reserved);
 
                             tofileStream.Write(decryped_page_bytes, 0, decryped_page_bytes.Length);
