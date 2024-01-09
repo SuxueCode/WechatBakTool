@@ -187,7 +187,7 @@ namespace WechatBakTool.Helpers
                         // 读内容
                         byte[] decryped_page_bytes = new byte[DEFAULT_PAGESIZE];
                         byte[] going_to_hashed = new byte[DEFAULT_PAGESIZE - reserved - offset + IV_SIZE + 4];
-                        fileStream.Seek((page_no * DEFAULT_PAGESIZE) + offset, SeekOrigin.Current);
+                        fileStream.Seek((page_no * DEFAULT_PAGESIZE) + offset, SeekOrigin.Begin);
                         fileStream.Read(going_to_hashed, 0, DEFAULT_PAGESIZE - reserved - offset + IV_SIZE);
 
                         // 分页标志
@@ -197,7 +197,7 @@ namespace WechatBakTool.Helpers
 
                         // 取分页hash
                         byte[] hash_mac_cached = new byte[hash_mac_compute.Length];
-                        fileStream.Seek((page_no * DEFAULT_PAGESIZE) + DEFAULT_PAGESIZE - reserved + IV_SIZE, SeekOrigin.Current);
+                        fileStream.Seek((page_no * DEFAULT_PAGESIZE) + DEFAULT_PAGESIZE - reserved + IV_SIZE, SeekOrigin.Begin);
                         fileStream.Read(hash_mac_cached, 0, hash_mac_compute.Length);
 
                         if (!hash_mac_compute.SequenceEqual(hash_mac_cached) && page_no == 0)
@@ -215,12 +215,12 @@ namespace WechatBakTool.Helpers
 
                             // 加密内容
                             byte[] page_content = new byte[DEFAULT_PAGESIZE - reserved - offset];
-                            fileStream.Seek((page_no * DEFAULT_PAGESIZE) + offset, SeekOrigin.Current);
+                            fileStream.Seek((page_no * DEFAULT_PAGESIZE) + offset, SeekOrigin.Begin);
                             fileStream.Read(page_content, 0, DEFAULT_PAGESIZE - reserved - offset);
 
                             // iv
                             byte[] iv = new byte[16];
-                            fileStream.Seek((page_no * DEFAULT_PAGESIZE) + (DEFAULT_PAGESIZE - reserved), SeekOrigin.Current);
+                            fileStream.Seek((page_no * DEFAULT_PAGESIZE) + (DEFAULT_PAGESIZE - reserved), SeekOrigin.Begin);
                             fileStream.Read(iv, 0, 16);
 
                             var decrypted_content = AESDecrypt(page_content, key, iv);
@@ -228,7 +228,7 @@ namespace WechatBakTool.Helpers
 
                             // 保留
                             byte[] reserved_byte = new byte[reserved];
-                            fileStream.Seek((page_no * DEFAULT_PAGESIZE) + DEFAULT_PAGESIZE - reserved, SeekOrigin.Current);
+                            fileStream.Seek((page_no * DEFAULT_PAGESIZE) + DEFAULT_PAGESIZE - reserved, SeekOrigin.Begin);
                             fileStream.Read(reserved_byte, 0, reserved);
                             reserved_byte.CopyTo(decryped_page_bytes, DEFAULT_PAGESIZE - reserved);
 
