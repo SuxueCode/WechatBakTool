@@ -48,8 +48,11 @@ namespace WechatBakTool
                     {
                         key[i] = Convert.ToByte(pwd.Substring(i * 2, 2), 16);
                     }
+                    
                 }
-
+#if DEBUG
+                File.WriteAllText("key.log", BitConverter.ToString(key!));
+#endif
                 if (key == null)
                 {
                     throw new Exception("获取到的密钥为空，获取失败");

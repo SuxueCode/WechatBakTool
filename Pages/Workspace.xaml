@@ -3,11 +3,12 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:WechatBakTool.Pages"
+      xmlns:local="clr-namespace:WechatBakTool.Pages" 
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="720"
       Title="Workspace" Background="White">
     <Page.Resources>
+        <local:MsgTemplateSelector x:Key="MsgTemplateSelector"/>
         <Style TargetType="ToggleButton" x:Key="ComboxStyleBtn">
             <Setter Property="Template">
                 <Setter.Value>
@@ -164,9 +165,8 @@
         </DataTemplate>
         <DataTemplate x:Key="MsgImage">
             <Grid Margin="0">
-                <Image Width="40" Height="40" Margin="10" VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding Avatar}"  />
                 <Label Margin="60,8,0,0" FontWeight="Bold" VerticalAlignment="Top" HorizontalAlignment="Left" Content="{Binding NickName}" Width="130"/>
-                <Label Margin="60,25,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="140" Content="{Binding LastMsg}"/>
+                <Label Margin="60,25,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="140" Content="1111"/>
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="MsgAudio">
@@ -214,7 +214,7 @@
             </ListView.Resources>
         </ListView>
         <Label Content="{Binding WXContact.NickName}" HorizontalAlignment="Left" Margin="258,21,0,0" VerticalAlignment="Top"/>
-        <ListView x:Name="list_msg" Margin="230,60,0,60" Background="Transparent" BorderThickness="0,1,0,1" BorderBrush="#BB2775b6" ItemTemplate="{DynamicResource MsgText}">
+        <ListView x:Name="list_msg" Margin="230,60,0,60" Background="Transparent" BorderThickness="0,1,0,1" BorderBrush="#BB2775b6" ItemTemplateSelector="{StaticResource MsgTemplateSelector}" ItemsSource="{Binding WXMsgs}" ScrollViewer.ScrollChanged="list_msg_ScrollChanged" >
 
         </ListView>
         <ComboBox Name="cb_export" Width="120" Height="30" Style="{StaticResource ComboBoxStyle}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="30,15" ItemsSource="{Binding ExportItems}" SelectedItem="{Binding SelectExportItem}" DisplayMemberPath="Name" SelectedValuePath="Value" IsEnabled="{Binding SelectContact}" Background="#2775b6" />

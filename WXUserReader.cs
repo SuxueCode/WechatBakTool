@@ -330,6 +330,25 @@ namespace WechatBakTool
             }
             return tmp;
         }
+
+        public List<WXMsg>? GetWXMsgs(string uid,int time,int page)
+        {
+            List<WXMsg> tmp = new List<WXMsg>();
+            for (int i = 0; i <= 99; i++)
+            {
+                SQLiteConnection? con = getCon("MSG" + i.ToString());
+                if (con == null)
+                    return tmp;
+
+                List<WXMsg>? wXMsgs = null;
+                string query = "select * from MSG where StrTalker=? and CreateTime>? Limit ?";
+                wXMsgs = con.Query<WXMsg>(query, uid, time, page);
+                if (wXMsgs.Count != 0) {
+                    return ProcessMsg(wXMsgs, uid);
+                }
+            }
+            return tmp;
+        }
         public List<WXMsg>? GetWXMsgs(string uid,string msg = "")
         {
             List<WXMsg> tmp = new List<WXMsg>();
@@ -356,104 +375,107 @@ namespace WechatBakTool
                     wXMsgs = con.Query<WXMsg>(query, uid, string.Format("%{0}%", msg));
                 }
 
-                foreach (WXMsg w in wXMsgs)
+                tmp.AddRange(ProcessMsg(wXMsgs, uid));
+            }
+            return tmp;
+        }
+        private List<WXMsg> ProcessMsg(List<WXMsg> msgs,string uid)
+        {
+            foreach (WXMsg w in msgs)
+            {
+                if (UserNameCache.ContainsKey(w.StrTalker))
                 {
-                    if (UserNameCache.ContainsKey(w.StrTalker))
+                    WXContact? contact = UserNameCache[w.StrTalker] as WXContact;
+                    if (contact != null)
                     {
-                        WXContact? contact = UserNameCache[w.StrTalker] as WXContact;
-                        if (contact != null)
-                        {
-                            if (contact.Remark != "")
-                                w.NickName = contact.Remark;
-                            else
-                                w.NickName = contact.NickName;
+                        if (contact.Remark != "")
+                            w.NickName = contact.Remark;
+                        else
+                            w.NickName = contact.NickName;
 
-                            w.StrTalker = contact.UserName;
+                        w.StrTalker = contact.UserName;
+                    }
+                }
+                else
+                {
+                    w.NickName = uid;
+                }
+
+                // 群聊处理
+                if (uid.Contains("@chatroom"))
+                {
+                    string userId = "";
+
+                    if (w.BytesExtra == null)
+                        continue;
+
+                    string sl = BitConverter.ToString(w.BytesExtra).Replace("-", "");
+
+                    ProtoMsg protoMsg;
+                    using (MemoryStream stream = new MemoryStream(w.BytesExtra))
+                    {
+                        protoMsg = ProtoBuf.Serializer.Deserialize<ProtoMsg>(stream);
+                    }
+
+                    if (protoMsg.TVMsg != null)
+                    {
+                        foreach (TVType _tmp in protoMsg.TVMsg)
+                        {
+                            if (_tmp.Type == 1)
+                                userId = _tmp.TypeValue;
+                        }
+                    }
+
+
+                    if (!w.IsSender)
+                    {
+                        if (UserNameCache.ContainsKey(userId))
+                        {
+                            WXContact? contact = UserNameCache[userId] as WXContact;
+                            if (contact != null)
+                                w.NickName = contact.Remark == "" ? contact.NickName : contact.Remark;
+                        }
+                        else
+                        {
+                            w.NickName = userId;
+                        }
+                    }
+                }
+
+
+                // 发送人名字处理
+                if (w.IsSender)
+                    w.NickName = "我";
+
+                w.DisplayContent = w.StrContent;
+                // 额外格式处理
+                if (w.Type != 1)
+                {
+                    if (w.Type == 10000)
+                    {
+                        w.Type = 1;
+                        w.NickName = "系统消息";
+                        w.DisplayContent = w.StrContent.Replace("<revokemsg>", "").Replace("</revokemsg>", "");
+                    }
+                    else if (w.Type == 49 && (w.SubType == 6 || w.SubType == 19 || w.SubType == 40))
+                    {
+                        WXSessionAttachInfo? attachInfos = GetWXMsgAtc(w);
+                        if (attachInfos == null)
+                        {
+                            w.DisplayContent = "附件不存在";
+                        }
+                        else
+                        {
+                            w.DisplayContent = Path.Combine(UserBakConfig!.UserResPath, attachInfos.attachPath);
                         }
                     }
                     else
                     {
-                        w.NickName = uid;
+                        w.DisplayContent = "[界面未支持格式]Type=" + w.Type;
                     }
-
-                    // 群聊处理
-                    if (uid.Contains("@chatroom"))
-                    {
-                        string userId = "";
-
-                        if (w.BytesExtra == null)
-                            continue;
-
-                        string sl = BitConverter.ToString(w.BytesExtra).Replace("-", "");
-
-                        ProtoMsg protoMsg;
-                        using (MemoryStream stream = new MemoryStream(w.BytesExtra))
-                        {
-                            protoMsg = ProtoBuf.Serializer.Deserialize<ProtoMsg>(stream);
-                        }
-
-                        if (protoMsg.TVMsg != null)
-                        {
-                            foreach (TVType _tmp in protoMsg.TVMsg)
-                            {
-                                if (_tmp.Type == 1)
-                                    userId = _tmp.TypeValue;
-                            }
-                        }
-
-
-                        if (!w.IsSender)
-                        {
-                            if (UserNameCache.ContainsKey(userId))
-                            {
-                                WXContact? contact = UserNameCache[userId] as WXContact;
-                                if (contact != null)
-                                    w.NickName = contact.Remark == "" ? contact.NickName : contact.Remark;
-                            }
-                            else
-                            {
-                                w.NickName = userId;
-                            }
-                        }
-                    }
-                    
-                    
-                    // 发送人名字处理
-                    if (w.IsSender)
-                        w.NickName = "我";
-
-                    w.DisplayContent = w.StrContent;
-                    // 额外格式处理
-                    if (w.Type != 1)
-                    {
-                        if (w.Type == 10000)
-                        {
-                            w.Type = 1;
-                            w.NickName = "系统消息";
-                            w.DisplayContent = w.StrContent.Replace("<revokemsg>", "").Replace("</revokemsg>", "");
-                        }
-                        else if (w.Type == 49 && (w.SubType == 6 || w.SubType == 19 || w.SubType == 40))
-                        {
-                            WXSessionAttachInfo? attachInfos = GetWXMsgAtc(w);
-                            if (attachInfos == null)
-                            {
-                                w.DisplayContent = "附件不存在";
-                            }
-                            else
-                            {
-                                w.DisplayContent = Path.Combine(UserBakConfig!.UserResPath, attachInfos.attachPath);
-                            }
-                        }
-                        else
-                        {
-                            w.DisplayContent = "[界面未支持格式]Type=" + w.Type;
-                        }
-                    }
-                    tmp.Add(w);
-
                 }
             }
-            return tmp;
+            return msgs;
         }
         public List<WXSessionAttachInfo>? GetWXMsgAtc()
         {

@@ -246,60 +246,6 @@ namespace WechatBakTool.Export
                                 }
                             }
                         }
-                        else if (msg.SubType == 57)
-                        {
-                            using (var decoder = LZ4Decoder.Create(true, 64))
-                            {
-                                byte[] target = new byte[10240];
-                                int res = 0;
-                                if (msg.CompressContent != null)
-                                    res = LZ4Codec.Decode(msg.CompressContent, 0, msg.CompressContent.Length, target, 0, target.Length);
-
-                                byte[] data = target.Skip(0).Take(res).ToArray();
-                                string xml = Encoding.UTF8.GetString(data);
-                                if (!string.IsNullOrEmpty(xml))
-                                {
-                                    xml = xml.Replace("\n", "");
-                                    XmlDocument xmlObj = new XmlDocument();
-                                    xmlObj.LoadXml(xml);
-                                    if (xmlObj.DocumentElement != null)
-                                    {
-                                        string title = "";
-                                        XmlNodeList? findNode = xmlObj.DocumentElement.SelectNodes("/msg/appmsg/title");
-                                        if (findNode != null)
-                                        {
-                                            if (findNode.Count > 0)
-                                            {
-                                                title = findNode[0]!.InnerText;
-                                            }
-                                        }
-
-                                        HtmlBody += string.Format("<p class=\"content\">{0}</p>", title);
-
-                                        XmlNode? type = xmlObj.DocumentElement.SelectSingleNode("/msg/appmsg/refermsg/type");
-                                        if(type != null)
-                                        {
-                                            XmlNode? source = xmlObj.DocumentElement.SelectSingleNode("/msg/appmsg/refermsg/displayname");
-                                            XmlNode? text = xmlObj.DocumentElement.SelectSingleNode("/msg/appmsg/refermsg/content");
-                                            if(type.InnerText == "1" && source != null && text != null)
-                                            {
-                                                HtmlBody += string.Format("<p class=\"content\">[引用]{0}:{1}</p>", source.InnerText, text.InnerText);
-                                            }
-                                            else if(type.InnerText != "1" && source != null && text != null)
-                                            {
-                                                HtmlBody += string.Format("<p class=\"content\">[引用]{0}:非文本消息类型-{1}</p>", source.InnerText, type);
-                                            }
-                                            else
-                                            {
-                                                HtmlBody += string.Format("<p class=\"content\">未知的引用消息</p>");
-                                            }
-                                        }
-                                            
-                                        
-                                    }
-                                }
-                            }
-                        }
                         else
                         {
                             using (var decoder = LZ4Decoder.Create(true, 64))
