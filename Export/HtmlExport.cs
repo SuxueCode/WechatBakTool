@@ -28,7 +28,6 @@ namespace WechatBakTool.Export
 
             HtmlBody += string.Format("<div class=\"msg\"><p class=\"nickname\"><b>与 {0}({1}) 的聊天记录</b></p>", Session.NickName, Session.UserName);
             HtmlBody += string.Format("<div class=\"msg\"><p class=\"nickname\"><b>导出时间：{0}</b></p><hr/>", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-            File.WriteAllText(Path, HtmlBody);
         }
 
         public void InitTemplate(WXContact contact, string p)
@@ -51,7 +50,7 @@ namespace WechatBakTool.Export
             File.AppendAllText(Path, HtmlBody);
         }
 
-        public void SetMsg(WXUserReader reader, WXContact contact,WorkspaceViewModel viewModel)
+        public bool SetMsg(WXUserReader reader, WXContact contact,WorkspaceViewModel viewModel)
         {
             if (Session == null)
                 throw new Exception("请初始化模版：Not Use InitTemplate");
@@ -60,11 +59,16 @@ namespace WechatBakTool.Export
             if (msgList == null)
                 throw new Exception("获取消息失败，请确认数据库读取正常");
 
+            if(msgList.Count == 0)
+            {
+                viewModel.ExportCount = "没有消息，忽略";
+                return false;
+            }
             msgList.Sort((x, y) => x.CreateTime.CompareTo(y.CreateTime));
 
             bool err = false;
             int msgCount = 0;
-            HtmlBody = "";
+
             StreamWriter streamWriter = new StreamWriter(Path, true);
             foreach (var msg in msgList)
             {
@@ -340,7 +344,7 @@ namespace WechatBakTool.Export
             }
             streamWriter.Close();
             streamWriter.Dispose();
-                
+            return true;
         }
         private static DateTime TimeStampToDateTime(long timeStamp, bool inMilli = false)
         {

@@ -22,6 +22,7 @@
 > [!NOTE]
 > 反馈群：815054692<br/>
 > 如果觉得不错，欢迎右上角点个star！这是对作者的鼓励，谢谢！<br/>
+> 进群请先Star项目，然后问答消息留id<br/>
 <br/>
 
 ### 免责声明
@@ -73,7 +74,7 @@ A：基本上都是因为刚迁移完，缓存没写入到数据库导致的，�
 ### 参考/引用
 项目在开发过程中参考了以下项目或资料，有引用相关代码，如有需要，推荐您可以去参考下相关资料：
 
-1. C#使用OpenSSL解密微信数据库，这里注意一下64位适配问题，注意dll引用： [Mr0x01/WXDBDecrypt.NET](https://github.com/Mr0x01/WXDBDecrypt.NET)<br/>
+1. C#使用OpenSSL解密微信数据库，这里注意一下64位适配问题，注意dll引用，另外解密的资源优化不是很好，可以参考一下我改写的，C#还需要注意一下超大文件的问题： [Mr0x01/WXDBDecrypt.NET](https://github.com/Mr0x01/WXDBDecrypt.NET)<br/>
 2. C#使用地址获取微信Key： [AdminTest0/SharpWxDump](https://github.com/AdminTest0/SharpWxDump)
 3. 解密微信语音，我是直接调用解密，反正都要ffmpeg，多一个也是多，多两个也是多，懒得头铁实现： [kn007/silk-v3-decoder](https://github.com/kn007/silk-v3-decoder)
 4. 解密微信图片 [吾爱破解chenhahacjl/微信 DAT 图片解密 （C#）](https://www.52pojie.cn/forum.php?mod=viewthread&tid=1507922)

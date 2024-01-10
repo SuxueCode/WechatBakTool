@@ -138,7 +138,18 @@ namespace WechatBakTool.Helpers
             }
             return null;
         }
-
+        public static string GetMD5(string text)
+        {
+            MD5 md5 = MD5.Create();
+            byte[] bs = Encoding.UTF8.GetBytes(text);
+            byte[] hs = md5.ComputeHash(bs);
+            StringBuilder sb = new StringBuilder();
+            foreach(byte b in hs)
+            {
+                sb.Append(b.ToString("x2"));
+            }
+            return sb.ToString();
+        }
         public static void DecryptDB(string file, string to_file, byte[] password_bytes)
         {
             //数据库头16字节是盐值
@@ -227,7 +238,7 @@ namespace WechatBakTool.Helpers
                             byte[] reserved_byte = new byte[reserved];
                             fileStream.Seek((page_no * DEFAULT_PAGESIZE) + DEFAULT_PAGESIZE - reserved, SeekOrigin.Begin);
                             fileStream.Read(reserved_byte, 0, Convert.ToInt32(reserved));
-                            reserved_byte.CopyTo(decryped_page_bytes, Convert.ToInt32(DEFAULT_PAGESIZE - reserved));
+                            reserved_byte.CopyTo(decryped_page_bytes, DEFAULT_PAGESIZE - reserved);
 
                             tofileStream.Write(decryped_page_bytes, 0, decryped_page_bytes.Length);
 

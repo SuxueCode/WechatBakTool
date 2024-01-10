@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -30,6 +31,8 @@ namespace WechatBakTool.Pages
     {
         private WorkspaceViewModel workspaceViewModel = new WorkspaceViewModel();
         public WXUserReader? UserReader;
+        private List<WXContact>? ExpContacts;
+        private bool Suspend = false;
         public Manager()
         {
             DataContext = workspaceViewModel;
@@ -61,15 +64,25 @@ namespace WechatBakTool.Pages
                 });
                 if (UserReader != null)
                 {
-                    List<WXContact>? contacts = UserReader.GetWXContacts().ToList();
-                    foreach (var contact in contacts)
+                    if (!Suspend)
+                        ExpContacts = UserReader.GetWXContacts().ToList();
+                    else
+                        Suspend = false;
+
+                    foreach (var contact in ExpContacts!)
                     {
+                        if (Suspend)
+                        {
+                            workspaceViewModel.ExportCount = "已暂停";
+                            return;
+                        }
+                            
                         if (group && contact.UserName.Contains("@chatroom"))
                         {
                             workspaceViewModel.WXContact = contact;
                             ExportMsg(contact);
                         }
-                        if (user)
+                        if (user && !contact.UserName.Contains("@chatroom") && !contact.UserName.Contains("gh_"))
                         {
                             workspaceViewModel.WXContact = contact;
                             ExportMsg(contact);
@@ -83,12 +96,27 @@ namespace WechatBakTool.Pages
         private void ExportMsg(WXContact contact)
         {
             workspaceViewModel.ExportCount = "";
-            string path = Path.Combine(Main2.CurrentUserBakConfig!.UserWorkspacePath, contact.UserName + ".html");
+            // string path = Path.Combine(Main2.CurrentUserBakConfig!.UserWorkspacePath, contact.UserName + ".html");
+            string name = contact.NickName;
+            name = name.Replace(@"\", "");
+            name = Regex.Replace(name, "[ \\[ \\] \\^ \\-_*×――(^)$%~!/@#$…&%￥—+=<>《》|!！??？:：•`·、。，；,.;\"‘’“”-]", "");
+            string path = Path.Combine(
+                Main2.CurrentUserBakConfig!.UserWorkspacePath,
+                string.Format(
+                    "{0}-{1}.html",
+                    contact.UserName,
+                    contact.Remark == "" ? name : contact.Remark
+                )
+            );
+
             IExport export = new HtmlExport();
             export.InitTemplate(contact, path);
-            export.SetMsg(UserReader!, contact, workspaceViewModel);
-            export.SetEnd();
-            export.Save(path);
+            if(export.SetMsg(UserReader!, contact, workspaceViewModel))
+            {
+                export.SetEnd();
+                export.Save(path);
+            }
+            
         }
 
         private void btn_emoji_download_Click(object sender, RoutedEventArgs e)

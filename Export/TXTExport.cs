@@ -40,7 +40,7 @@ namespace WechatBakTool.Export
             
         }
 
-        public void SetMsg(WXUserReader reader, WXContact session, WorkspaceViewModel viewModel)
+        public bool SetMsg(WXUserReader reader, WXContact session, WorkspaceViewModel viewModel)
         {
             if (Contact == null)
                 throw new Exception("请初始化模版：Not Use InitTemplate");
@@ -146,6 +146,7 @@ namespace WechatBakTool.Export
                 msgCount++;
                 viewModel.ExportCount = msgCount.ToString();
             }
+            return true;
         }
 
         private static DateTime TimeStampToDateTime(long timeStamp, bool inMilli = false)
