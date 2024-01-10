@@ -156,7 +156,13 @@ namespace WechatBakTool.Pages
             {
                 if (File.Exists("auth.txt"))
                 {
-
+                    string auth = File.ReadAllText("auth.txt");
+                    // 我已知晓手动模式可能潜在的法律及道德风险，我明白非法使用将要承担相关法律责任。
+                    if (DecryptionHelper.GetMD5(auth) == "295f634af60d61dfa52a5f35849ac42b")
+                    {
+                        MessageBox.Show("已经创建空的配置文件，请完善该配置文件后，点击开始解密","提示");
+                        MessageBox.Show("该功能现阶段暂未启用","错误");
+                    }
                 }
                 else
                 {

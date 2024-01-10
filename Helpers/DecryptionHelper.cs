@@ -142,7 +142,18 @@ namespace WechatBakTool.Helpers
             }
             return null;
         }
-
+        public static string GetMD5(string text)
+        {
+            MD5 md5 = MD5.Create();
+            byte[] bs = Encoding.UTF8.GetBytes(text);
+            byte[] hs = md5.ComputeHash(bs);
+            StringBuilder sb = new StringBuilder();
+            foreach(byte b in hs)
+            {
+                sb.Append(b.ToString("x2"));
+            }
+            return sb.ToString();
+        }
         public static void DecryptDB(string file, string to_file, byte[] password_bytes)
         {
             //数据库头16字节是盐值
