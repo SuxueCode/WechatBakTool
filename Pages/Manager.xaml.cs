@@ -33,6 +33,7 @@ namespace WechatBakTool.Pages
         public WXUserReader? UserReader;
         private List<WXContact>? ExpContacts;
         private bool Suspend = false;
+        private int Status = 0;
         public Manager()
         {
             DataContext = workspaceViewModel;
@@ -51,6 +52,21 @@ namespace WechatBakTool.Pages
 
         private void btn_export_all_Click(object sender, RoutedEventArgs e)
         {
+            // 0 未开始
+            if(Status == 0 || Status == 2)
+            {
+                Suspend = false;
+                btn_export_all.Content = "暂停";
+            }
+            // 1 进行中
+            else if (Status == 1)
+            {
+                // 开启暂停
+                Suspend = true;
+                Status = 2;
+                btn_export_all.Content = "继续";
+                return;
+            }
             Task.Run(() =>
             {
                 bool group = false, user = false;
@@ -64,19 +80,26 @@ namespace WechatBakTool.Pages
                 });
                 if (UserReader != null)
                 {
-                    if (!Suspend)
+                    if (Status == 0)
                         ExpContacts = UserReader.GetWXContacts().ToList();
                     else
                         Suspend = false;
 
+                    List<WXContact> process = new List<WXContact>();
                     foreach (var contact in ExpContacts!)
                     {
+                        
                         if (Suspend)
                         {
+                            foreach(WXContact p in process)
+                            {
+                                ExpContacts.Remove(p);
+                            }
                             workspaceViewModel.ExportCount = "已暂停";
                             return;
                         }
-                            
+
+                        Status = 1;
                         if (group && contact.UserName.Contains("@chatroom"))
                         {
                             workspaceViewModel.WXContact = contact;
@@ -87,7 +110,10 @@ namespace WechatBakTool.Pages
                             workspaceViewModel.WXContact = contact;
                             ExportMsg(contact);
                         }
+                        process.Add(contact);
                     }
+                    Status = 0;
+                    btn_export_all.Content = "导出";
                     MessageBox.Show("批量导出完成", "提示");
                 }
             });
