@@ -104,32 +104,42 @@ namespace WechatBakTool
         {
             return UserBakConfig;
         }
-        public static void SaveConfig(UserBakConfig userBakConfig)
+        public static void SaveConfig(UserBakConfig userBakConfig, bool manual = false)
         {
             if(userBakConfig.UserWorkspacePath != "")
             {
                 DirectoryInfo directoryInfo = new DirectoryInfo(userBakConfig.UserWorkspacePath);
                 if(directoryInfo.Parent != null)
                 {
-                    string json_path = Path.Combine(directoryInfo.Parent.FullName, userBakConfig.UserName + ".json");
+                    string json_path = Path.Combine(directoryInfo.Parent.FullName, userBakConfig.Manual ? userBakConfig.Hash + ".json" : userBakConfig.UserName + ".json");
                     string json = JsonConvert.SerializeObject(userBakConfig);
                     File.WriteAllText(json_path, json);
                 }
             }
         }
-        private string Init(string path,bool manual,string account = "")
+
+        public void ManualInit()
+        {
+            Init("", true, "");
+        }
+        private string Init(string path,bool manual = false,string account = "")
         {
             string curPath = AppDomain.CurrentDomain.BaseDirectory;
-            string md5 = GetMd5Hash(path);
-            string[] paths = path.Split(new string[] { "/", "\\" }, StringSplitOptions.None);
-            string username = paths[paths.Length - 1];
-            UserBakConfig.UserResPath = path;
-            UserBakConfig.UserWorkspacePath = Path.Combine(curPath, "workspace", md5);
-            UserBakConfig.Hash = md5;
-            UserBakConfig.UserName = username;
-            UserBakConfig.Account = account;
+            if (!manual)
+            {
+                string md5 = GetMd5Hash(path);
+                string[] paths = path.Split(new string[] { "/", "\\" }, StringSplitOptions.None);
+                string username = paths[paths.Length - 1];
+                UserBakConfig.UserResPath = path;
+                UserBakConfig.UserWorkspacePath = Path.Combine(curPath, "workspace", md5);
+                UserBakConfig.Hash = md5;
+                UserBakConfig.UserName = username;
+                UserBakConfig.Account = account;
+            }
 
-            if (!Directory.Exists(UserBakConfig.UserResPath))
+            UserBakConfig.Manual = manual;
+
+            if (!Directory.Exists(UserBakConfig.UserResPath) && !manual)
             {
                 return "用户资源文件夹不存在，如需使用离线数据，请从工作区读取";
             }
@@ -141,6 +151,7 @@ namespace WechatBakTool
 
             string db = Path.Combine(UserBakConfig.UserWorkspacePath, "OriginalDB");
             string decDb = Path.Combine(UserBakConfig.UserWorkspacePath, "DecDB");
+
             if (!Directory.Exists(db))
             {
                 Directory.CreateDirectory (db);
@@ -149,7 +160,7 @@ namespace WechatBakTool
             {
                 Directory.CreateDirectory(decDb);
             }
-            SaveConfig(UserBakConfig);
+            SaveConfig(UserBakConfig, manual);
             return "";
         }
 

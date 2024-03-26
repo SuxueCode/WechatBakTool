@@ -137,7 +137,9 @@ namespace WechatBakTool.Pages
 
             IExport export = new HtmlExport();
             export.InitTemplate(contact, path);
-            if(export.SetMsg(UserReader!, contact, workspaceViewModel))
+            DatetimePickerViewModel dt = new DatetimePickerViewModel();
+            dt.DateType = 1;
+            if (export.SetMsg(UserReader!, contact, workspaceViewModel, dt))
             {
                 export.SetEnd();
                 export.Save(path);

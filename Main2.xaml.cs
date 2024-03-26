@@ -80,6 +80,8 @@ namespace WechatBakTool
                 MainFrame.Navigate(new Uri("pack://application:,,,/Pages/Welcome.xaml?datatime=" + DateTime.Now.Ticks));
                 return;
             }
+
+            CurrentUserBakConfig = config;
             if (!config.Decrypt)
             {
                 MessageBox.Show("请先到创建工作区进行解密");
@@ -87,7 +89,6 @@ namespace WechatBakTool
                 return;
             }
 
-            CurrentUserBakConfig = config;
             MainFrame.Navigate(new Uri("pack://application:,,,/Pages/Workspace.xaml?datatime=" + DateTime.Now.Ticks));
         }
 

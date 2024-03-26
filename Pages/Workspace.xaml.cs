@@ -29,6 +29,7 @@ using Newtonsoft.Json;
 using System.Drawing.Imaging;
 using System.Threading;
 using System.Runtime.CompilerServices;
+using WechatBakTool.Dialog;
 
 namespace WechatBakTool.Pages
 {
@@ -158,29 +159,6 @@ namespace WechatBakTool.Pages
             Debug.WriteLine(ViewModel.SearchString);
         }
 
-        private void btn_export_Click(object sender, RoutedEventArgs e)
-        {
-            if(ViewModel.WXContact == null || UserReader == null)
-            {
-                MessageBox.Show("请选择联系人", "错误");
-                return;
-            }
-            try
-            {
-                string path = Path.Combine(Main2.CurrentUserBakConfig!.UserWorkspacePath, ViewModel.WXContact.UserName + ".txt");
-                IExport export = new TXTExport();
-                export.InitTemplate(ViewModel.WXContact, path);
-                export.SetMsg(UserReader, ViewModel.WXContact, ViewModel);
-                export.SetEnd();
-                export.Save(path);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            
-            MessageBox.Show("导出完成");
-        }
 
         private void btn_open_workspace_Click(object sender, RoutedEventArgs e)
         {
@@ -201,7 +179,20 @@ namespace WechatBakTool.Pages
                     MessageBox.Show("请选择导出方式", "错误");
                     return;
                 }
-                if(ViewModel.SelectExportItem.Value == 3)
+
+                DatetimePickerViewModel datePickViewModel = new DatetimePickerViewModel();
+                Dispatcher.Invoke(() =>
+                {
+                    MsgDatetimePicker picker = new MsgDatetimePicker(datePickViewModel);
+                    datePickViewModel.DateType = 1;
+                    datePickViewModel.PickDate = DateTime.Now.AddDays(-1);
+                    if (picker.ShowDialog() != true)
+                    {
+                        return;
+                    }
+                });
+
+                if (ViewModel.SelectExportItem.Value == 3)
                 {
                     if(UserReader != null && ViewModel.WXContact != null)
                     {
@@ -307,7 +298,7 @@ namespace WechatBakTool.Pages
                     export = new HtmlExport();
                 }
                 export.InitTemplate(ViewModel.WXContact, path);
-                export.SetMsg(UserReader, ViewModel.WXContact, ViewModel);
+                export.SetMsg(UserReader, ViewModel.WXContact, ViewModel, datePickViewModel);
                 export.SetEnd();
                 export.Save(path);
 #if DEBUG

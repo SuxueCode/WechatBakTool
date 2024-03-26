@@ -11,7 +11,7 @@ namespace WechatBakTool.Export
     public interface IExport
     {
         void InitTemplate(WXContact session,string path);
-        bool SetMsg(WXUserReader reader, WXContact session, WorkspaceViewModel viewModel);
+        bool SetMsg(WXUserReader reader, WXContact session, WorkspaceViewModel viewModel, DatetimePickerViewModel dateModel);
         void SetEnd();
         void Save(string path = "");
     }

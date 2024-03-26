@@ -1,0 +1,25 @@
+﻿<Window x:Class="WechatBakTool.Dialog.MsgDatetimePicker"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WechatBakTool.Dialog"
+        xmlns:local2="clr-namespace:WechatBakTool.ViewModel"
+        WindowStartupLocation="CenterScreen"
+        mc:Ignorable="d"
+        Title="选择导出日期" Height="350" Width="330">
+    <Window.Resources>
+        <local2:DateTypeConverter x:Key="dateTypeConverter" />
+    </Window.Resources>
+    <Grid>
+        <RadioButton GroupName="Date" Content="全部" HorizontalAlignment="Left" Margin="45,60,0,0" VerticalAlignment="Top" IsChecked="{Binding DateType, Converter={StaticResource ResourceKey=dateTypeConverter}, ConverterParameter=1}"/>
+        <RadioButton GroupName="Date" Content="昨天" HorizontalAlignment="Left" Margin="45,90,0,0" VerticalAlignment="Top" IsChecked="{Binding DateType, Converter={StaticResource ResourceKey=dateTypeConverter}, ConverterParameter=2}"/>
+        <RadioButton GroupName="Date" Content="指定日期" HorizontalAlignment="Left" Margin="45,120,0,0" VerticalAlignment="Top" IsChecked="{Binding DateType, Converter={StaticResource ResourceKey=dateTypeConverter}, ConverterParameter=3}"/>
+        <DatePicker  HorizontalAlignment="Left" Margin="45,140,0,0" VerticalAlignment="Top" SelectedDate="{Binding PickDate}"/>
+        <RadioButton GroupName="Date" Content="指定范围日期" HorizontalAlignment="Left" Margin="45,180,0,0" VerticalAlignment="Top" IsChecked="{Binding DateType, Converter={StaticResource ResourceKey=dateTypeConverter}, ConverterParameter=4}"/>
+        <DatePicker Margin="45,200,0,0" VerticalAlignment="Top" SelectedDate="{Binding StartDate}" HorizontalAlignment="Left" Width="100"/>
+        <DatePicker Margin="185,200,0,0" VerticalAlignment="Top" SelectedDate="{Binding EndDate}" HorizontalAlignment="Left" Width="100"/>
+        <Label Content="至" Margin="0,200,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Width="22"/>
+        <Button Content="提交" Margin="100,265,0,0" VerticalAlignment="Top" Height="40" Click="Button_Click" HorizontalAlignment="Left" Width="140"/>
+    </Grid>
+</Window>

@@ -25,6 +25,8 @@ namespace WechatBakTool.Model
         public string Account { get; set; } = "";
         public string Friends_Number { get; set; } = "-";
         public string Msg_Number { get; set; } = "-";
+        public string Key { get; set; } = "";
+        public bool Manual { get; set; } = false;
     }
 
     public class WXCount

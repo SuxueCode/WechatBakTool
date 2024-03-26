@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JiebaNet.Segmenter.Common;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -13,7 +14,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using WechatBakTool.Helpers;
 using WechatBakTool.Model;
 using WechatBakTool.ViewModel;
@@ -29,9 +29,20 @@ namespace WechatBakTool.Pages
         public CreateWork()
         {
             DataContext = ViewModel;
+            
             InitializeComponent();
             GetWechatProcessInfos();
+            isManualProcess();
         }
+        
+        private void isManualProcess()
+        {
+            if(Main2.CurrentUserBakConfig!= null)
+            {
+                cb_manual.IsChecked = Main2.CurrentUserBakConfig.Manual;
+            }
+        }
+        
 
         private void GetWechatProcessInfos()
         {
@@ -97,9 +108,9 @@ namespace WechatBakTool.Pages
         private void btn_create_worksapce_Click(object sender, RoutedEventArgs e)
         {
             ViewModel.IsEnable = false;
-
+            bool m = (bool)cb_manual.IsChecked!;
             Task.Run(() => {
-                if (ViewModel.KeyType != -1)
+                if (ViewModel.KeyType != -1 && !m)
                 {
                     if (ViewModel.SelectProcess != null)
                     {
@@ -141,6 +152,17 @@ namespace WechatBakTool.Pages
                         }
                     }
                 }
+                else if (m)
+                {
+                    WXWorkspace wXWorkspace = new WXWorkspace(Main2.CurrentUserBakConfig!);
+                    ViewModel.LabelStatus = "开始解密数据库";
+                    wXWorkspace.DecryptDB("", -1, ViewModel,Main2.CurrentUserBakConfig!.Key);
+                    Dispatcher.Invoke(() =>
+                    {
+                        MessageBox.Show("解密完成");
+                        ((Main2)Window.GetWindow(this)).LoadWorkspace();
+                    });
+                }
                 else
                 {
                     MessageBox.Show("请选择Key获取方式", "错误");
@@ -152,16 +174,40 @@ namespace WechatBakTool.Pages
         private void cb_manual_Checked(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("该功能仅限用于网络安全研究用途使用，红队同学请在合规授权下进行相关操作","重要提醒！！！！！！！！！");
+            if(Main2.CurrentUserBakConfig != null)
+            {
+                if (Main2.CurrentUserBakConfig.Manual)
+                {
+                    return;
+                }
+            }
             if (MessageBox.Show("我确认获取到合规授权，仅用于网络安全用途使用", "信息确认", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 if (File.Exists("auth.txt"))
                 {
                     string auth = File.ReadAllText("auth.txt");
-                    // 我已知晓手动模式可能潜在的法律及道德风险，我明白非法使用将要承担相关法律责任。
+                    /* 
+                     * 
+                     * pwd: 
+                     * 我已知晓手动模式可能潜在的法律及道德风险，我明白非法使用将要承担相关法律责任。
+                     * tips:
+                     * 请不要公开宣传手动模式，不提供任何使用解答，谢谢。
+                     * 不要编写任何关于手动模式的教程，避免非法传播使用。
+                     * 
+                     */
                     if (DecryptionHelper.GetMD5(auth) == "295f634af60d61dfa52a5f35849ac42b")
                     {
+                        string genHash = DateTime.Now.ToString();
+                        string md5 = DecryptionHelper.GetMD5(genHash);
+                        UserBakConfig config = new UserBakConfig();
+                        config.Hash = md5;
+                        string workspacePath = Path.Combine(Directory.GetCurrentDirectory(), "workspace");
+                        config.UserWorkspacePath = Path.Combine(workspacePath, md5);
+
+                        WXWorkspace workspace = new WXWorkspace(config);
+                        workspace.ManualInit();
+
                         MessageBox.Show("已经创建空的配置文件，请完善该配置文件后，点击开始解密","提示");
-                        MessageBox.Show("该功能现阶段暂未启用","错误");
                     }
                 }
                 else

@@ -22,6 +22,7 @@ using System.Net.Http;
 using System.Reflection.Metadata;
 using System.Threading;
 using Newtonsoft.Json;
+using WechatBakTool.ViewModel;
 
 namespace WechatBakTool
 {
@@ -379,6 +380,40 @@ namespace WechatBakTool
             }
             return tmp;
         }
+
+        public List<WXMsg>? GetWXMsgs(string uid, DatetimePickerViewModel dateModel)
+        {
+            List<WXMsg> tmp = new List<WXMsg>();
+            for (int i = 0; i <= 99; i++)
+            {
+                SQLiteConnection? con = getCon("MSG" + i.ToString());
+                if (con == null)
+                    return tmp;
+
+                List<WXMsg>? wXMsgs = null;
+                string query = "";
+
+                if (dateModel.DateType == 2 || dateModel.DateType == 3)
+                {
+                    query = "select * from MSG where StrTalker=? and date(createtime,'unixepoch') = ?";
+                    wXMsgs = con.Query<WXMsg>(query, uid, dateModel.PickDate.ToString("yyyy-MM-dd"));
+                }
+                else if(dateModel.DateType == 4 )
+                {
+                    query = "select * from MSG where StrTalker=? and date(createtime,'unixepoch') >= ? and date(createtime,'unixepoch') <= ?";
+                    wXMsgs = con.Query<WXMsg>(query, uid, dateModel.StartDate.ToString("yyyy-MM-dd"), dateModel.EndDate.ToString("yyyy-MM-dd"));
+                }
+                else
+                {
+                    query = "select * from MSG where StrTalker=?";
+                    wXMsgs = con.Query<WXMsg>(query, uid);
+                }
+                
+                tmp.AddRange(ProcessMsg(wXMsgs, uid));
+            }
+            return tmp;
+        }
+
         private List<WXMsg> ProcessMsg(List<WXMsg> msgs,string uid)
         {
             foreach (WXMsg w in msgs)

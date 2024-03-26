@@ -60,6 +60,12 @@ A：工作区->右键->管理，就见了。<br/>
 Q：解密工作区提示no such teble:MSG怎么办<br/>
 A：基本上都是因为刚迁移完，缓存没写入到数据库导致的，建议迁移完重启一次微信后再创建工作区<br/>
 <br/>
+Q：解密工作区提示no such teble:XXXXXXX怎么办<br/>
+A：这个原因基本上是因为解密失败导致的，回落使用固定地址查找方式解密，请确保你的微信版本在version.json内支持<br/>
+<br/>
+Q：解密时提示，Unable to load DLL 'libcrypto-1_1' or one of its dependencies怎么办<br/>
+A：这个是因为加解密库的运行环境不满足，安装vc++2015 x64运行库后再尝试<br/>
+<br/>
 
 ### 使用说明
 0.安装.NET Desktop Runtime(注意是6.0版本的Desktop Runtime，如已经安装忽略)<br/>

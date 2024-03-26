@@ -40,12 +40,12 @@ namespace WechatBakTool.Export
             
         }
 
-        public bool SetMsg(WXUserReader reader, WXContact session, WorkspaceViewModel viewModel)
+        public bool SetMsg(WXUserReader reader, WXContact session, WorkspaceViewModel viewModel, DatetimePickerViewModel dateModel)
         {
             if (Contact == null)
                 throw new Exception("请初始化模版：Not Use InitTemplate");
 
-            List<WXMsg>? msgList = reader.GetWXMsgs(Contact.UserName);
+            List<WXMsg>? msgList = reader.GetWXMsgs(Contact.UserName, dateModel);
             if (msgList == null)
                 throw new Exception("获取消息失败，请确认数据库读取正常");
 
