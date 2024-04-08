@@ -18,6 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Xml;
+using WechatBakTool.Dialog;
 using WechatBakTool.Export;
 using WechatBakTool.Model;
 using WechatBakTool.ViewModel;
@@ -52,6 +53,17 @@ namespace WechatBakTool.Pages
 
         private void btn_export_all_Click(object sender, RoutedEventArgs e)
         {
+            DatetimePickerViewModel datePickViewModel = new DatetimePickerViewModel();
+            if (Status == 0)
+            {
+                MsgDatetimePicker picker = new MsgDatetimePicker(datePickViewModel);
+                datePickViewModel.DateType = 1;
+                datePickViewModel.PickDate = DateTime.Now.AddDays(-1);
+                if (picker.ShowDialog() != true)
+                {
+                    return;
+                }
+            }
             // 0 未开始
             if(Status == 0 || Status == 2)
             {
@@ -103,12 +115,12 @@ namespace WechatBakTool.Pages
                         if (group && contact.UserName.Contains("@chatroom"))
                         {
                             workspaceViewModel.WXContact = contact;
-                            ExportMsg(contact);
+                            ExportMsg(contact, datePickViewModel);
                         }
                         if (user && !contact.UserName.Contains("@chatroom") && !contact.UserName.Contains("gh_"))
                         {
                             workspaceViewModel.WXContact = contact;
-                            ExportMsg(contact);
+                            ExportMsg(contact, datePickViewModel);
                         }
                         process.Add(contact);
                     }
@@ -119,7 +131,7 @@ namespace WechatBakTool.Pages
             });
         }
 
-        private void ExportMsg(WXContact contact)
+        private void ExportMsg(WXContact contact, DatetimePickerViewModel dt)
         {
             workspaceViewModel.ExportCount = "";
             // string path = Path.Combine(Main2.CurrentUserBakConfig!.UserWorkspacePath, contact.UserName + ".html");
@@ -137,8 +149,6 @@ namespace WechatBakTool.Pages
 
             IExport export = new HtmlExport();
             export.InitTemplate(contact, path);
-            DatetimePickerViewModel dt = new DatetimePickerViewModel();
-            dt.DateType = 1;
             if (export.SetMsg(UserReader!, contact, workspaceViewModel, dt))
             {
                 export.SetEnd();
