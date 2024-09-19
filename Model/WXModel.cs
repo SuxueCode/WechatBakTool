@@ -84,8 +84,6 @@ namespace WechatBakTool.Model
         public string Content { get; set; } = "";
         [Column("nTime")]
         public int LastTime { get; set; }
-        public int ReadCount { get; set; }
-        public int LastMsgId { get; set; }
     }
 
     [Table("SessionAttachInfo")]

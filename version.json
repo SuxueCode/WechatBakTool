@@ -2,29 +2,57 @@
 	{
 		"Version": "3.9.6.33",
 		"BaseAddr": 62031872
-	},{
-		"Version":"3.9.7.25",
+	},
+	{
+		"Version": "3.9.7.25",
 		"BaseAddr": 63484032
-	},{
-		"Version":"3.9.7.29",
+	},
+	{
+		"Version": "3.9.7.29",
 		"BaseAddr": 63488256
-	},{
-		"Version":"3.9.8.15",
+	},
+	{
+		"Version": "3.9.8.15",
 		"BaseAddr": 64997904
-	},{
-		"Version":"3.9.8.25",
+	},
+	{
+		"Version": "3.9.8.25",
 		"BaseAddr": 65002192
-	},{
-		"Version":"3.9.9.27",
+	},
+	{
+		"Version": "3.9.9.27",
 		"BaseAddr": 68066576
-	},{
-		"Version":"3.9.9.35",
+	},
+	{
+		"Version": "3.9.9.35",
 		"BaseAddr": 68066576
-	},{
-		"Version":"3.9.9.43",
+	},
+	{
+		"Version": "3.9.9.43",
 		"BaseAddr": 68067216
-	},{
-		"Version":"3.9.10.19",
+	},
+	{
+		"Version": "3.9.10.19",
 		"BaseAddr": 95131040
+	},
+	{
+		"Version": "3.9.10.27",
+		"BaseAddr": 95126928
+	},
+	{
+		"Version": "3.9.11.19",
+		"BaseAddr": 93551568
+	},
+	{
+		"Version": "3.9.11.23",
+		"BaseAddr": 93700920
+	},
+	{
+		"Version": "3.9.11.25",
+		"BaseAddr": 93702352
+	},
+	{
+		"Version": "3.9.12.15",
+		"BaseAddr": 93814816
 	}
 ]

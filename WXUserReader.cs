@@ -52,6 +52,10 @@ namespace WechatBakTool
                     continue;
                 SQLiteConnection con = new SQLiteConnection(item);
                 string dbName = fileInfo.Name.Split('.')[0];
+                if (DBInfo.ContainsKey(dbName))
+                {
+                    continue;
+                } 
                 DBInfo.Add(dbName, con);
             }
         }

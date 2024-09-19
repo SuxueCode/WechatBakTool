@@ -66,7 +66,7 @@ namespace WechatBakTool.Pages
                             ProcessInfo info = new ProcessInfo();
                             info.ProcessId = p.Id.ToString();
                             info.ProcessName = p.ProcessName;
-                            info.DBPath = DevicePathMapper.FromDevicePath(name);
+                            info.DBPath = DevicePathMapper.FromDevicePath(name)!;
                             ViewModel.ProcessInfos.Add(info);
                         }
                     }
