@@ -13,6 +13,7 @@ using WechatBakTool.ViewModel;
 using System.Security.Policy;
 using System.Windows;
 using System.Xml.Linq;
+using WechatBakTool.Helpers;
 
 namespace WechatBakTool.Export
 {
@@ -144,7 +145,7 @@ namespace WechatBakTool.Export
                                 string xml = Encoding.UTF8.GetString(data);
                                 if (!string.IsNullOrEmpty(xml))
                                 {
-                                    xml = xml.Replace("\n", "");
+                                    xml = StringHelper.CleanInvalidXmlChars(xml);
                                     XmlDocument xmlObj = new XmlDocument();
                                     xmlObj.LoadXml(xml);
                                     if (xmlObj.DocumentElement != null)
@@ -211,7 +212,7 @@ namespace WechatBakTool.Export
                                 string xml = Encoding.UTF8.GetString(data);
                                 if (!string.IsNullOrEmpty(xml))
                                 {
-                                    xml = xml.Replace("\n", "");
+                                    xml = StringHelper.CleanInvalidXmlChars(xml);
                                     XmlDocument xmlObj = new XmlDocument();
                                     xmlObj.LoadXml(xml);
                                     if (xmlObj.DocumentElement != null)
@@ -263,7 +264,7 @@ namespace WechatBakTool.Export
                                 string xml = Encoding.UTF8.GetString(data);
                                 if (!string.IsNullOrEmpty(xml))
                                 {
-                                    xml = xml.Replace("\n", "");
+                                    xml = StringHelper.CleanInvalidXmlChars(xml);
                                     XmlDocument xmlObj = new XmlDocument();
                                     xmlObj.LoadXml(xml);
                                     if (xmlObj.DocumentElement != null)
