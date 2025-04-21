@@ -270,16 +270,14 @@ namespace WechatBakTool.Pages
                     return;
                 }
 
-                string name = ViewModel.WXContact.NickName;
-                name = name.Replace(@"\", "");
-                name = Regex.Replace(name, "[ \\[ \\] \\^ \\-_*×――(^)$%~!/@#$…&%￥—+=<>《》|!！??？:：•`·、。，；,.;\"‘’“”-]", "");
+                string fileName = StringHelper.SanitizeFileName(string.Format(
+                    "{0}-{1}",
+                    ViewModel.WXContact.UserName,
+                    ViewModel.WXContact.Remark == "" ? ViewModel.WXContact.NickName : ViewModel.WXContact.Remark
+                ));
                 string path = Path.Combine(
                     Main2.CurrentUserBakConfig!.UserWorkspacePath,
-                    string.Format(
-                        "{0}-{1}",
-                        ViewModel.WXContact.UserName,
-                        ViewModel.WXContact.Remark == "" ? name : ViewModel.WXContact.Remark
-                    )
+                    fileName
                 );
                 IExport export;
 

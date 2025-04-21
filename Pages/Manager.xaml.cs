@@ -20,6 +20,7 @@ using System.Windows.Navigation;
 using System.Xml;
 using WechatBakTool.Dialog;
 using WechatBakTool.Export;
+using WechatBakTool.Helpers;
 using WechatBakTool.Model;
 using WechatBakTool.ViewModel;
 
@@ -135,16 +136,14 @@ namespace WechatBakTool.Pages
         {
             workspaceViewModel.ExportCount = "";
             // string path = Path.Combine(Main2.CurrentUserBakConfig!.UserWorkspacePath, contact.UserName + ".html");
-            string name = contact.NickName;
-            name = name.Replace(@"\", "");
-            name = Regex.Replace(name, "[ \\[ \\] \\^ \\-_*×――(^)$%~!/@#$…&%￥—+=<>《》|!！??？:：•`·、。，；,.;\"‘’“”-]", "");
+            string fileName = StringHelper.SanitizeFileName(string.Format(
+                "{0}-{1}.html",
+                contact.UserName,
+                contact.Remark == "" ? contact.NickName : contact.Remark
+            ));
             string path = Path.Combine(
                 Main2.CurrentUserBakConfig!.UserWorkspacePath,
-                string.Format(
-                    "{0}-{1}.html",
-                    contact.UserName,
-                    contact.Remark == "" ? name : contact.Remark
-                )
+                fileName
             );
 
             IExport export = new HtmlExport();
